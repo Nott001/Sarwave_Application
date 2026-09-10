@@ -1,5 +1,3 @@
-enable_testing()
-
 add_executable(tests test_main.cpp)
 target_link_libraries(tests PRIVATE common Qt6::Core)
 

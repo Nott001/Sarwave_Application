@@ -3,5 +3,11 @@
     "cmake.buildDirectory": "${workspaceFolder}/build",
     "cmake.configureArgs": [
         "-G", "Ninja"
+    ],
+    "cmake.intelliSenseEngine": "tagParser",
+    "qt-qml.qmlls.enabled": true,
+    "qt-qml.qmlls.customExePath": "/usr/bin/qmlls6",
+    "qt-qml.qmlls.customArgs": [
+        "-b", "${workspaceFolder}/build"
     ]
 }

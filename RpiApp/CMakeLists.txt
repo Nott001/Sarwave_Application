@@ -11,6 +11,9 @@ qt_add_executable(RpiApp
 qt_add_qml_module(RpiApp
     URI "RpiApp"
     VERSION 1.0
+    # The system Qt build uses shared QML plugins; they are resolved at runtime.
+    # Avoid CMake trying to link non-exported plugin targets from the distro Qt package.
+    NO_IMPORT_SCAN
     QML_FILES main.qml
 )
 
