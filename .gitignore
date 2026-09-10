@@ -17,3 +17,7 @@ build/
 compile_commands.json
 cmake_install.cmake
 Makefile
+
+# Handover & thesis docs — local reference only, not for VCS
+HANDOVER.md
+thesis_context.md
