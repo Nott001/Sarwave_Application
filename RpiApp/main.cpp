@@ -1,10 +1,15 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
+
+#include "dashboard_state.h"
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
+    DashboardState dashboard;
+    engine.rootContext()->setContextProperty("dashboard", &dashboard);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
         &app, []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
