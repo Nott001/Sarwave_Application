@@ -1,0 +1,7 @@
+{
+    "cmake.sourceDirectory": "/home/nott/Sarwave_Application",
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.configureArgs": [
+        "-G", "Ninja"
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "Language": "cpp",
+    "BasedOnStyle": "Google",
+    "ColumnLimit": 100,
+    "IndentWidth": 4,
+    "UseTab": "never",
+    "IndentCaseLabels": true,
+    "PointerBindsToType": true,
+    "AllowShortFunctionsOnASingleLine": false,
+    "BreakBeforeBraces": "Stroustrup"
+}
