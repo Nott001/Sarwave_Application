@@ -1,4 +1,4 @@
-add_library(common STATIC
+qt_add_library(common STATIC
     dashboard_state.cpp
     dashboard_state.h
     network_manager.cpp
