@@ -34,4 +34,4 @@ layer is introduced, update this model with real readings rather than putting
 transport code into QML.
 
 - `DesktopApp` provides the larger monitoring dashboard.
-- `RpiApp` provides a compact, touch-friendly sensor-node display.
+- `RpiApp` provides a compact sensor-node display for the Pi LCD.
