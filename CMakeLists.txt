@@ -1,8 +1,10 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 4.3)
 project(SarwaveApp VERSION 0.1 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(Boost REQUIRED)
 
 # QtQuick.Controls is imported by both QML entry points.  It must be found here
 # so Qt can link and deploy its QML plugins along with each executable.
@@ -14,7 +16,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 enable_testing()
 
+add_subdirectory(include)
 add_subdirectory(common)
+add_subdirectory(MMWaveTerminal)
 add_subdirectory(RpiApp)
 add_subdirectory(DesktopApp)
 add_subdirectory(tests)
