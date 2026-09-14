@@ -2,6 +2,9 @@
 #include <boost/asio.hpp>
 #include <iostream>
 #include <limits>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 
 #include "MMWave/Prompting/Terminal.hpp"
 #include "MMWave/Porter.hpp"
@@ -10,19 +13,30 @@
 
 using boost::asio::serial_port_base;
 
-int main() {
-    const auto port_paths = MMWave::Prompting::Terminal::askPorts();
+int main(int argc, char* argv[]) {
+    MMWave::Prompting::General::MMWavePortPaths port_paths;
+
+    if (argc >= 3) {
+        const int cli_port = std::stoi(argv[1]);
+        const int data_port = std::stoi(argv[2]);
+        port_paths = MMWave::Prompting::General::createPath(cli_port, data_port);
+    } else {
+        port_paths = MMWave::Prompting::Terminal::askPorts();
+    }
+
     auto mmwave = MMWave::Porter::openMMWavePorts(port_paths);
 
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    std::println("");
-
-    std::println("Location of the config file: ");
     std::string cfgPathInput;
-    std::getline(std::cin, cfgPathInput);
 
-    std::println("");
+    if (argc >= 4) {
+        cfgPathInput = argv[3];
+    } else {
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::println("");
+        std::println("Location of the config file: ");
+        std::getline(std::cin, cfgPathInput);
+        std::println("");
+    }
 
     MMWave::Porter::sendConfigFile(
         mmwave,
