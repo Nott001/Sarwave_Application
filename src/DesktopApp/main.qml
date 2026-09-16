@@ -389,7 +389,7 @@ ApplicationWindow {
                     Rectangle {
                         width: 6; height: 6; radius: 3
                         color: root.clrAccent
-                        anchors.verticalCenter: parent.verticalCenter
+                        Layout.alignment: Qt.AlignVCenter
                     }
                     Text {
                         text: dashboard.connectionStatus
