@@ -1,8 +1,7 @@
-#include "dashboard_state.h"
+#include "DashboardState.h"
 
 #include <QDateTime>
 #include <QTimer>
-
 #include <cmath>
 
 DashboardState::DashboardState(QObject *parent)

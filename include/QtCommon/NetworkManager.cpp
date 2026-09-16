@@ -1,4 +1,4 @@
-#include "network_manager.h"
+#include "NetworkManager.h"
 #include <QTcpSocket>
 
 NetworkManager::NetworkManager(QObject *parent) : QObject(parent), m_socket(new QTcpSocket(this)) {}

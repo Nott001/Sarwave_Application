@@ -1,6 +1,6 @@
 qt_add_executable(DesktopApp
     main.cpp
-    ../../include/common/dashboard_state.h
+    ../../include/QtCommon/DashboardState.h
 )
 
 qt_add_qml_module(DesktopApp
@@ -12,6 +12,6 @@ qt_add_qml_module(DesktopApp
     QML_FILES main.qml
 )
 
-target_link_libraries(DesktopApp PRIVATE common Qt6::Quick)
+target_link_libraries(DesktopApp PRIVATE QtCommon Qt6::Quick)
 
 set_target_properties(DesktopApp PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/DesktopApp)

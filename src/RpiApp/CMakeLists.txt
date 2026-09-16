@@ -1,6 +1,6 @@
 qt_add_executable(RpiApp
     main.cpp
-    ../../include/common/dashboard_state.h
+    ../../include/QtCommon/DashboardState.h
 )
 
 qt_add_qml_module(RpiApp
@@ -12,6 +12,6 @@ qt_add_qml_module(RpiApp
     QML_FILES main.qml
 )
 
-target_link_libraries(RpiApp PRIVATE common Qt6::Quick)
+target_link_libraries(RpiApp PRIVATE QtCommon Qt6::Quick)
 
 set_target_properties(RpiApp PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/RpiApp)

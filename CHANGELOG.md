@@ -31,7 +31,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.2.1] — 2026-09-11
 
-### Fixed — Demo data generator (`common/dashboard_state.cpp`)
+### Fixed — Demo data generator (`QtCommon/DashboardState.cpp`)
 - `centroidY` previously oscillated −1.0 → +1.0 m (`cos` with no absolute value), placing the simulated target behind the sensor 50 % of the time.  Now uses `std::abs(std::cos(...)) * 1.5 + 0.8`, guaranteeing Y ∈ [0.8, 2.3] m (always forward of sensor)
 - Reduced `centroidZ` from `sin * 0.5 + 2.0` to `sin * 0.3 + 0.5` so the 3-D Euclidean distance stays in the 1–3 m range rather than being dominated by a 2 m altitude offset
 - `centroidX` amplitude reduced from ±1.5 m to ±1.2 m to keep the azimuth inside ±40° at all times
@@ -68,10 +68,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.1.0] — 2026-09-11
 
-### Added — Data model rewrite (`common/`)
-- `RadarDetection` struct in `protocol_definitions.h/.cpp` replacing the legacy `SensorData` (temperature / humidity / pressure) struct; fields: `presenceDetected`, `centroidX/Y/Z`, `distance`, `dopplerVelocity`, `pointDensity`, `snr`, `spatialSpread`, `classificationConfidence`, `timestamp`
-- `DashboardState` (`dashboard_state.h/.cpp`) exposes all radar metrics as `Q_PROPERTY` bindings; demo data generator uses sine-wave modulation to simulate realistic radar patterns; `readingsChanged` signal renamed to `detectionsChanged`
-- `network_manager.h/.cpp` — TCP networking skeleton (not yet wired into either app)
+### Added — Data model rewrite (`QtCommon/`)
+- `RadarDetection` struct in `ProtocolDefinitions.h/.cpp` replacing the legacy `SensorData` (temperature / humidity / pressure) struct; fields: `presenceDetected`, `centroidX/Y/Z`, `distance`, `dopplerVelocity`, `pointDensity`, `snr`, `spatialSpread`, `classificationConfidence`, `timestamp`
+- `DashboardState` (`DashboardState.h/.cpp`) exposes all radar metrics as `Q_PROPERTY` bindings; demo data generator uses sine-wave modulation to simulate realistic radar patterns; `readingsChanged` signal renamed to `detectionsChanged`
+- `NetworkManager.h/.cpp` — TCP networking skeleton (not yet wired into either app)
 
 ### Added — DesktopApp initial UI (`DesktopApp/main.qml`)
 - Header: "SARWAVE | Detection Monitor" / "mmWave Radar Detection Monitor"
@@ -82,7 +82,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added — RpiApp initial UI (`RpiApp/main.qml`)
 - Compact sensor-node dashboard for Raspberry Pi: presence YES/NO, Range, Doppler, Density, SNR metric tiles
 
-### Fixed — Build system (`common/CMakeLists.txt`)
+### Fixed — Build system (`QtCommon/CMakeLists.txt`)
 - Changed `add_library` → `qt_add_library` to enable MOC processing for `Q_OBJECT` / `Q_PROPERTY` macros
 
 ---
@@ -90,7 +90,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.0.1] — 2026-09-10
 
 ### Added — Project scaffold
-- CMake + Ninja build system (`CMakeLists.txt`, `DesktopApp/CMakeLists.txt`, `RpiApp/CMakeLists.txt`, `common/CMakeLists.txt`)
+- CMake + Ninja build system (`CMakeLists.txt`, `DesktopApp/CMakeLists.txt`, `RpiApp/CMakeLists.txt`, `QtCommon/CMakeLists.txt`)
 - `DesktopApp/main.cpp` and `RpiApp/main.cpp` entry points; `dashboard` set as QML context property
 - Initial `.gitignore`, `.editorconfig`, `.clang-format`
 - `tests/test_main.cpp` stub

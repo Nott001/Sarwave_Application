@@ -6,7 +6,7 @@ Sensor data platform with Raspberry Pi (sensor + LCD) and Desktop app communicat
 
 - `RpiApp/` — Raspberry Pi application (QML + C++), runs on Pi with sensor and mini LCD
 - `DesktopApp/` — Desktop application (QML + C++), displays sensor data and stats
-- `common/` — Shared library: protocol definitions and networking layer
+- `QtCommon/` — Shared library: protocol definitions and networking layer
 - `tests/` — Unit tests
 
 ## Build
@@ -28,7 +28,7 @@ Binaries output to `build/bin/RpiApp/` and `build/bin/DesktopApp/`.
 ## Frontend architecture
 
 Both QML applications bind to `DashboardState`, a small C++ presentation model
-in `common/`. It currently produces deterministic demo sensor readings so the
+in `QtCommon/`. It currently produces deterministic demo sensor readings so the
 frontend can be developed without hardware or networking. When the network
 layer is introduced, update this model with real readings rather than putting
 transport code into QML.
