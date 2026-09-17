@@ -1,5 +1,6 @@
 #pragma once
 #include <boost/asio.hpp>
+#include <memory>
 #include <string>
 #include <chrono>
 #include <filesystem>
@@ -17,15 +18,18 @@ namespace MMWave::Porter {
     using boost::asio::serial_port_base;
 
     struct Context {
-        boost::asio::io_context io;
+        // Shared so the Context stays movable: io_context itself cannot be
+        // moved, but the cli/data ports keep referencing the same underlying
+        // executor service through the shared object.
+        std::shared_ptr<boost::asio::io_context> io;
         boost::asio::serial_port cli;
         boost::asio::serial_port data;
 
         // Custom constructor to bind ports to our internal io_context
         Context(const std::string& cli_path, const std::string& data_path)
-            : io(),
-              cli(io, cli_path),
-              data(io, data_path)
+            : io(std::make_shared<boost::asio::io_context>()),
+              cli(*io, cli_path),
+              data(*io, data_path)
         {
             configurePort(cli, 115200);
             configurePort(data, 921600);

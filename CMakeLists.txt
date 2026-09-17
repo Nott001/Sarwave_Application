@@ -16,7 +16,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 enable_testing()
 
-add_subdirectory(include)
+add_subdirectory(include/MMWave)
 add_subdirectory(include/QtCommon)
 add_subdirectory(src/MMWaveTerminal)
 add_subdirectory(src/RpiApp)

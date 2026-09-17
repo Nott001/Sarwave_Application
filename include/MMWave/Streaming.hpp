@@ -126,5 +126,4 @@ namespace MMWave::Streaming {
         bool headerParsed_ = false;
         FrameHeader currentHeader_{};
     };
-
 }

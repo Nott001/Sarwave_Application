@@ -207,7 +207,7 @@ ApplicationWindow {
             ToolButton {
                 text: "↻"
                 font.pixelSize: 20
-                onClicked: dashboard.refresh()
+                enabled: false
                 Accessible.name: "Refresh detections"
                 ToolTip.visible: hovered
                 ToolTip.text: "Refresh detection data"

@@ -3,8 +3,6 @@
 #include <QObject>
 #include <QString>
 
-class QTimer;
-
 class DashboardState final : public QObject {
     Q_OBJECT
 
@@ -39,16 +37,11 @@ public:
     QString connectionStatus() const;
     bool demoMode() const;
 
-    Q_INVOKABLE void refresh();
-
 signals:
     void detectionsChanged();
     void connectionStatusChanged();
 
 private:
-    void updateDemoDetections();
-
-    QTimer *m_refreshTimer;
     bool m_presenceDetected = false;
     double m_centroidX = 0.0;
     double m_centroidY = 0.0;
@@ -60,5 +53,4 @@ private:
     double m_spatialSpread = 0.0;
     double m_classificationConfidence = 0.0;
     QString m_lastUpdated;
-    int m_sample = 0;
 };
