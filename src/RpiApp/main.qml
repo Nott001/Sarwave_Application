@@ -288,69 +288,40 @@ ApplicationWindow {
                     ctx.fillText("IWR6843", sensorX, sensorY + 10);
 
                     // ── Point cloud ───────────────────────────────────────────
-                    if (dashboard.presenceDetected) {
-                        // Standard radar coords: Y = forward, X = lateral
-                        const azimuthDeg = Math.atan2(dashboard.centroidX, dashboard.centroidY) * 180 / Math.PI;
-                        const clampedAz  = Math.max(-40, Math.min(40, azimuthDeg));
-                        const tRad       = (clampedAz * Math.PI) / 180;
-                        const centerX    = sensorX + Math.tan(tRad) * plotH;
-                        const centerY    = rangeToY(Math.max(0.5, Math.min(maxRange, dashboard.distance)));
-                        const spreadPx   = Math.min(Math.max(dashboard.spatialSpread * 20, 7), 26);
+                    const pts = dashboard.pointCloud;
+                    if (pts.length > 0) {
+                        const pxPerM = plotH / maxRange;   // same scale as the range rings
 
-                        // Radial halo glow
-                        const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, spreadPx * 2.2);
-                        grad.addColorStop(0.0, "rgba(255, 71, 87, 0.22)");
-                        grad.addColorStop(0.6, "rgba(255, 71, 87, 0.06)");
-                        grad.addColorStop(1.0, "rgba(255, 71, 87, 0.0)");
-                        ctx.beginPath();
-                        ctx.arc(centerX, centerY, spreadPx * 2.2, 0, Math.PI * 2);
-                        ctx.fillStyle = grad;
-                        ctx.fill();
+                        for (const p of pts) {
+                            // Standard radar coords: x = lateral, y = forward
+                            // (range), z = height (unused for now).
+                            const px = sensorX + p.x * pxPerM;
+                            const py = rangeToY(p.y);
 
-                        // Point cloud dots — FOV-clipped
-                        const numPoints = Math.min(Math.floor(dashboard.pointDensity / 12), 22);
-                        for (let i = 0; i < numPoints; ++i) {
-                            let px, py, valid = false;
-                            for (let attempt = 0; attempt < 12; ++attempt) {
-                                const angle = Math.random() * Math.PI * 2;
-                                const dist  = Math.random() * spreadPx;
-                                px = centerX + Math.cos(angle) * dist;
-                                py = centerY + Math.sin(angle) * dist;
-                                const halfW = Math.tan(fovHalfRad) * (sensorY - py);
-                                if (px >= sensorX - halfW && px <= sensorX + halfW
-                                        && py >= plotTop && py <= plotBottom) {
-                                    valid = true; break;
-                                }
-                            }
-                            if (!valid) continue;
-                            const alpha = 0.45 + Math.random() * 0.5;
-                            const size  = 1.2 + Math.random() * 2.0;
+                            // Clip to the FOV sector and the plot area.
+                            const halfW = Math.tan(fovHalfRad) * (sensorY - py);
+                            if (px < sensorX - halfW || px > sensorX + halfW) continue;
+                            if (py < plotTop || py > plotBottom) continue;
+
+                            // Doppler colour: approaching = red, receding = blue,
+                            // stationary = white.
+                            let fill;
+                            if (p.v >  0.05)      fill = "rgba(255, 71, 87, 0.9)";
+                            else if (p.v < -0.05) fill = "rgba(115, 169, 255, 0.9)";
+                            else                  fill = "rgba(244, 247, 251, 0.85)";
+
                             ctx.beginPath();
-                            ctx.arc(px, py, size, 0, Math.PI * 2);
-                            ctx.fillStyle = "rgba(255, 71, 87, " + alpha.toFixed(2) + ")";
+                            ctx.arc(px, py, 2.2, 0, Math.PI * 2);
+                            ctx.fillStyle = fill;
                             ctx.fill();
                         }
-
-                        // Annotation labels
-                        ctx.font         = "9px monospace";
-                        ctx.textAlign    = "left";
-                        ctx.textBaseline = "bottom";
-                        ctx.fillStyle    = "rgba(255, 71, 87, 0.9)";
-                        ctx.fillText("OCCLUDED", centerX + 4, centerY - spreadPx - 3);
-
-                        ctx.textBaseline = "top";
-                        ctx.fillStyle    = "rgba(145, 164, 194, 0.85)";
-                        ctx.fillText(
-                            dashboard.distance.toFixed(1) + "m  ·  " +
-                            dashboard.dopplerVelocity.toFixed(3) + " m/s",
-                            centerX + 4, centerY + spreadPx + 2
-                        );
                     }
                 }
 
                 Connections {
                     target: dashboard
                     function onDetectionsChanged() { radar.requestPaint(); }
+                    function onPointCloudChanged() { radar.requestPaint(); }
                 }
                 Component.onCompleted: requestPaint()
             }

@@ -5,6 +5,7 @@ DashboardState::DashboardState(QObject *parent)
 }
 
 bool DashboardState::presenceDetected() const { return m_presenceDetected; }
+QVariantList DashboardState::pointCloud() const { return m_pointCloud; }
 double DashboardState::centroidX() const { return m_centroidX; }
 double DashboardState::centroidY() const { return m_centroidY; }
 double DashboardState::centroidZ() const { return m_centroidZ; }
@@ -17,3 +18,10 @@ double DashboardState::classificationConfidence() const { return m_classificatio
 QString DashboardState::lastUpdated() const { return m_lastUpdated; }
 QString DashboardState::connectionStatus() const { return QStringLiteral("Demo feed"); }
 bool DashboardState::demoMode() const { return true; }
+
+void DashboardState::updatePointCloud(const QVariantList &points) {
+    m_pointCloud = points;
+    m_presenceDetected = !points.isEmpty();
+    emit detectionsChanged();
+    emit pointCloudChanged();
+}

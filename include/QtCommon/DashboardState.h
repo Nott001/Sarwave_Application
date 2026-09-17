@@ -2,11 +2,13 @@
 
 #include <QObject>
 #include <QString>
+#include <QVariantList>
 
 class DashboardState final : public QObject {
     Q_OBJECT
 
     Q_PROPERTY(bool presenceDetected READ presenceDetected NOTIFY detectionsChanged)
+    Q_PROPERTY(QVariantList pointCloud READ pointCloud NOTIFY pointCloudChanged)
     Q_PROPERTY(double centroidX READ centroidX NOTIFY detectionsChanged)
     Q_PROPERTY(double centroidY READ centroidY NOTIFY detectionsChanged)
     Q_PROPERTY(double centroidZ READ centroidZ NOTIFY detectionsChanged)
@@ -24,6 +26,7 @@ public:
     explicit DashboardState(QObject *parent = nullptr);
 
     bool presenceDetected() const;
+    QVariantList pointCloud() const;
     double centroidX() const;
     double centroidY() const;
     double centroidZ() const;
@@ -37,12 +40,18 @@ public:
     QString connectionStatus() const;
     bool demoMode() const;
 
+    // Replaces the point cloud with `points` (a list of maps with x, y, z and
+    // v fields) and marks presence accordingly.
+    void updatePointCloud(const QVariantList &points);
+
 signals:
     void detectionsChanged();
     void connectionStatusChanged();
+    void pointCloudChanged();
 
 private:
     bool m_presenceDetected = false;
+    QVariantList m_pointCloud;
     double m_centroidX = 0.0;
     double m_centroidY = 0.0;
     double m_centroidZ = 0.0;
