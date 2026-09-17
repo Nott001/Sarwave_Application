@@ -1,0 +1,61 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  lint-format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format python3-pip
+          pip install editorconfig-checker --break-system-packages
+
+      - name: Check clang-format
+        run: |
+          CLANG_FORMAT=$(command -v clang-format || command -v clang-format-17 || command -v clang-format-18 || true)
+          FORMAT_FILES=$(find . -name "*.cpp" -o -name "*.hpp" -o -name "*.h" -o -name "*.qml" -not -path "./build/*" -not -path "./.git/*")
+          if [ -n "$CLANG_FORMAT" ] && [ -n "$FORMAT_FILES" ]; then
+            $CLANG_FORMAT --dry-run --Werror -style=file $FORMAT_FILES
+          else
+            echo "clang-format not found, skipping"
+          fi
+
+      - name: Check editorconfig
+        run: |
+          ec -exclude "build/|.git/" -f github-actions
+
+  build-and-test:
+    needs: lint-format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake ninja-build g++ \
+            qt6-qtbase-dev qt6-qtquick-dev qt6-qtquickcontrols2-dev \
+            qt6-qttest-dev libboost-dev
+
+      - name: Configure
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_STANDARD=23
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run tests
+        run: |
+          ctest --test-dir build --output-on-failure --verbose
