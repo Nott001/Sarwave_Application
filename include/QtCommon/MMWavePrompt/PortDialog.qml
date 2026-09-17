@@ -77,6 +77,12 @@ Window {
                 text: "Use Separate Names"
                 checked: root.separate
                 onToggled: root.separate = checked
+                contentItem: Text {
+                    text: separateCheck.text
+                    color: "#f4f7fb"
+                    verticalAlignment: Text.AlignVCenter
+                    leftPadding: separateCheck.indicator.width + separateCheck.spacing
+                }
             }
         }
 
