@@ -1,0 +1,37 @@
+{
+    "configurations": [
+        {
+            "name": "Qt6",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/include/x86_64-linux-gnu/qt6",
+                "/usr/include/x86_64-linux-gnu/qt6/QtCore",
+                "/usr/include/x86_64-linux-gnu/qt6/QtGui",
+                "/usr/include/x86_64-linux-gnu/qt6/QtNetwork",
+                "/usr/include/x86_64-linux-gnu/qt6/QtOpenGL",
+                "/usr/include/x86_64-linux-gnu/qt6/QtQml",
+                "/usr/include/x86_64-linux-gnu/qt6/QtQmlIntegration",
+                "/usr/include/x86_64-linux-gnu/qt6/QtQuick",
+                "/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++"
+            ],
+            "defines": [
+                "QT_CORE_LIB",
+                "QT_GUI_LIB",
+                "QT_QML_LIB",
+                "QT_QUICK_LIB",
+                "QT_NETWORK_LIB",
+                "QT_OPENGL_LIB"
+            ],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c17",
+            "cppStandard": "c++23",
+            "intelliSenseMode": "linux-gcc-x64",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/include"
+                ]
+            }
+        }
+    ],
+    "version": 4
+}

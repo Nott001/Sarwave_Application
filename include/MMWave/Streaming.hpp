@@ -4,17 +4,18 @@
 #include <cstring>
 #include <stdexcept>
 #include <vector>
+
 #include "Porter.hpp"
 
 namespace MMWave::Streaming {
 
-    // Fixed "here's where a new frame starts" marker.
-    inline constexpr uint8_t MAGIC_WORD[8] = {0x02, 0x01, 0x04, 0x03, 0x06, 0x05, 0x08, 0x07};
+// Fixed "here's where a new frame starts" marker.
+inline constexpr uint8_t MAGIC_WORD[8] = {0x02, 0x01, 0x04, 0x03, 0x06, 0x05, 0x08, 0x07};
 
-    // Fixed header immediately following the magic word in every frame.
-    // Packed with no padding -- memcpy'd directly from the raw byte stream.
+// Fixed header immediately following the magic word in every frame.
+// Packed with no padding -- memcpy'd directly from the raw byte stream.
 #pragma pack(push, 1)
-    struct FrameHeader {
+struct FrameHeader {
         uint32_t version;
         uint32_t totalPacketLen;
         uint32_t platform;
@@ -23,27 +24,30 @@ namespace MMWave::Streaming {
         uint32_t numDetectedObj;
         uint32_t numTLVs;
         uint32_t subFrameNumber;
-    };
+};
 #pragma pack(pop)
 
-    // A single complete frame: the parsed header, plus the frame's raw bytes
-    // (magic word + header + all TLVs), exactly `header.totalPacketLen` long.
-    // Tlv.hpp's TlvRange consumes `bytes` directly.
-    struct Frame {
+// A single complete frame: the parsed header, plus the frame's raw bytes
+// (magic word + header + all TLVs), exactly `header.totalPacketLen` long.
+// Tlv.hpp's TlvRange consumes `bytes` directly.
+struct Frame {
         FrameHeader header;
         std::vector<uint8_t> bytes;
-    };
+};
 
-    // Reads frames from a Data port one at a time. Owns all buffering state
-    // internally -- callers just keep calling readNextFrame() in a loop and
-    // never need to touch the byte-level details.
-    class FrameReader {
+// Reads frames from a Data port one at a time. Owns all buffering state
+// internally -- callers just keep calling readNextFrame() in a loop and
+// never need to touch the byte-level details.
+class FrameReader {
     public:
-        explicit FrameReader(Porter::Context& ctx) : ctx_(ctx) {}
+        explicit FrameReader(Porter::Context& ctx) : ctx_(ctx)
+        {
+        }
 
         // Blocks until one complete frame has been read, then returns it.
         // Throws std::runtime_error if the Data port read fails.
-        Frame readNextFrame() {
+        Frame readNextFrame()
+        {
             while (true) {
                 readByte();
 
@@ -62,7 +66,8 @@ namespace MMWave::Streaming {
         }
 
     private:
-        void readByte() {
+        void readByte()
+        {
             uint8_t byte;
             boost::system::error_code ec;
             std::size_t n = ctx_.data.read_some(boost::asio::buffer(&byte, 1), ec);
@@ -79,7 +84,8 @@ namespace MMWave::Streaming {
         // Checks whether the buffer's last 8 bytes match the magic word; if
         // so, trims everything before it so the buffer starts cleanly at the
         // beginning of a frame. Returns true when a new boundary was found.
-        bool checkFrameSync() {
+        bool checkFrameSync()
+        {
             if (buffer_.size() < sizeof(MAGIC_WORD)) {
                 return false;
             }
@@ -99,7 +105,8 @@ namespace MMWave::Streaming {
 
         // Once enough bytes have arrived to cover the fixed header, copies
         // it into currentHeader_ and marks headerParsed_.
-        void tryParseHeader() {
+        void tryParseHeader()
+        {
             if (buffer_.size() < sizeof(MAGIC_WORD) + sizeof(FrameHeader)) {
                 return;
             }
@@ -109,11 +116,13 @@ namespace MMWave::Streaming {
 
         // Slices out exactly the completed frame's bytes, leaving any
         // leftover (already-arrived bytes of the next frame) in buffer_.
-        Frame extractFrame() {
+        Frame extractFrame()
+        {
             Frame frame;
             frame.header = currentHeader_;
 
-            const auto len = static_cast<std::vector<uint8_t>::difference_type>(currentHeader_.totalPacketLen);
+            const auto len =
+                static_cast<std::vector<uint8_t>::difference_type>(currentHeader_.totalPacketLen);
             frame.bytes.assign(buffer_.begin(), buffer_.begin() + len);
             buffer_.erase(buffer_.begin(), buffer_.begin() + len);
 
@@ -125,5 +134,5 @@ namespace MMWave::Streaming {
         std::vector<uint8_t> buffer_;
         bool headerParsed_ = false;
         FrameHeader currentHeader_{};
-    };
-}
+};
+}  // namespace MMWave::Streaming
