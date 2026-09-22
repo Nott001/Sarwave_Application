@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -48,15 +50,25 @@ int main(int argc, char* argv[])
                 [&dashboard, frame = frame]() {
                     QVariantList points;
 
+                    // Point Cloud TLV (1020) is compressed: one PointUnit of
+                    // scale factors followed by 8-byte CompressedPoint entries.
+                    // Convert back to real units, then to the dashboard's
+                    // radar coords (x = lateral, y = forward range, z = height).
                     for (const auto& tlv : MMWave::Tlv::TlvRange(frame)) {
-                        if (tlv.type != MMWave::Tlv::TLV_DETECTED_POINTS) continue;
+                        if (tlv.type != MMWave::Tlv::TLV_POINT_CLOUD) continue;
 
-                        for (const auto& point : tlv.points()) {
+                        const auto cloud = tlv.compressedPoints();
+                        const auto& units = cloud.unit();
+                        for (const auto& point : cloud) {
+                            const double rangeM = point.range * units.rangeUnit;
+                            const double azimuth = point.azimuth * units.azimuthUnit;
+                            const double elevation = point.elevation * units.elevationUnit;
+
                             QVariantMap entry;
-                            entry.insert("x", static_cast<double>(point.x));
-                            entry.insert("y", static_cast<double>(point.y));
-                            entry.insert("z", static_cast<double>(point.z));
-                            entry.insert("v", static_cast<double>(point.velocity));
+                            entry.insert("x", rangeM * std::sin(azimuth));
+                            entry.insert("y", rangeM * std::cos(azimuth));
+                            entry.insert("z", rangeM * std::sin(elevation));
+                            entry.insert("v", static_cast<double>(point.doppler) * units.dopplerUnit);
                             points.append(entry);
                         }
                     }

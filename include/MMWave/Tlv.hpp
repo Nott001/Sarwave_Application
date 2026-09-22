@@ -1,29 +1,23 @@
 #pragma once
-#include <cstddef>
 #include <cstdint>
 #include <cstring>
-
+#include <cstddef>
 #include "Streaming.hpp"
 
 namespace MMWave::Tlv {
 
-// TLV header + known payload types for the demo output format.
+    // TLV header + known payload types for the 3D People Tracking demo output
+    // format, per the official "3D People Tracking User's Guide" UART Output
+    // Data Format section.
 #pragma pack(push, 1)
-struct TlvHeader {
+    struct TlvHeader {
         uint32_t type;
-        uint32_t length;  // payload length in bytes, NOT including this header
-};
+        uint32_t length; // payload length in bytes, NOT including this header
+    };
 
-    // Out of Box demo's detected-point format: Cartesian XYZ + radial velocity.
-    //
-    // NOTE: some tracking-oriented demos (3D People Counting/Tracking among
-    // them) report points in SPHERICAL form instead --
-    //   struct DetectedPointSpherical { float range; float azimuth; float elevation; float velocity; };
-    // Whether this binary uses Cartesian or Spherical points is something to
-    // confirm against this demo's own output/data-structure guide (or by
-    // sanity-checking a few decoded values against known geometry) before
-    // trusting DetectedPoint below for TLV_DETECTED_POINTS on this firmware --
-    // it has only been verified for the plain Out of Box demo.
+    // Out of Box demo's plain detected-point format: Cartesian XYZ + radial
+    // velocity. NOT used by this demo's Point Cloud TLV -- kept only for
+    // compatibility if you ever go back to flashing out_of_box_6843_aop.bin.
     struct DetectedPoint {
         float x;
         float y;
@@ -31,9 +25,35 @@ struct TlvHeader {
         float velocity;
     };
 
-    // People Tracking demo's per-target record (trackerProc_Target in TI's
-    // tracker DPU source). One of these per currently-tracked object in the
-    // TLV_TARGET_LIST payload.
+    // Point Cloud TLV (type 1020) payload is COMPRESSED, not plain floats.
+    // The TLV starts with exactly one PointUnit (the scale factors), followed
+    // by an array of CompressedPoint entries. To get real units:
+    //   elevation_rad = point.elevation * unit.elevationUnit
+    //   azimuth_rad   = point.azimuth   * unit.azimuthUnit
+    //   doppler_mps   = point.doppler   * unit.dopplerUnit
+    //   range_m       = point.range     * unit.rangeUnit
+    //   snr           = point.snr       * unit.snrUnit
+    struct PointUnit {
+        float elevationUnit;
+        float azimuthUnit;
+        float dopplerUnit;
+        float rangeUnit;
+        float snrUnit;
+    };
+
+    struct CompressedPoint {
+        int8_t  elevation; // radians, needs * PointUnit.elevationUnit
+        int8_t  azimuth;   // radians, needs * PointUnit.azimuthUnit
+        int16_t doppler;   // m/s,     needs * PointUnit.dopplerUnit
+        int16_t range;     // meters,  needs * PointUnit.rangeUnit
+        int16_t snr;       // ratio,   needs * PointUnit.snrUnit
+    };
+    // sizeof(CompressedPoint) == 8 bytes, matching the doc's "each point is
+    // defined in 8 bytes."
+
+    // People Tracking demo's per-target record (trackerProc_Target). One of
+    // these per currently-tracked object in the TLV_TARGET_LIST payload.
+    // Confirmed field-for-field against the official user's guide.
     struct TrackedTarget {
         uint32_t tid;                    // persistent track ID
         float posX, posY, posZ;
@@ -43,9 +63,19 @@ struct TlvHeader {
         float g;                         // gating function gain
         float confidenceLevel;
     };
+    // sizeof(TrackedTarget) == 112 bytes (4 + 9*4 + 16*4 + 4 + 4).
+
+    // Target Height TLV (type 1012) per-target record.
+    struct TargetHeight {
+        uint8_t targetID;
+        float maxZ;
+        float minZ;
+    };
 #pragma pack(pop)
 
     enum TlvType {
+        // Out of Box demo message types -- not used by this tracking demo's
+        // firmware, kept only for reference/compatibility.
         TLV_DETECTED_POINTS = 1,
         TLV_RANGE_PROFILE = 2,
         TLV_NOISE_PROFILE = 3,
@@ -54,18 +84,21 @@ struct TlvHeader {
         TLV_STATS = 6,
         TLV_DETECTED_POINTS_SIDE_INFO = 7,
 
-        // These two are specific to the People Tracking demo and are NOT
-        // guaranteed to be these exact numeric values -- TI's internal DPU
-        // macros (TRACKERPROC_OUTPUT_TARGET_LIST / _INDEX) are not the same
-        // thing as the final wire-level MMWDEMO_OUTPUT_EXT_MSG_* type IDs,
-        // and those extended IDs vary by SDK/demo version (values as high
-        // as 300+ have been seen in other demo variants). Confirm the real
-        // values against the source/docs shipped with
-        // 3D_people_track_6843_demo.bin before relying on these, e.g. by
-        // logging every tlv.type this firmware actually sends and matching
-        // it against when a person is known to be in view.
-        TLV_TARGET_LIST = 1000,   // placeholder -- verify
-        TLV_TARGET_INDEX = 1001,  // placeholder -- verify
+        // 3D People Tracking demo message types -- confirmed against the
+        // official user's guide's "UART Output Data Format" section.
+        TLV_TARGET_LIST = 1010,
+        TLV_TARGET_INDEX = 1011,
+        TLV_TARGET_HEIGHT = 1012,
+        TLV_POINT_CLOUD = 1020,       // compressed, see PointUnit/CompressedPoint
+        TLV_PRESENCE_INDICATION = 1021,
+    };
+
+    // Reserved Target Index values (Target Index TLV, type 1011). Any byte
+    // value 0-249 is a real track ID; 250-252 are unused/reserved.
+    enum TargetIndexReserved : uint8_t {
+        TARGET_INDEX_SNR_TOO_WEAK = 253,   // point not associated: SNR too weak
+        TARGET_INDEX_OUTSIDE_BOUNDARY = 254, // not associated: outside boundary of interest
+        TARGET_INDEX_NOISE = 255,          // not associated: considered noise
     };
 
     // A view over one TLV entry's payload -- doesn't own the bytes, just
@@ -75,9 +108,8 @@ struct TlvHeader {
         const uint8_t* payload;
         uint32_t length;
 
-        // Iterable range of DetectedPoint. Only meaningful when
-        // type == TLV_DETECTED_POINTS -- callers should check `type` before
-        // calling points().
+        // Iterable range of the legacy Out of Box DetectedPoint format. Only
+        // meaningful when type == TLV_DETECTED_POINTS (i.e. not this demo).
         struct PointRange {
             const uint8_t* payload;
             uint32_t length;
@@ -90,9 +122,39 @@ struct TlvHeader {
             }
         };
 
+        // View over a Point Cloud TLV (type 1020): the leading PointUnit
+        // followed by however many CompressedPoint entries fit in the rest
+        // of the payload. Only meaningful when type == TLV_POINT_CLOUD.
+        //
+        //   if (tlv.type == Tlv::TLV_POINT_CLOUD) {
+        //       auto pc = tlv.compressedPoints();
+        //       const auto& u = pc.unit();
+        //       for (const auto& p : pc) {
+        //           float rangeM   = p.range     * u.rangeUnit;
+        //           float azRad    = p.azimuth   * u.azimuthUnit;
+        //           float elRad    = p.elevation * u.elevationUnit;
+        //           float dopplerM = p.doppler   * u.dopplerUnit;
+        //           float snr      = p.snr       * u.snrUnit;
+        //       }
+        //   }
+        struct CompressedPointRange {
+            const uint8_t* payload;
+            uint32_t length;
+
+            [[nodiscard]] const PointUnit& unit() const {
+                return *reinterpret_cast<const PointUnit*>(payload);
+            }
+            [[nodiscard]] const CompressedPoint* begin() const {
+                return reinterpret_cast<const CompressedPoint*>(payload + sizeof(PointUnit));
+            }
+            [[nodiscard]] const CompressedPoint* end() const {
+                const uint32_t pointsBytes = length > sizeof(PointUnit) ? length - sizeof(PointUnit) : 0;
+                return begin() + (pointsBytes / sizeof(CompressedPoint));
+            }
+        };
+
         // Iterable range of TrackedTarget. Only meaningful when
-        // type == TLV_TARGET_LIST -- callers should check `type` before
-        // calling targets().
+        // type == TLV_TARGET_LIST.
         struct TargetRange {
             const uint8_t* payload;
             uint32_t length;
@@ -107,9 +169,7 @@ struct TlvHeader {
 
         // Iterable range of raw bytes, one per point in the *previous*
         // frame's point cloud, each giving that point's assigned track ID
-        // (reserved high values -- commonly 254/255 -- mean unassociated /
-        // out of the boundary box; confirm exact reserved values against
-        // this demo's own doc). Only meaningful when
+        // (or a TargetIndexReserved value). Only meaningful when
         // type == TLV_TARGET_INDEX. Correlating this array against the
         // buffered previous-frame point cloud is left to the caller.
         struct TargetIndexRange {
@@ -120,7 +180,25 @@ struct TlvHeader {
             [[nodiscard]] const uint8_t* end() const { return payload + length; }
         };
 
+        // Iterable range of TargetHeight. Only meaningful when
+        // type == TLV_TARGET_HEIGHT.
+        struct TargetHeightRange {
+            const uint8_t* payload;
+            uint32_t length;
+
+            [[nodiscard]] const TargetHeight* begin() const {
+                return reinterpret_cast<const TargetHeight*>(payload);
+            }
+            [[nodiscard]] const TargetHeight* end() const {
+                return begin() + (length / sizeof(TargetHeight));
+            }
+        };
+
         [[nodiscard]] PointRange points() const {
+            return {payload, length};
+        }
+
+        [[nodiscard]] CompressedPointRange compressedPoints() const {
             return {payload, length};
         }
 
@@ -131,20 +209,35 @@ struct TlvHeader {
         [[nodiscard]] TargetIndexRange targetIndices() const {
             return {payload, length};
         }
+
+        [[nodiscard]] TargetHeightRange targetHeights() const {
+            return {payload, length};
+        }
+
+        // Presence Indication TLV (type 1021) is just a single uint32:
+        // 1 = presence detected, 0 = no presence detected.
+        [[nodiscard]] uint32_t presence() const {
+            uint32_t value = 0;
+            std::memcpy(&value, payload, sizeof(value));
+            return value;
+        }
     };
 
     // Custom iterator + range for walking every TLV in a completed Frame:
     //
     //   for (const auto& tlv : Tlv::TlvRange(frame)) {
     //       switch (tlv.type) {
-    //           case Tlv::TLV_DETECTED_POINTS:
-    //               for (const auto& point : tlv.points()) { ... }
+    //           case Tlv::TLV_POINT_CLOUD:
+    //               for (const auto& point : tlv.compressedPoints()) { ... }
     //               break;
     //           case Tlv::TLV_TARGET_LIST:
     //               for (const auto& target : tlv.targets()) { ... }
     //               break;
     //           case Tlv::TLV_TARGET_INDEX:
     //               for (uint8_t tid : tlv.targetIndices()) { ... }
+    //               break;
+    //           case Tlv::TLV_PRESENCE_INDICATION:
+    //               bool present = tlv.presence() == 1;
     //               break;
     //       }
     //   }
