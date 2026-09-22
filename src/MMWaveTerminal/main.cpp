@@ -1,26 +1,28 @@
-#include <print>
 #include <boost/asio.hpp>
 #include <iostream>
 #include <limits>
+#include <print>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 
-#include "MMWave/Prompting/Terminal.hpp"
 #include "MMWave/Porter.hpp"
+#include "MMWave/Prompting/Terminal.hpp"
 #include "MMWave/Streaming.hpp"
 #include "MMWave/Tlv.hpp"
 
 using boost::asio::serial_port_base;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     MMWave::Prompting::General::MMWavePortPaths port_paths;
 
     if (argc >= 3) {
         const int cli_port = std::stoi(argv[1]);
         const int data_port = std::stoi(argv[2]);
         port_paths = MMWave::Prompting::General::createPath(cli_port, data_port);
-    } else {
+    }
+    else {
         port_paths = MMWave::Prompting::Terminal::askPorts();
     }
 
@@ -30,7 +32,8 @@ int main(int argc, char* argv[]) {
 
     if (argc >= 4) {
         cfgPathInput = argv[3];
-    } else {
+    }
+    else {
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         std::println("");
         std::println("Location of the config file: ");
@@ -38,25 +41,22 @@ int main(int argc, char* argv[]) {
         std::println("");
     }
 
-    MMWave::Porter::sendConfigFile(
-        mmwave,
-        cfgPathInput,
-        [](const std::string& line, const std::string& response) {
-            std::println("-> {}", line);
+    MMWave::Porter::sendConfigFile(mmwave, cfgPathInput,
+                                   [](const std::string& line, const std::string& response) {
+                                       std::println("-> {}", line);
 
-            std::string cleaned = response;
-            std::erase(cleaned, '\r');
+                                       std::string cleaned = response;
+                                       std::erase(cleaned, '\r');
 
-            std::istringstream responseStream(cleaned);
-            std::string response_line;
-            bool first = true;
-            while (std::getline(responseStream, response_line)) {
-                if (response_line.empty() && first) continue;
-                std::println("   : {}", response_line);
-                first = false;
-            }
-        }
-        );
+                                       std::istringstream responseStream(cleaned);
+                                       std::string response_line;
+                                       bool first = true;
+                                       while (std::getline(responseStream, response_line)) {
+                                           if (response_line.empty() && first) continue;
+                                           std::println("   : {}", response_line);
+                                           first = false;
+                                       }
+                                   });
 
     std::println("");
 
@@ -74,17 +74,19 @@ int main(int argc, char* argv[]) {
         try {
             MMWave::Streaming::Frame frame = reader.readNextFrame();
 
-            std::println("Frame #{}: {} objects", frame.header.frameNumber, frame.header.numDetectedObj);
+            std::println("Frame #{}: {} objects", frame.header.frameNumber,
+                         frame.header.numDetectedObj);
 
             for (const auto& tlv : MMWave::Tlv::TlvRange(frame)) {
                 if (tlv.type != MMWave::Tlv::TLV_DETECTED_POINTS) continue;
 
                 for (const auto& point : tlv.points()) {
-                    std::println("  x={:.3f} y={:.3f} z={:.3f} v={:.3f}",
-                                 point.x, point.y, point.z, point.velocity);
+                    std::println("  x={:.3f} y={:.3f} z={:.3f} v={:.3f}", point.x, point.y, point.z,
+                                 point.velocity);
                 }
             }
-        } catch (const std::exception& e) {
+        }
+        catch (const std::exception& e) {
             std::println("Stream ended: {}", e.what());
             break;
         }

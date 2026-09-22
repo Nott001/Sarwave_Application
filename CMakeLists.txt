@@ -8,7 +8,7 @@ find_package(Boost REQUIRED)
 
 # QtQuick.Controls is imported by both QML entry points.  It must be found here
 # so Qt can link and deploy its QML plugins along with each executable.
-find_package(Qt6 REQUIRED COMPONENTS Core Network Quick QuickControls2)
+find_package(Qt6 REQUIRED COMPONENTS Core Network Quick QuickControls2 Test)
 qt_standard_project_setup(REQUIRES 6.5)
 
 # Enable compile_commands.json for IDEs

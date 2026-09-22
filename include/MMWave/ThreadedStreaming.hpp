@@ -14,23 +14,26 @@
 
 namespace MMWave::Streaming {
 
-    // Reads frames from the Data port continuously on a background thread and
-    // invokes a completion callback once per completely read frame.
-    //
-    // The capture is driven by the Context's own io_context::run(), so it can
-    // be stopped cooperatively through serial_port::cancel(); there is never
-    // an un-interruptible blocking read that stopConstantCapture() would have
-    // to wait for.
-    class ConstantCapture {
+// Reads frames from the Data port continuously on a background thread and
+// invokes a completion callback once per completely read frame.
+//
+// The capture is driven by the Context's own io_context::run(), so it can
+// be stopped cooperatively through serial_port::cancel(); there is never
+// an un-interruptible blocking read that stopConstantCapture() would have
+// to wait for.
+class ConstantCapture {
     public:
         using FrameCallback = std::function<void(const Streaming::Frame&)>;
 
-        explicit ConstantCapture(Porter::Context& ctx) : ctx_(ctx) {}
+        explicit ConstantCapture(Porter::Context& ctx) : ctx_(ctx)
+        {
+        }
 
         ConstantCapture(const ConstantCapture&) = delete;
         ConstantCapture& operator=(const ConstantCapture&) = delete;
 
-        ~ConstantCapture() {
+        ~ConstantCapture()
+        {
             stopConstantCapture();
         }
 
@@ -38,10 +41,10 @@ namespace MMWave::Streaming {
         // per completely read frame, so handler work in the callback never
         // blocks the caller's own thread. Can only be called while the capture
         // is stopped.
-        void beginConstantCapture(FrameCallback onNewFrame) {
+        void beginConstantCapture(FrameCallback onNewFrame)
+        {
             if (captureActive_.load()) {
-                throw std::logic_error(
-                    "ConstantCapture is already capturing frames");
+                throw std::logic_error("ConstantCapture is already capturing frames");
             }
 
             onNewFrame_ = std::move(onNewFrame);
@@ -61,13 +64,13 @@ namespace MMWave::Streaming {
         // Stops the capture and waits for the capture thread to finish. Safe
         // to call from inside the frame callback itself; in that case the
         // current callback finishes and the thread winds down on its own.
-        void stopConstantCapture() {
+        void stopConstantCapture()
+        {
             if (!captureThread_.joinable()) {
                 return;
             }
 
-            const bool fromCaptureThread =
-                captureThread_.get_id() == std::this_thread::get_id();
+            const bool fromCaptureThread = captureThread_.get_id() == std::this_thread::get_id();
 
             captureActive_.store(false);
 
@@ -99,38 +102,42 @@ namespace MMWave::Streaming {
             captureThread_.join();
         }
 
-        [[nodiscard]] bool isCapturing() const {
+        [[nodiscard]] bool isCapturing() const
+        {
             return captureActive_.load();
         }
 
     private:
-        void captureThreadFn() {
+        void captureThreadFn()
+        {
             try {
                 issueRead();
                 ctx_.io->run();
-            } catch (...) {
+            }
+            catch (...) {
                 // An exception from a read handler or from onNewFrame ends the
                 // capture rather than crashing the thread.
             }
             captureActive_.store(false);
         }
 
-        void issueRead() {
-            ctx_.data.async_read_some(
-                boost::asio::buffer(staged_),
-                [this](const boost::system::error_code& ec, std::size_t n) {
-                    if (ec) {
-                        // Cancelled (stop requested) or a genuine Data port
-                        // error; either way the capture ends here.
-                        return;
-                    }
-                    onBytes(n);
-                });
+        void issueRead()
+        {
+            ctx_.data.async_read_some(boost::asio::buffer(staged_),
+                                      [this](const boost::system::error_code& ec, std::size_t n) {
+                                          if (ec) {
+                                              // Cancelled (stop requested) or a genuine Data port
+                                              // error; either way the capture ends here.
+                                              return;
+                                          }
+                                          onBytes(n);
+                                      });
         }
 
         // Feeds the just-staged bytes through the same framing state machine
         // as FrameReader and dispatches completed frames to the callback.
-        void onBytes(std::size_t n) {
+        void onBytes(std::size_t n)
+        {
             for (std::size_t i = 0; i < n && captureActive_.load(); ++i) {
                 buffer_.push_back(staged_[i]);
 
@@ -142,8 +149,7 @@ namespace MMWave::Streaming {
                     tryParseHeader();
                 }
 
-                if (headerParsed_ &&
-                    buffer_.size() >= currentHeader_.totalPacketLen) {
+                if (headerParsed_ && buffer_.size() >= currentHeader_.totalPacketLen) {
                     extractFrameAndNotify();
                     if (!captureActive_.load()) break;
                 }
@@ -155,13 +161,13 @@ namespace MMWave::Streaming {
         }
 
         // Same magic-word resync logic as FrameReader::checkFrameSync.
-        bool checkFrameSync() {
+        bool checkFrameSync()
+        {
             if (buffer_.size() < sizeof(MAGIC_WORD)) {
                 return false;
             }
 
-            const uint8_t* tail =
-                buffer_.data() + buffer_.size() - sizeof(MAGIC_WORD);
+            const uint8_t* tail = buffer_.data() + buffer_.size() - sizeof(MAGIC_WORD);
             if (std::memcmp(tail, MAGIC_WORD, sizeof(MAGIC_WORD)) != 0) {
                 return false;
             }
@@ -175,19 +181,18 @@ namespace MMWave::Streaming {
         }
 
         // Same header parsing as FrameReader::tryParseHeader.
-        void tryParseHeader() {
+        void tryParseHeader()
+        {
             if (buffer_.size() < sizeof(MAGIC_WORD) + sizeof(FrameHeader)) {
                 return;
             }
-            std::memcpy(
-                &currentHeader_,
-                buffer_.data() + sizeof(MAGIC_WORD),
-                sizeof(FrameHeader));
+            std::memcpy(&currentHeader_, buffer_.data() + sizeof(MAGIC_WORD), sizeof(FrameHeader));
             headerParsed_ = true;
         }
 
         // Same frame slicing as FrameReader::extractFrame, then reports it.
-        void extractFrameAndNotify() {
+        void extractFrameAndNotify()
+        {
             Streaming::Frame frame;
             frame.header = currentHeader_;
 
@@ -211,6 +216,6 @@ namespace MMWave::Streaming {
         std::array<uint8_t, 256> staged_{};
         bool headerParsed_ = false;
         FrameHeader currentHeader_{};
-    };
+};
 
-}
+}  // namespace MMWave::Streaming

@@ -1,17 +1,18 @@
 #pragma once
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <cstddef>
+
 #include "Streaming.hpp"
 
 namespace MMWave::Tlv {
 
-    // TLV header + known payload types for the demo output format.
+// TLV header + known payload types for the demo output format.
 #pragma pack(push, 1)
-    struct TlvHeader {
+struct TlvHeader {
         uint32_t type;
-        uint32_t length; // payload length in bytes, NOT including this header
-    };
+        uint32_t length;  // payload length in bytes, NOT including this header
+};
 
     // Out of Box demo's detected-point format: Cartesian XYZ + radial velocity.
     //

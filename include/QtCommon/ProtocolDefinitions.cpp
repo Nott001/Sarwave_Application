@@ -1,8 +1,10 @@
 #include "ProtocolDefinitions.h"
+
 #include <QJsonDocument>
 #include <QJsonObject>
 
-RadarDetection parseRadarData(const QString& json) {
+RadarDetection parseRadarData(const QString& json)
+{
     RadarDetection data;
     QJsonDocument doc = QJsonDocument::fromJson(json.toUtf8());
     if (doc.isObject()) {
@@ -22,7 +24,8 @@ RadarDetection parseRadarData(const QString& json) {
     return data;
 }
 
-QString serializeRadarData(const RadarDetection& data) {
+QString serializeRadarData(const RadarDetection& data)
+{
     QJsonObject obj;
     obj["x"] = data.x;
     obj["y"] = data.y;

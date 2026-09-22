@@ -6,13 +6,14 @@
 
 #include "DashboardState.h"
 #include "MMWave/Porter.hpp"
+#include "MMWave/Prompting/Terminal.hpp"
 #include "MMWave/ThreadedStreaming.hpp"
 #include "MMWave/Tlv.hpp"
-#include "MMWave/Prompting/Terminal.hpp"
-#include "QtCommon/MMWavePrompt/PortDialog.hpp"
 #include "QtCommon/MMWavePrompt/CfgDialog.hpp"
+#include "QtCommon/MMWavePrompt/PortDialog.hpp"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
     const QGuiApplication app(argc, argv);
 
     auto mmwave = [&]() -> MMWave::Porter::Context {
@@ -27,7 +28,8 @@ int main(int argc, char *argv[]) {
 
     if (argc >= 4) {
         MMWave::Prompting::Gui::cfgGUIAndSend(mmwave, argv[3]);
-    } else {
+    }
+    else {
         MMWave::Prompting::Gui::cfgGUIAndSend(mmwave);
     }
 
@@ -40,8 +42,7 @@ int main(int argc, char *argv[]) {
     QObject frameDispatcher;
     MMWave::Streaming::ConstantCapture capture(mmwave);
     capture.beginConstantCapture(
-        [&frameDispatcher, &dashboard](
-            const MMWave::Streaming::Frame& frame) {
+        [&frameDispatcher, &dashboard](const MMWave::Streaming::Frame& frame) {
             QMetaObject::invokeMethod(
                 &frameDispatcher,
                 [&dashboard, frame = frame]() {
@@ -67,8 +68,9 @@ int main(int argc, char *argv[]) {
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("dashboard", &dashboard);
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
-        &app, []() { QCoreApplication::exit(-1); },Qt::QueuedConnection);
+    QObject::connect(
+        &engine, &QQmlApplicationEngine::objectCreationFailed, &app,
+        []() { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
 
     engine.load(QUrl(QStringLiteral("qrc:/qt/qml/RpiApp/main.qml")));
     return app.exec();
