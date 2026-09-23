@@ -9,7 +9,7 @@
 #include "MMWave/Porter.hpp"
 #include "MMWave/Prompting/Terminal.hpp"
 #include "MMWave/Streaming.hpp"
-#include "MMWave/Tlv.hpp"
+#include "MMWave/Tlv/TlvCore.hpp"
 
 using boost::asio::serial_port_base;
 
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
             for (const auto& tlv : MMWave::Tlv::TlvRange(frame)) {
                 if (tlv.type != MMWave::Tlv::TLV_DETECTED_POINTS) continue;
 
-                for (const auto& point : tlv.points()) {
+                for (const auto& point : MMWave::Tlv::DetectedPoint::range(tlv)) {
                     std::println("  x={:.3f} y={:.3f} z={:.3f} v={:.3f}", point.x, point.y, point.z,
                                  point.velocity);
                 }

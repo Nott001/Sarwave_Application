@@ -10,7 +10,7 @@
 #include "MMWave/Porter.hpp"
 #include "MMWave/Prompting/Terminal.hpp"
 #include "MMWave/ThreadedStreaming.hpp"
-#include "MMWave/Tlv.hpp"
+#include "MMWave/Tlv/TlvCore.hpp"
 #include "QtCommon/MMWavePrompt/CfgDialog.hpp"
 #include "QtCommon/MMWavePrompt/PortDialog.hpp"
 
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
                     for (const auto& tlv : MMWave::Tlv::TlvRange(frame)) {
                         if (tlv.type != MMWave::Tlv::TLV_POINT_CLOUD) continue;
 
-                        const auto cloud = tlv.compressedPoints();
+                        const auto cloud = MMWave::Tlv::PointCloud::range(tlv);
                         const auto& units = cloud.unit();
                         for (const auto& point : cloud) {
                             const double rangeM = point.range * units.rangeUnit;
