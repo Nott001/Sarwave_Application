@@ -9,6 +9,7 @@
 #include "MMWave/Prompting/General.hpp"
 #include "MMWave/Streaming.hpp"
 #include "MMWave/Tlv/TlvCore.hpp"
+#include "MMWave/Tlv/TlvOutput.hpp"
 #include "ProtocolDefinitions.h"
 
 class DashboardStateTest : public QObject {

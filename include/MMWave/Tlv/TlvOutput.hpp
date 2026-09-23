@@ -2,18 +2,9 @@
 #include <cstdint>
 #include <cstring>
 #include <cstddef>
-#include "TlvTypes.hpp"
+#include "TlvCore.hpp"
 
 namespace MMWave::Tlv {
-
-    // A view over one TLV entry's payload -- doesn't own the bytes, just
-    // points into the Frame's buffer.
-    struct TlvEntry {
-        TlvType type;
-        const uint8_t* payload;
-        uint32_t length;
-    };
-
     // TLV header + known payload types for the 3D People Tracking demo output
     // format, per the official "3D People Tracking User's Guide" UART Output
     // Data Format section.
@@ -45,32 +36,6 @@ namespace MMWave::Tlv {
             return {entry.payload, entry.length};
         }
     };
-
-    // Point Cloud TLV (type 1020) payload is COMPRESSED, not plain floats.
-    // The TLV starts with exactly one PointUnit (the scale factors), followed
-    // by an array of CompressedPoint entries. To get real units:
-    //   elevation_rad = point.elevation * unit.elevationUnit
-    //   azimuth_rad   = point.azimuth   * unit.azimuthUnit
-    //   doppler_mps   = point.doppler   * unit.dopplerUnit
-    //   range_m       = point.range     * unit.rangeUnit
-    //   snr           = point.snr       * unit.snrUnit
-    struct PointUnit {
-        float elevationUnit;
-        float azimuthUnit;
-        float dopplerUnit;
-        float rangeUnit;
-        float snrUnit;
-    };
-
-    struct CompressedPoint {
-        int8_t  elevation; // radians, needs * PointUnit.elevationUnit
-        int8_t  azimuth;   // radians, needs * PointUnit.azimuthUnit
-        int16_t doppler;   // m/s,     needs * PointUnit.dopplerUnit
-        int16_t range;     // meters,  needs * PointUnit.rangeUnit
-        int16_t snr;       // ratio,   needs * PointUnit.snrUnit
-    };
-    // sizeof(CompressedPoint) == 8 bytes, matching the doc's "each point is
-    // defined in 8 bytes."
 
     // People Tracking demo's per-target record (trackerProc_Target). One of
     // these per currently-tracked object in the TLV_TARGET_LIST payload.
@@ -132,6 +97,44 @@ namespace MMWave::Tlv {
 
     // PointCloud TLV (type 1020) wrapper.
     struct PointCloud {
+        // PointCloud TLV payload is COMPRESSED, not plain floats.
+        // The TLV starts with exactly one PointUnit (the scale factors), followed
+        // by an array of CompressedPoint entries.
+
+        struct PointUnit {
+            float elevationUnit;
+            float azimuthUnit;
+            float dopplerUnit;
+            float rangeUnit;
+            float snrUnit;
+        };
+
+        struct CompressedPoint {
+            int8_t  elevation; // radians, needs * PointUnit.elevationUnit
+            int8_t  azimuth;   // radians, needs * PointUnit.azimuthUnit
+            int16_t doppler;   // m/s,     needs * PointUnit.dopplerUnit
+            int16_t range;     // meters,  needs * PointUnit.rangeUnit
+            int16_t snr;       // ratio,   needs * PointUnit.snrUnit
+        };
+
+        struct PointValue {
+            float range;
+            float azimuth;
+            float elevation;
+            float doppler;
+            float snr;
+        };
+
+        [[nodiscard]] static PointValue Convert(const CompressedPoint& point, const PointUnit& unit) {
+            return {
+                static_cast<float>(point.range) * unit.rangeUnit,
+                static_cast<float>(point.azimuth) * unit.azimuthUnit,
+                static_cast<float>(point.elevation) * unit.elevationUnit,
+                static_cast<float>(point.doppler) * unit.dopplerUnit,
+                static_cast<float>(point.snr) * unit.snrUnit
+            };
+        }
+
         // View over a Point Cloud TLV (type 1020): the leading PointUnit
         // followed by however many CompressedPoint entries fit in the rest
         // of the payload. Only meaningful when type == TLV_POINT_CLOUD.
@@ -139,11 +142,10 @@ namespace MMWave::Tlv {
         //   auto pc = PointCloud::range(tlv);
         //   const auto& u = pc.unit();
         //   for (const auto& p : pc) {
-        //       float rangeM   = p.range     * u.rangeUnit;
-        //       float azRad    = p.azimuth   * u.azimuthUnit;
-        //       float elRad    = p.elevation * u.elevationUnit;
-        //       float dopplerM = p.doppler   * u.dopplerUnit;
-        //       float snr      = p.snr       * u.snrUnit;
+        //       auto v = PointCloud::Convert(p, u);
+        //       float rangeM = v.range;
+        //       float azRad  = v.azimuth;
+        //       ...
         //   }
         struct PointCloudRange {
             const uint8_t* payload;

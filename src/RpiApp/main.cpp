@@ -11,6 +11,7 @@
 #include "MMWave/Prompting/Terminal.hpp"
 #include "MMWave/ThreadedStreaming.hpp"
 #include "MMWave/Tlv/TlvCore.hpp"
+#include "MMWave/Tlv/TlvOutput.hpp"
 #include "QtCommon/MMWavePrompt/CfgDialog.hpp"
 #include "QtCommon/MMWavePrompt/PortDialog.hpp"
 
@@ -58,17 +59,17 @@ int main(int argc, char* argv[])
                         if (tlv.type != MMWave::Tlv::TLV_POINT_CLOUD) continue;
 
                         const auto cloud = MMWave::Tlv::PointCloud::range(tlv);
-                        const auto& units = cloud.unit();
                         for (const auto& point : cloud) {
-                            const double rangeM = point.range * units.rangeUnit;
-                            const double azimuth = point.azimuth * units.azimuthUnit;
-                            const double elevation = point.elevation * units.elevationUnit;
+                            const auto v = MMWave::Tlv::PointCloud::Convert(point, cloud.unit());
+                            const double rangeM = v.range;
+                            const double azimuth = v.azimuth;
+                            const double elevation = v.elevation;
 
                             QVariantMap entry;
                             entry.insert("x", rangeM * std::sin(azimuth));
                             entry.insert("y", rangeM * std::cos(azimuth));
                             entry.insert("z", rangeM * std::sin(elevation));
-                            entry.insert("v", static_cast<double>(point.doppler) * units.dopplerUnit);
+                            entry.insert("v", static_cast<double>(v.doppler));
                             points.append(entry);
                         }
                     }

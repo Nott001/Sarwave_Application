@@ -10,6 +10,7 @@
 #include "MMWave/Prompting/Terminal.hpp"
 #include "MMWave/Streaming.hpp"
 #include "MMWave/Tlv/TlvCore.hpp"
+#include "MMWave/Tlv/TlvOutput.hpp"
 
 using boost::asio::serial_port_base;
 

@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cstddef>
 #include "../Streaming.hpp"
-#include "TlvOutput.hpp"
+#include "TlvTypes.hpp"
 
 namespace MMWave::Tlv {
 
@@ -13,6 +13,14 @@ namespace MMWave::Tlv {
         uint32_t length; // payload length in bytes, NOT including this header
     };
 #pragma pack(pop)
+
+    // A view over one TLV entry's payload -- doesn't own the bytes, just
+    // points into the Frame's buffer.
+    struct TlvEntry {
+        TlvType type;
+        const uint8_t* payload;
+        uint32_t length;
+    };
 
     // Custom iterator + range for walking every TLV in a completed Frame:
     //
@@ -110,5 +118,4 @@ namespace MMWave::Tlv {
         uint32_t numTlvs_;
         std::size_t startOffset_;
     };
-
 }
