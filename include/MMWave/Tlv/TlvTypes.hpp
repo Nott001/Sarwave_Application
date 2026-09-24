@@ -18,16 +18,16 @@ enum TlvType : uint32_t {
     TLV_TARGET_LIST = 1010,
     TLV_TARGET_INDEX = 1011,
     TLV_TARGET_HEIGHT = 1012,
-    TLV_POINT_CLOUD = 1020,       // compressed, see PointUnit/CompressedPoint
+    TLV_POINT_CLOUD = 1020,                 // compressed, see PointUnit/CompressedPoint
     TLV_PRESENCE_INDICATION = 1021,
 };
 
-// Reserved Target Index values (Target Index TLV, type 1011). Any byte
-// value 0-249 is a real track ID; 250-252 are unused/reserved.
 enum TargetIndexReserved : uint8_t {
-    TARGET_INDEX_SNR_TOO_WEAK = 253,   // point not associated: SNR too weak
-    TARGET_INDEX_OUTSIDE_BOUNDARY = 254, // not associated: outside boundary of interest
-    TARGET_INDEX_NOISE = 255,          // not associated: considered noise
+    // Reserved Target Index values (Target Index TLV, type 1011). Any byte
+    // value 0-249 is a real track ID; 250-252 are unused/reserved.
+    TARGET_INDEX_SNR_TOO_WEAK = 253,        // point not associated: SNR too weak
+    TARGET_INDEX_OUTSIDE_BOUNDARY = 254,    // not associated: outside boundary of interest
+    TARGET_INDEX_NOISE = 255,               // not associated: considered noise
 };
 
 }

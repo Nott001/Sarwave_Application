@@ -1,8 +1,8 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <cstddef>
 
 #include "../Streaming.hpp"
 #include "TlvTypes.hpp"
