@@ -388,30 +388,51 @@ ApplicationWindow {
 
                 // ── Four metric cells with dividers ────────────────────────────
                 MetricCell {
-                    label:      "RANGE"
-                    value:      dashboard.distance.toFixed(2)
-                    unit:       "m"
+                    label: "RANGE"
+                    value: dashboard.distance.toFixed(2)
+                    unit: "m"
                     valueColor: root.clrAccent
                 }
-                Rectangle { implicitWidth: 1; Layout.fillHeight: true; color: root.clrBorder; Layout.topMargin: 10; Layout.bottomMargin: 10 }
+                Rectangle {
+                    implicitWidth: 1
+                    implicitHeight: 1
+                    Layout.fillHeight: true
+                    color: root.clrBorder
+                    Layout.topMargin: 10
+                    Layout.bottomMargin: 10
+                }
                 MetricCell {
-                    label:      "DOPPLER"
-                    value:      dashboard.dopplerVelocity.toFixed(3)
-                    unit:       "m/s"
+                    label: "DOPPLER"
+                    value: dashboard.dopplerVelocity.toFixed(3)
+                    unit: "m/s"
                     valueColor: root.clrBlue
                 }
-                Rectangle { implicitWidth: 1; Layout.fillHeight: true; color: root.clrBorder; Layout.topMargin: 10; Layout.bottomMargin: 10 }
+                Rectangle {
+                    implicitWidth: 1
+                    implicitHeight: 1
+                    Layout.fillHeight: true
+                    color: root.clrBorder
+                    Layout.topMargin: 10
+                    Layout.bottomMargin: 10
+                }
                 MetricCell {
-                    label:      "DENSITY"
-                    value:      dashboard.pointDensity.toFixed(0)
-                    unit:       "pts"
+                    label: "DENSITY"
+                    value: dashboard.pointDensity.toFixed(0)
+                    unit: "pts"
                     valueColor: root.clrPurple
                 }
-                Rectangle { implicitWidth: 1; Layout.fillHeight: true; color: root.clrBorder; Layout.topMargin: 10; Layout.bottomMargin: 10 }
+                Rectangle {
+                    implicitWidth: 1
+                    implicitHeight: 1
+                    Layout.fillHeight: true
+                    color: root.clrBorder
+                    Layout.topMargin: 10
+                    Layout.bottomMargin: 10
+                }
                 MetricCell {
-                    label:      "SNR"
-                    value:      dashboard.snr.toFixed(1)
-                    unit:       "dB"
+                    label: "SNR"
+                    value: dashboard.snr.toFixed(1)
+                    unit: "dB"
                     valueColor: root.clrRed
                 }
             }

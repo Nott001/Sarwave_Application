@@ -259,19 +259,19 @@ class TlvTest : public QObject {
             QCOMPARE(pts[1].x, 3.0f);
             QCOMPARE(pts[1].y, 4.0f);
 
-             int count = 0;
-             int idx = 0;
-             for (const auto& tlv : MMWave::Tlv::TlvRange(sf)) {
-                 if (tlv.type == MMWave::Tlv::TLV_DETECTED_POINTS) {
-                     for (const auto& pt : MMWave::Tlv::DetectedPoint::range(tlv)) {
-                         QCOMPARE(pt.x, idx == 0 ? 1.0f : 3.0f);
-                         QCOMPARE(pt.y, idx == 0 ? 2.0f : 4.0f);
-                         idx++;
-                         count++;
-                     }
-                 }
-             }
-             QCOMPARE(count, 2);
+            int count = 0;
+            int idx = 0;
+            for (const auto& tlv : MMWave::Tlv::TlvRange(sf)) {
+                if (tlv.type == MMWave::Tlv::TLV_DETECTED_POINTS) {
+                    for (const auto& pt : MMWave::Tlv::DetectedPoint::range(tlv)) {
+                        QCOMPARE(pt.x, idx == 0 ? 1.0f : 3.0f);
+                        QCOMPARE(pt.y, idx == 0 ? 2.0f : 4.0f);
+                        idx++;
+                        count++;
+                    }
+                }
+            }
+            QCOMPARE(count, 2);
         }
 
         void testTlvRange_outOfBounds_stopsEarly()

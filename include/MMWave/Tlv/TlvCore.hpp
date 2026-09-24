@@ -1,17 +1,21 @@
 #pragma once
+
 #include <cstdint>
 #include <cstring>
 #include <cstddef>
+
 #include "../Streaming.hpp"
 #include "TlvTypes.hpp"
 
 namespace MMWave::Tlv {
 
 #pragma pack(push, 1)
-    struct TlvHeader {
-        uint32_t type;
-        uint32_t length; // payload length in bytes, NOT including this header
-    };
+
+struct TlvHeader {
+    uint32_t type;
+    uint32_t length;  // payload length in bytes, NOT including this header
+};
+
 #pragma pack(pop)
 
     // A view over one TLV entry's payload -- doesn't own the bytes, just
