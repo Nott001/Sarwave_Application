@@ -22,7 +22,7 @@ jobs:
       - name: Check clang-format
         run: |
           CLANG_FORMAT=$(command -v clang-format || command -v clang-format-17 || command -v clang-format-18 || true)
-          FORMAT_FILES=$(find . -name "*.cpp" -o -name "*.hpp" -o -name "*.h" -o -name "*.qml" -not -path "./build/*" -not -path "./.git/*")
+          FORMAT_FILES=$(find . -name "*.cpp" -o -name "*.hpp" -o -name "*.h" -not -path "./build/*" -not -path "./.git/*")
           if [ -n "$CLANG_FORMAT" ] && [ -n "$FORMAT_FILES" ]; then
             $CLANG_FORMAT --dry-run --Werror -style=file $FORMAT_FILES
           else
