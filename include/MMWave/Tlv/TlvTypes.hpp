@@ -1,5 +1,9 @@
 #pragma once
 
+#include <format>
+#include <string_view>
+#include <cstdio>
+
 namespace MMWave::Tlv {
 
 enum TlvType : uint32_t {
@@ -22,12 +26,43 @@ enum TlvType : uint32_t {
     TLV_PRESENCE_INDICATION = 1021,
 };
 
-enum TargetIndexReserved : uint8_t {
-    // Reserved Target Index values (Target Index TLV, type 1011). Any byte
-    // value 0-249 is a real track ID; 250-252 are unused/reserved.
-    TARGET_INDEX_SNR_TOO_WEAK = 253,        // point not associated: SNR too weak
-    TARGET_INDEX_OUTSIDE_BOUNDARY = 254,    // not associated: outside boundary of interest
-    TARGET_INDEX_NOISE = 255,               // not associated: considered noise
+constexpr const char* tlvTypeName(TlvType type)
+{
+    switch (type) {
+        case TLV_DETECTED_POINTS: return "TLV_DETECTED_POINTS";
+        case TLV_RANGE_PROFILE: return "TLV_RANGE_PROFILE";
+        case TLV_NOISE_PROFILE: return "TLV_NOISE_PROFILE";
+        case TLV_AZIMUTH_STATIC_HEATMAP: return "TLV_AZIMUTH_STATIC_HEATMAP";
+        case TLV_RANGE_DOPPLER_HEATMAP: return "TLV_RANGE_DOPPLER_HEATMAP";
+        case TLV_STATS: return "TLV_STATS";
+        case TLV_DETECTED_POINTS_SIDE_INFO: return "TLV_DETECTED_POINTS_SIDE_INFO";
+        case TLV_TARGET_LIST: return "TLV_TARGET_LIST";
+        case TLV_TARGET_INDEX: return "TLV_TARGET_INDEX";
+        case TLV_TARGET_HEIGHT: return "TLV_TARGET_HEIGHT";
+        case TLV_POINT_CLOUD: return "TLV_POINT_CLOUD";
+        case TLV_PRESENCE_INDICATION: return "TLV_PRESENCE_INDICATION";
+        default: return nullptr;
+    }
+}
+
+}  // namespace MMWave::Tlv
+
+namespace std {
+
+template <>
+struct formatter<MMWave::Tlv::TlvType> : formatter<string_view>
+{
+    template <typename FormatContext>
+    auto format(MMWave::Tlv::TlvType type, FormatContext& ctx) const
+    {
+        const char* name = MMWave::Tlv::tlvTypeName(type);
+        if (name) {
+            return formatter<string_view>::format(string_view{name}, ctx);
+        }
+        char buf[32];
+        std::snprintf(buf, sizeof(buf), "%u", static_cast<unsigned>(type));
+        return formatter<string_view>::format(string_view{buf}, ctx);
+    }
 };
 
-}
+}  // namespace std

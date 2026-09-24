@@ -22,3 +22,10 @@ add_subdirectory(src/MMWaveTerminal)
 add_subdirectory(src/RpiApp)
 add_subdirectory(src/DesktopApp)
 add_subdirectory(src/tests)
+
+# Nonexistent test project on github.
+# option(BUILD_TEST_RPI_APP "Build TestRpiApp" ON)
+option(BUILD_TEST_RPI_APP "Build TestRpiApp" OFF)
+if(BUILD_TEST_RPI_APP)
+    add_subdirectory(src/TestRpiApp)
+endif()

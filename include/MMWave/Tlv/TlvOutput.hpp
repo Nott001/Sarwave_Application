@@ -26,6 +26,10 @@ namespace MMWave::Tlv {
             const uint8_t* payload;
             uint32_t length;
 
+            [[nodiscard]] uint32_t getCount() const {
+                return length / sizeof(DetectedPoint);
+            }
+
             [[nodiscard]] const DetectedPoint* begin() const {
                 return reinterpret_cast<const DetectedPoint*>(payload);
             }
@@ -57,6 +61,10 @@ namespace MMWave::Tlv {
             const uint8_t* payload;
             uint32_t length;
 
+            [[nodiscard]] uint32_t getCount() const {
+                return length / sizeof(TrackedTarget);
+            }
+
             [[nodiscard]] const TrackedTarget* begin() const {
                 return reinterpret_cast<const TrackedTarget*>(payload);
             }
@@ -83,6 +91,10 @@ namespace MMWave::Tlv {
             const uint8_t* payload;
             uint32_t length;
 
+            [[nodiscard]] uint32_t getCount() const {
+                return length / sizeof(TargetHeight);
+            }
+
             [[nodiscard]] const TargetHeight* begin() const {
                 return reinterpret_cast<const TargetHeight*>(payload);
             }
@@ -103,6 +115,7 @@ namespace MMWave::Tlv {
         // The TLV starts with exactly one PointUnit (the scale factors), followed
         // by an array of CompressedPoint entries.
 
+#pragma pack(push, 1)
         struct PointUnit {
             float elevationUnit;
             float azimuthUnit;
@@ -126,6 +139,7 @@ namespace MMWave::Tlv {
             float doppler;
             float snr;
         };
+#pragma pack(pop)
 
         [[nodiscard]] static PointValue Convert(const CompressedPoint& point, const PointUnit& unit) {
             return {
@@ -152,6 +166,11 @@ namespace MMWave::Tlv {
         struct PointCloudRange {
             const uint8_t* payload;
             uint32_t length;
+
+            [[nodiscard]] uint32_t getCount() const {
+                const uint32_t pointsBytes = length > sizeof(PointUnit) ? length - sizeof(PointUnit) : 0;
+                return pointsBytes / sizeof(CompressedPoint);
+            }
 
             [[nodiscard]] const PointUnit& unit() const {
                 return *reinterpret_cast<const PointUnit*>(payload);
@@ -181,6 +200,10 @@ namespace MMWave::Tlv {
         struct TargetIndexRange {
             const uint8_t* payload;
             uint32_t length;
+
+            [[nodiscard]] uint32_t getCount() const {
+                return length;
+            }
 
             [[nodiscard]] const uint8_t* begin() const { return payload; }
             [[nodiscard]] const uint8_t* end() const { return payload + length; }
