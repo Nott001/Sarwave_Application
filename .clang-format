@@ -4,6 +4,6 @@ IndentWidth: 4
 IndentAccessModifiers: true
 UseTab: Never
 IndentCaseLabels: true
-PointerBindsToType: true
-AllowShortFunctionsOnASingleLine: false
+PointerAlignment: Left
+AllowShortFunctionsOnASingleLine: None
 BreakBeforeBraces: Stroustrup
