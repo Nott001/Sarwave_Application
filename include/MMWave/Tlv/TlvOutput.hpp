@@ -5,6 +5,7 @@
 #include <cstring>
 
 #include "TlvCore.hpp"
+#include "TlvPointCloud.hpp"
 
 namespace MMWave::Tlv {
     // TLV header + known payload types for the 3D People Tracking demo output
@@ -47,7 +48,7 @@ namespace MMWave::Tlv {
     // these per currently-tracked object in the TLV_TARGET_LIST payload.
     // Confirmed field-for-field against the official user's guide.
     struct TrackedTarget {
-        uint32_t tid;                    // persistent track ID
+        uint32_t targetID;               // persistent track ID
         float posX, posY, posZ;
         float velX, velY, velZ;
         float accX, accY, accZ;
@@ -81,7 +82,7 @@ namespace MMWave::Tlv {
 
     // Target Height TLV (type 1012) per-target record.
     struct TargetHeight {
-        uint8_t targetID;
+        uint32_t targetID;
         float maxZ;
         float minZ;
 
@@ -115,23 +116,6 @@ namespace MMWave::Tlv {
         // The TLV starts with exactly one PointUnit (the scale factors), followed
         // by an array of CompressedPoint entries.
 
-#pragma pack(push, 1)
-        struct PointUnit {
-            float elevationUnit;
-            float azimuthUnit;
-            float dopplerUnit;
-            float rangeUnit;
-            float snrUnit;
-        };
-
-        struct CompressedPoint {
-            int8_t  elevation; // radians, needs * PointUnit.elevationUnit
-            int8_t  azimuth;   // radians, needs * PointUnit.azimuthUnit
-            int16_t doppler;   // m/s,     needs * PointUnit.dopplerUnit
-            int16_t range;     // meters,  needs * PointUnit.rangeUnit
-            int16_t snr;       // ratio,   needs * PointUnit.snrUnit
-        };
-
         struct PointValue {
             float range;
             float azimuth;
@@ -139,7 +123,6 @@ namespace MMWave::Tlv {
             float doppler;
             float snr;
         };
-#pragma pack(pop)
 
         [[nodiscard]] static PointValue Convert(const CompressedPoint& point, const PointUnit& unit) {
             return {
