@@ -24,8 +24,12 @@ add_subdirectory(src/DesktopApp)
 add_subdirectory(src/tests)
 
 # Nonexistent test project on github.
-# option(BUILD_TEST_RPI_APP "Build TestRpiApp" ON)
-option(BUILD_TEST_RPI_APP "Build TestRpiApp" OFF)
+option(BUILD_TEST_RPI_APP "Build TestRpiApp" ON)
 if(BUILD_TEST_RPI_APP)
-    add_subdirectory(src/TestRpiApp)
+    # Check if the directory exists and contains a CMakeLists.txt
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/TestRpiApp/CMakeLists.txt")
+        add_subdirectory(src/TestRpiApp)
+    else()
+        message(STATUS "Directory src/TestRpiApp not found. Skipping.")
+    endif()
 endif()
