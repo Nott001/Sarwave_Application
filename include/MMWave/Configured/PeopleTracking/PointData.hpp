@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 
-namespace MMWave::PeopleTracking {
+namespace MMWave::Configured::PeopleTracking {
 enum PointNotAssociated : uint8_t {
     // Point not associated, SNR too weak
     POINT_SNR_WEAK = 253,

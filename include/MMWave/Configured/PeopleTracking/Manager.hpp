@@ -18,7 +18,7 @@
 #include "EntryDecompiler.hpp"
 #include "TargetObject.hpp"
 
-namespace MMWave::PeopleTracking {
+namespace MMWave::Configured::PeopleTracking {
 struct Manager {
     public:
         struct Entry {

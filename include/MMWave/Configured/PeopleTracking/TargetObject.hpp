@@ -10,7 +10,7 @@
 #include "../Tlv/TlvOutput.hpp"
 #include "../Tlv/TlvPointCloud.hpp"
 
-namespace MMWave::PeopleTracking {
+namespace MMWave::Configured::PeopleTracking {
 struct TargetObject {
     std::deque<std::vector<Tlv::CompressedPoint>> point_clouds;
     size_t offset = 0;

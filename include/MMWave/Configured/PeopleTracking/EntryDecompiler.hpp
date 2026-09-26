@@ -5,7 +5,7 @@
 #include "../Tlv/TlvCore.hpp"
 #include "../Tlv/TlvOutput.hpp"
 
-namespace MMWave::PeopleTracking {
+namespace MMWave::Configured::PeopleTracking {
     struct TargetData {
         Tlv::TargetList::TargetListRange tracks = Tlv::TargetList::TargetListRange();
         Tlv::TargetHeight::TargetHeightRange heights = Tlv::TargetHeight::TargetHeightRange();

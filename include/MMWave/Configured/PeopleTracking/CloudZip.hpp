@@ -6,7 +6,7 @@
 #include "Manager.hpp"
 #include "TargetObject.hpp"
 
-namespace MMWave::PeopleTracking {
+namespace MMWave::Configured::PeopleTracking {
 
 // Contains a pointer to each point_cloud paired with pointers to the
 // corresponding entry_queue entry (at index + offset), accounting for offset.
