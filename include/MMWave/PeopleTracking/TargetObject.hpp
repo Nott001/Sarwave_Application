@@ -46,7 +46,7 @@ struct IdentifiedObject : TargetObject {
     //See TargetHeight
     float maxZ{}, minZ{};
 
-    //See TrackedTarget
+    //See TargetList
     float posX{}, posY{}, posZ{};
     float velX{}, velY{}, velZ{};
     float accX{}, accY{}, accZ{};
@@ -54,7 +54,7 @@ struct IdentifiedObject : TargetObject {
     float g{};
     float confidenceLevel{};
 
-    void updateTrackingData(const Tlv::TrackedTarget& tracked_target) {
+    void updateTrackingData(const Tlv::TargetList& tracked_target) {
         posX = tracked_target.posX;
         posY = tracked_target.posY;
         posZ = tracked_target.posZ;
@@ -76,7 +76,7 @@ struct IdentifiedObject : TargetObject {
 
     void updateData(
         const std::vector<Tlv::CompressedPoint>& point_cloud,
-        const Tlv::TrackedTarget& tracked_target,
+        const Tlv::TargetList& tracked_target,
         const Tlv::TargetHeight& target_height)
     {
         updateCloud(point_cloud);

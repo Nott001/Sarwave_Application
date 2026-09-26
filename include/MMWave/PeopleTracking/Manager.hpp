@@ -94,6 +94,7 @@ struct Manager {
                     const auto& indexes = target.indexes.value();
 
                     std::vector<uint32_t> target_ids;
+                    target_ids.reserve(target.tracks.getCount() + 1);
                     for (const auto& track : target.tracks) {
                         target_ids.push_back(track.targetID); // guaranteed unique per track
                     }
@@ -103,9 +104,8 @@ struct Manager {
                         std::vector<Tlv::CompressedPoint> cloud_points;
                         size_t i = 0;
                         for (const uint8_t idx : indexes) {
-                            if (static_cast<uint32_t>(idx) == id) {
-                                cloud_points.push_back(points[i]);
-                            }
+                            if (static_cast<uint32_t>(idx) != id) continue;
+                            cloud_points.push_back(points[i]);
                             i++;
                         }
 

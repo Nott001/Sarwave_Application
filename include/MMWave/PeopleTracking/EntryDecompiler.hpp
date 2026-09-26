@@ -7,7 +7,7 @@
 
 namespace MMWave::PeopleTracking {
     struct TargetData {
-        Tlv::TrackedTarget::TrackedTargetRange tracks = Tlv::TrackedTarget::TrackedTargetRange();
+        Tlv::TargetList::TargetListRange tracks = Tlv::TargetList::TargetListRange();
         Tlv::TargetHeight::TargetHeightRange heights = Tlv::TargetHeight::TargetHeightRange();
         std::optional<Tlv::TargetIndex::TargetIndexRange> indexes = std::nullopt;
     };
@@ -29,7 +29,7 @@ namespace MMWave::PeopleTracking {
                 }
                 case Tlv::TLV_TARGET_LIST: {
                     if (!value.target.has_value()) value.target = TargetData();
-                    value.target.value().tracks = Tlv::TrackedTarget::range(tlv);
+                    value.target.value().tracks = Tlv::TargetList::range(tlv);
                     break;
                 }
                 case Tlv::TLV_TARGET_HEIGHT: {

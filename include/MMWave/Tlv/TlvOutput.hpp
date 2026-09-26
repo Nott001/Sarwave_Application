@@ -53,7 +53,7 @@ namespace MMWave::Tlv {
     // People Tracking demo's per-target record (trackerProc_Target). One of
     // these per currently-tracked object in the TLV_TARGET_LIST payload.
     // Confirmed field-for-field against the official user's guide.
-    struct TrackedTarget {
+    struct TargetList {
         uint32_t targetID;               // persistent track ID
         float posX, posY, posZ;
         float velX, velY, velZ;
@@ -62,34 +62,34 @@ namespace MMWave::Tlv {
         float g;                         // gating function gain
         float confidenceLevel;
 
-        // Iterable range of TrackedTarget. Only meaningful when
+        // Iterable range of TargetList. Only meaningful when
         // type == TLV_TARGET_LIST.
-        struct TrackedTargetRange {
+        struct TargetListRange {
             const uint8_t* payload;
             uint32_t length;
 
             [[nodiscard]] uint32_t getCount() const {
-                return length / sizeof(TrackedTarget);
+                return length / sizeof(TargetList);
             }
 
-            [[nodiscard]] const TrackedTarget* begin() const {
-                return reinterpret_cast<const TrackedTarget*>(payload);
+            [[nodiscard]] const TargetList* begin() const {
+                return reinterpret_cast<const TargetList*>(payload);
             }
-            [[nodiscard]] const TrackedTarget* end() const {
-                return begin() + (length / sizeof(TrackedTarget));
+            [[nodiscard]] const TargetList* end() const {
+                return begin() + (length / sizeof(TargetList));
             }
 
-            [[nodiscard]] const TrackedTarget& operator[](const uint32_t i) const {
+            [[nodiscard]] const TargetList& operator[](const uint32_t i) const {
                 assert(i < getCount());
                 return begin()[i];
             }
         };
 
-        [[nodiscard]] static TrackedTargetRange range(const TlvEntry& entry) {
+        [[nodiscard]] static TargetListRange range(const TlvEntry& entry) {
             return {entry.payload, entry.length};
         }
     };
-    // sizeof(TrackedTarget) == 112 bytes (4 + 9*4 + 16*4 + 4 + 4).
+    // sizeof(TargetList) == 112 bytes (4 + 9*4 + 16*4 + 4 + 4).
 
     // Target Height TLV (type 1012) per-target record.
     struct TargetHeight {
