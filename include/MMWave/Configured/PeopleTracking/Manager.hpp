@@ -11,10 +11,10 @@
 #include <cstring>
 #include <optional>
 
-#include "../Streaming.hpp"
-#include "../Tlv/TlvCore.hpp"
-#include "../Tlv/TlvOutput.hpp"
-#include "../Tlv/TlvPointCloud.hpp"
+#include "../../Streaming.hpp"
+#include "../../Tlv/TlvCore.hpp"
+#include "../../Tlv/TlvOutput.hpp"
+#include "../../Tlv/TlvPointCloud.hpp"
 #include "EntryDecompiler.hpp"
 #include "TargetObject.hpp"
 
