@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <cassert>
 
 #include "TlvCore.hpp"
 #include "TlvPointCloud.hpp"
@@ -36,6 +37,11 @@ namespace MMWave::Tlv {
             }
             [[nodiscard]] const DetectedPoint* end() const {
                 return begin() + (length / sizeof(DetectedPoint));
+            }
+
+            [[nodiscard]] const DetectedPoint& operator[](const uint32_t i) const {
+                assert(i < getCount());
+                return begin()[i];
             }
         };
 
@@ -72,6 +78,11 @@ namespace MMWave::Tlv {
             [[nodiscard]] const TrackedTarget* end() const {
                 return begin() + (length / sizeof(TrackedTarget));
             }
+
+            [[nodiscard]] const TrackedTarget& operator[](const uint32_t i) const {
+                assert(i < getCount());
+                return begin()[i];
+            }
         };
 
         [[nodiscard]] static TrackedTargetRange range(const TlvEntry& entry) {
@@ -101,6 +112,11 @@ namespace MMWave::Tlv {
             }
             [[nodiscard]] const TargetHeight* end() const {
                 return begin() + (length / sizeof(TargetHeight));
+            }
+
+            [[nodiscard]] const TargetHeight& operator[](const uint32_t i) const {
+                assert(i < getCount());
+                return begin()[i];
             }
         };
 
@@ -165,6 +181,11 @@ namespace MMWave::Tlv {
                 const uint32_t pointsBytes = length > sizeof(PointUnit) ? length - sizeof(PointUnit) : 0;
                 return begin() + (pointsBytes / sizeof(CompressedPoint));
             }
+
+            [[nodiscard]] const CompressedPoint& operator[](const uint32_t i) const {
+                assert(i < getCount());
+                return begin()[i];
+            }
         };
 
         [[nodiscard]] static PointCloudRange range(const TlvEntry& entry) {
@@ -190,6 +211,11 @@ namespace MMWave::Tlv {
 
             [[nodiscard]] const uint8_t* begin() const { return payload; }
             [[nodiscard]] const uint8_t* end() const { return payload + length; }
+
+            [[nodiscard]] const uint8_t& operator[](const uint32_t i) const {
+                assert(i < getCount());
+                return begin()[i];
+            }
         };
 
         [[nodiscard]] static TargetIndexRange range(const TlvEntry& entry) {
@@ -199,7 +225,6 @@ namespace MMWave::Tlv {
 
     // PresenceIndication TLV (type 1021).
     namespace PresenceIndication {
-
         // Presence Indication TLV (type 1021) is just a single uint32:
         // 1 = presence detected, 0 = no presence detected.
         [[nodiscard]] static bool presence(const TlvEntry& entry) {
