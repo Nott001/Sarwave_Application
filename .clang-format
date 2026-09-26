@@ -1,9 +1,9 @@
 BasedOnStyle: Google
 ColumnLimit: 100
 IndentWidth: 4
-IndentAccessModifiers: true
+IndentAccessModifiers: false
 UseTab: Never
 IndentCaseLabels: true
 PointerAlignment: Left
 AllowShortFunctionsOnASingleLine: None
-BreakBeforeBraces: Stroustrup
+BreakBeforeBraces: Attach

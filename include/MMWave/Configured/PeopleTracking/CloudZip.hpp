@@ -16,8 +16,7 @@ struct CloudEntry {
     const PointUnit* unit;
     const std::chrono::steady_clock::time_point* time;
 
-    [[nodiscard]] auto get() const
-    {
+    [[nodiscard]] auto get() const {
         return std::tie(*cloud, *unit, *time);
     }
 };
@@ -26,64 +25,56 @@ struct CloudEntry {
 // Manager entry_queue entry at index (i + offset), accounting for the offset.
 // Requires the invariant point_clouds.size() + offset == entry_queue.size().
 class CloudRange {
-        TargetObject& target;
-        Manager& manager;
+    TargetObject& target;
+    Manager& manager;
 
-    public:
-        class Iterator {
-                TargetObject* target;
-                Manager* manager;
-                size_t index;
+   public:
+    class Iterator {
+        TargetObject* target;
+        Manager* manager;
+        size_t index;
 
-            public:
-                using iterator_category = std::forward_iterator_tag;
-                using value_type = CloudEntry;
-                using difference_type = std::ptrdiff_t;
-                using pointer = CloudEntry*;
-                using reference = CloudEntry&;
+       public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = CloudEntry;
+        using difference_type = std::ptrdiff_t;
+        using pointer = CloudEntry*;
+        using reference = CloudEntry&;
 
-                Iterator(TargetObject* t, Manager* m, const size_t idx)
-                    : target(t), manager(m), index(idx)
-                {
-                }
-
-                CloudEntry operator*() const
-                {
-                    const size_t entry_index = index + target->offset;
-                    return CloudEntry{&target->point_clouds[index],
-                                      &manager->getEntryQueue()[entry_index].unit,
-                                      &manager->getEntryQueue()[entry_index].time};
-                }
-
-                Iterator& operator++()
-                {
-                    ++index;
-                    return *this;
-                }
-
-                bool operator!=(const Iterator& other) const
-                {
-                    return index != other.index;
-                }
-        };
-
-        CloudRange(TargetObject& t, Manager& m) : target(t), manager(m)
-        {
+        Iterator(TargetObject* t, Manager* m, const size_t idx)
+            : target(t), manager(m), index(idx) {
         }
 
-        [[nodiscard]] Iterator begin() const
-        {
-            return {&target, &manager, 0};
+        CloudEntry operator*() const {
+            const size_t entry_index = index + target->offset;
+            return CloudEntry{&target->point_clouds[index],
+                              &manager->getEntryQueue()[entry_index].unit,
+                              &manager->getEntryQueue()[entry_index].time};
         }
-        [[nodiscard]] Iterator end() const
-        {
-            return {&target, &manager, target.point_clouds.size()};
+
+        Iterator& operator++() {
+            ++index;
+            return *this;
         }
+
+        bool operator!=(const Iterator& other) const {
+            return index != other.index;
+        }
+    };
+
+    CloudRange(TargetObject& t, Manager& m) : target(t), manager(m) {
+    }
+
+    [[nodiscard]] Iterator begin() const {
+        return {&target, &manager, 0};
+    }
+    [[nodiscard]] Iterator end() const {
+        return {&target, &manager, target.point_clouds.size()};
+    }
 };
 
-inline CloudRange pairClouds(TargetObject& target, Manager& manager)
-{
+inline CloudRange pairClouds(TargetObject& target, Manager& manager) {
     return {target, manager};
 }
 
-}
+}  // namespace MMWave::Configured::PeopleTracking
