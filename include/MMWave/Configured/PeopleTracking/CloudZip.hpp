@@ -12,8 +12,8 @@ namespace MMWave::Configured::PeopleTracking {
 // corresponding entry_queue entry (at index + offset), accounting for offset.
 // Pointers are invalidated if point_clouds or entry_queue are resized.
 struct CloudEntry {
-    const std::vector<Tlv::CompressedPoint>* cloud;
-    const Tlv::PointUnit* unit;
+    const std::vector<CompressedPoint>* cloud;
+    const PointUnit* unit;
     const std::chrono::steady_clock::time_point* time;
 
     [[nodiscard]] auto get() const

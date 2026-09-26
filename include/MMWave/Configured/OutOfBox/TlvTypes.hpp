@@ -32,7 +32,7 @@ constexpr const char* tlvTypeName(const TlvType type)
     }
 }
 
-}  // namespace MMWave::Tlv
+}
 
 namespace std {
 
@@ -52,4 +52,4 @@ struct formatter<MMWave::Configured::OutOfBox::TlvType> : formatter<string_view>
     }
 };
 
-}  // namespace std
+}

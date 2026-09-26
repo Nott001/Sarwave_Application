@@ -11,10 +11,10 @@
 #include <cstring>
 #include <optional>
 
-#include "../../Streaming.hpp"
-#include "../../Tlv/TlvCore.hpp"
-#include "../../Tlv/TlvOutput.hpp"
-#include "../../Tlv/TlvPointCloud.hpp"
+#include "MMWave/Streaming.hpp"
+#include "MMWave/TlvCore.hpp"
+#include "MMWave/Configured/PeopleTracking/TlvOutput.hpp"
+#include "MMWave/Configured/PeopleTracking/PointCloud.hpp"
 #include "EntryDecompiler.hpp"
 #include "TargetObject.hpp"
 
@@ -22,23 +22,23 @@ namespace MMWave::Configured::PeopleTracking {
 struct Manager {
     public:
         struct Entry {
-            Entry(const Tlv::PointUnit unit, const std::chrono::steady_clock::time_point time) :
+            Entry(const PointUnit unit, const std::chrono::steady_clock::time_point time) :
             unit(unit), time(time) {}
 
-            Tlv::PointUnit unit;
+            PointUnit unit;
             std::chrono::steady_clock::time_point time;
         };
 
     private:
         struct FullEntry {
             FullEntry(
-                const std::vector<Tlv::CompressedPoint>& points,
-                const Tlv::PointUnit unit,
+                const std::vector<CompressedPoint>& points,
+                const PointUnit unit,
                 const std::chrono::steady_clock::time_point time) :
             points(points), unit(unit), time(time) {}
 
-            std::vector<Tlv::CompressedPoint> points;
-            Tlv::PointUnit unit;
+            std::vector<CompressedPoint> points;
+            PointUnit unit;
             std::chrono::steady_clock::time_point time;
         };
 
@@ -101,7 +101,7 @@ struct Manager {
                     target_ids.push_back(255);
 
                     for (const uint32_t id : target_ids) {
-                        std::vector<Tlv::CompressedPoint> cloud_points;
+                        std::vector<CompressedPoint> cloud_points;
                         size_t i = 0;
                         for (const uint8_t idx : indexes) {
                             if (static_cast<uint32_t>(idx) != id) continue;
@@ -117,7 +117,7 @@ struct Manager {
                             throw std::runtime_error(
                                 "TargetObject id=" + std::to_string(id) +
                                 (id == 255 ? " non-object" : "") +
-                                " point_clouds.size()+offset != entry_queue.size()"
+                                " point_clouds.size()+offset!=entry_queue.size()"
                             );
                         }
                         obj->updateCloud(cloud_points);
@@ -129,18 +129,18 @@ struct Manager {
         }
 
     private:
-        void updatePointCloudData(Tlv::PointCloud::PointCloudRange point_cloud, const std::chrono::steady_clock::time_point& time) {
+        void updatePointCloudData(PointCloud::PointCloudRange point_cloud, const std::chrono::steady_clock::time_point& time) {
             const auto [payload, length] = point_cloud;
-            if (length < sizeof(Tlv::PointUnit)) return;
+            if (length < sizeof(PointUnit)) return;
 
-            std::vector<Tlv::CompressedPoint> points;
-            const size_t point_count = (length - sizeof(Tlv::PointUnit)) / sizeof(Tlv::CompressedPoint);
+            std::vector<CompressedPoint> points;
+            const size_t point_count = (length - sizeof(PointUnit)) / sizeof(CompressedPoint);
             points.resize(point_count);
-            Tlv::PointUnit unit{};
-            std::memcpy(&unit, payload, sizeof(Tlv::PointUnit));
+            PointUnit unit{};
+            std::memcpy(&unit, payload, sizeof(PointUnit));
             std::memcpy(
-                points.data(), payload + sizeof(Tlv::PointUnit),
-                point_count * sizeof(Tlv::CompressedPoint));
+                points.data(), payload + sizeof(PointUnit),
+                point_count * sizeof(CompressedPoint));
 
             last_entry = FullEntry(points, unit, time);
         }

@@ -1,19 +1,19 @@
 #pragma once
 
-#include "../../Streaming.hpp"
-#include "../../Tlv/TlvTypes.hpp"
-#include "../../Tlv/TlvCore.hpp"
-#include "../../Tlv/TlvOutput.hpp"
+#include "MMWave/Streaming.hpp"
+#include "MMWave/TlvCore.hpp"
+#include "TlvTypes.hpp"
+#include "TlvOutput.hpp"
 
 namespace MMWave::Configured::PeopleTracking {
     struct TargetData {
-        Tlv::TargetList::TargetListRange tracks = Tlv::TargetList::TargetListRange();
-        Tlv::TargetHeight::TargetHeightRange heights = Tlv::TargetHeight::TargetHeightRange();
-        std::optional<Tlv::TargetIndex::TargetIndexRange> indexes = std::nullopt;
+        TargetList::TargetListRange tracks = TargetList::TargetListRange();
+        TargetHeight::TargetHeightRange heights = TargetHeight::TargetHeightRange();
+        std::optional<TargetIndex::TargetIndexRange> indexes = std::nullopt;
     };
 
     struct ObjectData {
-        std::optional<Tlv::PointCloud::PointCloudRange> point_cloud = std::nullopt;
+        std::optional<PointCloud::PointCloudRange> point_cloud = std::nullopt;
         std::optional<TargetData> target = std::nullopt;
         std::optional<bool> presence = std::nullopt;
     };
@@ -21,29 +21,29 @@ namespace MMWave::Configured::PeopleTracking {
     static ObjectData unpack(const Streaming::Frame& frame) {
         ObjectData value;
 
-        for (const auto& tlv : Tlv::TlvRange(frame)) {
+        for (const auto& tlv : TlvRange(frame)) {
             switch (tlv.type) {
-                case Tlv::TLV_POINT_CLOUD: {
-                    value.point_cloud = Tlv::PointCloud::range(tlv);
+                case TlvType::TLV_POINT_CLOUD: {
+                    value.point_cloud = PointCloud::range(tlv);
                     break;
                 }
-                case Tlv::TLV_TARGET_LIST: {
+                case TlvType::TLV_TARGET_LIST: {
                     if (!value.target.has_value()) value.target = TargetData();
-                    value.target.value().tracks = Tlv::TargetList::range(tlv);
+                    value.target.value().tracks = TargetList::range(tlv);
                     break;
                 }
-                case Tlv::TLV_TARGET_HEIGHT: {
+                case TlvType::TLV_TARGET_HEIGHT: {
                     if (!value.target.has_value()) value.target = TargetData();
-                    value.target.value().heights = Tlv::TargetHeight::range(tlv);
+                    value.target.value().heights = TargetHeight::range(tlv);
                     break;
                 }
-                case Tlv::TLV_TARGET_INDEX: {
+                case TlvType::TLV_TARGET_INDEX: {
                     if (!value.target.has_value()) value.target = TargetData();
-                    value.target.value().indexes = Tlv::TargetIndex::range(tlv);
+                    value.target.value().indexes = TargetIndex::range(tlv);
                     break;
                 }
-                case Tlv::TLV_PRESENCE_INDICATION: {
-                    value.presence = Tlv::PresenceIndication::presence(tlv);
+                case TlvType::TLV_PRESENCE_INDICATION: {
+                    value.presence = PresenceIndication::presence(tlv);
                     break;
                 }
                 default:;

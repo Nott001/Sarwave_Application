@@ -1,17 +1,17 @@
-#include <cmath>
-
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QVariantList>
 #include <QVariantMap>
+#include <cmath>
 
 #include "DashboardState.h"
+#include "MMWave/Configured/PeopleTracking/TlvOutput.hpp"
+#include "MMWave/Configured/PeopleTracking/TlvTypes.hpp"
 #include "MMWave/Porter.hpp"
 #include "MMWave/Prompting/Terminal.hpp"
 #include "MMWave/ThreadedStreaming.hpp"
-#include "MMWave/Tlv/TlvCore.hpp"
-#include "MMWave/Tlv/TlvOutput.hpp"
+#include "MMWave/TlvCore.hpp"
 #include "QtCommon/MMWavePrompt/CfgDialog.hpp"
 #include "QtCommon/MMWavePrompt/PortDialog.hpp"
 
@@ -55,12 +55,12 @@ int main(int argc, char* argv[])
                     // scale factors followed by 8-byte CompressedPoint entries.
                     // Convert back to real units, then to the dashboard's
                     // radar coords (x = lateral, y = forward range, z = height).
-                    for (const auto& tlv : MMWave::Tlv::TlvRange(frame)) {
-                        if (tlv.type != MMWave::Tlv::TLV_POINT_CLOUD) continue;
+                    for (const auto& tlv : MMWave::TlvRange(frame)) {
+                        if (tlv.type != MMWave::Configured::PeopleTracking::TLV_POINT_CLOUD) continue;
 
-                        const auto cloud = MMWave::Tlv::PointCloud::range(tlv);
+                        const auto cloud = MMWave::Configured::PeopleTracking::PointCloud::range(tlv);
                         for (const auto& point : cloud) {
-                            const auto v = MMWave::Tlv::PointCloud::Convert(point, cloud.unit());
+                            const auto v = MMWave::Configured::PeopleTracking::PointValue::Convert(point, cloud.unit());
                             const double rangeM = v.range;
                             const double azimuth = v.azimuth;
                             const double elevation = v.elevation;

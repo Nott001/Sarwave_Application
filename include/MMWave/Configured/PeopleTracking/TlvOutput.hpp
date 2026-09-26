@@ -1,8 +1,6 @@
 #pragma once
 
-#include <format>
-
-#include "../../Tlv/TlvCore.hpp"
+#include "MMWave/TlvCore.hpp"
 #include "PointCloud.hpp"
 
 namespace MMWave::Configured::PeopleTracking {
@@ -42,7 +40,7 @@ namespace MMWave::Configured::PeopleTracking {
             }
         };
 
-        [[nodiscard]] static TargetListRange range(const Tlv::TlvEntry& entry) {
+        [[nodiscard]] static TargetListRange range(const MMWave::TlvEntry& entry) {
             return {entry.payload, entry.length};
         }
     };
@@ -77,48 +75,21 @@ namespace MMWave::Configured::PeopleTracking {
             }
         };
 
-        [[nodiscard]] static TargetHeightRange range(const Tlv::TlvEntry& entry) {
+        [[nodiscard]] static TargetHeightRange range(const MMWave::TlvEntry& entry) {
             return {entry.payload, entry.length};
         }
     };
 #pragma pack(pop)
 
     // PointCloud TLV (type 1020) wrapper.
-    struct PointCloud {
+    namespace PointCloud {
         // PointCloud TLV payload is COMPRESSED, not plain floats.
         // The TLV starts with exactly one PointUnit (the scale factors), followed
         // by an array of CompressedPoint entries.
 
-        struct PointValue {
-            float range;
-            float azimuth;
-            float elevation;
-            float doppler;
-            float snr;
-        };
-
-        [[nodiscard]] static PointValue Convert(const CompressedPoint& point, const PointUnit& unit) {
-            return {
-                static_cast<float>(point.range) * unit.rangeUnit,
-                static_cast<float>(point.azimuth) * unit.azimuthUnit,
-                static_cast<float>(point.elevation) * unit.elevationUnit,
-                static_cast<float>(point.doppler) * unit.dopplerUnit,
-                static_cast<float>(point.snr) * unit.snrUnit
-            };
-        }
-
         // View over a Point Cloud TLV (type 1020): the leading PointUnit
         // followed by however many CompressedPoint entries fit in the rest
         // of the payload. Only meaningful when type == TLV_POINT_CLOUD.
-        //
-        //   auto pc = PointCloud::range(tlv);
-        //   const auto& u = pc.unit();
-        //   for (const auto& p : pc) {
-        //       auto v = PointCloud::Convert(p, u);
-        //       float rangeM = v.range;
-        //       float azRad  = v.azimuth;
-        //       ...
-        //   }
         struct PointCloudRange {
             const uint8_t* payload;
             uint32_t length;
@@ -145,10 +116,10 @@ namespace MMWave::Configured::PeopleTracking {
             }
         };
 
-        [[nodiscard]] static PointCloudRange range(const Tlv::TlvEntry& entry) {
+        [[nodiscard]] static PointCloudRange range(const MMWave::TlvEntry& entry) {
             return {entry.payload, entry.length};
         }
-    };
+    }
 
     // TargetIndex TLV (type 1011).
     namespace TargetIndex {
@@ -175,7 +146,7 @@ namespace MMWave::Configured::PeopleTracking {
             }
         };
 
-        [[nodiscard]] static TargetIndexRange range(const Tlv::TlvEntry& entry) {
+        [[nodiscard]] static TargetIndexRange range(const MMWave::TlvEntry& entry) {
             return {entry.payload, entry.length};
         }
     }
@@ -184,7 +155,7 @@ namespace MMWave::Configured::PeopleTracking {
     namespace PresenceIndication {
         // Presence Indication TLV (type 1021) is just a single uint32:
         // 1 = presence detected, 0 = no presence detected.
-        [[nodiscard]] static bool presence(const Tlv::TlvEntry& entry) {
+        [[nodiscard]] static bool presence(const MMWave::TlvEntry& entry) {
             uint32_t value = 0;
             std::memcpy(&value, entry.payload, sizeof(value));
             return value != 0;

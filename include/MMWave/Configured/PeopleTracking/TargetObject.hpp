@@ -5,17 +5,17 @@
 #include <deque>
 #include <unordered_map>
 
-#include "../../Streaming.hpp"
-#include "../../Tlv/TlvCore.hpp"
-#include "../../Tlv/TlvOutput.hpp"
-#include "../../Tlv/TlvPointCloud.hpp"
+#include "MMWave/Streaming.hpp"
+#include "MMWave/TvlCore.hpp"
+#include "MMWave/Configured/PeopleTracking/PointCloud.hpp"
+#include "MMWave/Configured/PeopleTracking/TlvOutput.hpp"
 
 namespace MMWave::Configured::PeopleTracking {
 struct TargetObject {
-    std::deque<std::vector<Tlv::CompressedPoint>> point_clouds;
+    std::deque<std::vector<CompressedPoint>> point_clouds;
     size_t offset = 0;
 
-    void updateCloud(const std::vector<Tlv::CompressedPoint>& point_cloud) {
+    void updateCloud(const std::vector<CompressedPoint>& point_cloud) {
         point_clouds.push_back(point_cloud);
     }
 
@@ -54,7 +54,7 @@ struct IdentifiedObject : TargetObject {
     float g{};
     float confidenceLevel{};
 
-    void updateTrackingData(const Tlv::TargetList& tracked_target) {
+    void updateTrackingData(const TargetList& tracked_target) {
         posX = tracked_target.posX;
         posY = tracked_target.posY;
         posZ = tracked_target.posZ;
@@ -69,15 +69,15 @@ struct IdentifiedObject : TargetObject {
         confidenceLevel = tracked_target.confidenceLevel;
     }
 
-    void updateHeightData(const Tlv::TargetHeight& target_height) {
+    void updateHeightData(const TargetHeight& target_height) {
         maxZ = target_height.maxZ;
         minZ = target_height.minZ;
     }
 
     void updateData(
-        const std::vector<Tlv::CompressedPoint>& point_cloud,
-        const Tlv::TargetList& tracked_target,
-        const Tlv::TargetHeight& target_height)
+        const std::vector<CompressedPoint>& point_cloud,
+        const TargetList& tracked_target,
+        const TargetHeight& target_height)
     {
         updateCloud(point_cloud);
         updateTrackingData(tracked_target);

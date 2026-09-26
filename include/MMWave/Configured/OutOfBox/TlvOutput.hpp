@@ -2,8 +2,7 @@
 
 #include <cassert>
 
-#include "MMWave/Tlv/TlvCore.hpp"
-#include "../../Tlv/TlvCore.hpp"
+#include "MMWave/TlvCore.hpp"
 
 namespace MMWave::Configured::OutOfBox {
     // TLV header + known payload types for the 3D People Tracking demo output
@@ -42,7 +41,7 @@ namespace MMWave::Configured::OutOfBox {
             }
         };
 
-        [[nodiscard]] static DetectedPointRange range(const Tlv::TlvEntry& entry) {
+        [[nodiscard]] static DetectedPointRange range(const MMWave::TlvEntry& entry) {
             return {entry.payload, entry.length};
         }
     };

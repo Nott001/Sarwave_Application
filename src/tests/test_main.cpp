@@ -5,11 +5,12 @@
 #include <iostream>
 #include <vector>
 
+#include "../../include/MMWave/TlvCore.hpp"
 #include "DashboardState.h"
+#include "MMWave/Configured/OutOfBox/TlvOutput.hpp"
+#include "MMWave/Configured/OutOfBox/TlvTypes.hpp"
 #include "MMWave/Prompting/General.hpp"
 #include "MMWave/Streaming.hpp"
-#include "MMWave/Tlv/TlvCore.hpp"
-#include "MMWave/Tlv/TlvOutput.hpp"
 #include "ProtocolDefinitions.h"
 
 class DashboardStateTest : public QObject {
@@ -190,8 +191,8 @@ class TlvTest : public QObject {
         {
             QCOMPARE(sizeof(MMWave::Streaming::MAGIC_WORD), 8u);
             QCOMPARE(sizeof(MMWave::Streaming::FrameHeader), 32u);
-            QCOMPARE(sizeof(MMWave::Tlv::TlvHeader), 8u);
-            QCOMPARE(sizeof(MMWave::Tlv::DetectedPoint), 16u);
+            QCOMPARE(sizeof(MMWave::TlvHeader), 8u);
+            QCOMPARE(sizeof(MMWave::Configured::OutOfBox::DetectedPoint), 16u);
         }
 
         void testMagicWord()
@@ -235,25 +236,25 @@ class TlvTest : public QObject {
             uint8_t hb[32];
             std::memcpy(hb, &sf.header, 32);
             bytes.insert(bytes.end(), hb, hb + 32);
-            MMWave::Tlv::TlvHeader tlh{1, 32};
+            MMWave::TlvHeader tlh{1, 32};
             uint8_t tlhb[8];
             std::memcpy(tlhb, &tlh, 8);
             bytes.insert(bytes.end(), tlhb, tlhb + 8);
-            MMWave::Tlv::DetectedPoint p1{1.0f, 2.0f, 0.5f, 0.3f};
+            MMWave::Configured::OutOfBox::DetectedPoint p1{1.0f, 2.0f, 0.5f, 0.3f};
             bytes.insert(bytes.end(), reinterpret_cast<const uint8_t*>(&p1),
                          reinterpret_cast<const uint8_t*>(&p1) + 16);
-            MMWave::Tlv::DetectedPoint p2{3.0f, 4.0f, 1.0f, -0.5f};
+            MMWave::Configured::OutOfBox::DetectedPoint p2{3.0f, 4.0f, 1.0f, -0.5f};
             bytes.insert(bytes.end(), reinterpret_cast<const uint8_t*>(&p2),
                          reinterpret_cast<const uint8_t*>(&p2) + 16);
 
             QCOMPARE(bytes.size(), 80u);
             const uint8_t* tlvOff = bytes.data() + 8 + 32;
-            MMWave::Tlv::TlvHeader rl;
+            MMWave::TlvHeader rl;
             std::memcpy(&rl, tlvOff, sizeof(rl));
-            QCOMPARE(rl.type, MMWave::Tlv::TLV_DETECTED_POINTS);
+            QCOMPARE(rl.type, MMWave::Configured::OutOfBox::TLV_DETECTED_POINTS);
             QCOMPARE(rl.length, 32u);
-            const MMWave::Tlv::DetectedPoint* pts =
-                reinterpret_cast<const MMWave::Tlv::DetectedPoint*>(tlvOff + 8);
+            const MMWave::Configured::OutOfBox::DetectedPoint* pts =
+                reinterpret_cast<const MMWave::Configured::OutOfBox::DetectedPoint*>(tlvOff + 8);
             QCOMPARE(pts[0].x, 1.0f);
             QCOMPARE(pts[0].y, 2.0f);
             QCOMPARE(pts[1].x, 3.0f);
@@ -261,9 +262,9 @@ class TlvTest : public QObject {
 
             int count = 0;
             int idx = 0;
-            for (const auto& tlv : MMWave::Tlv::TlvRange(sf)) {
-                if (tlv.type == MMWave::Tlv::TLV_DETECTED_POINTS) {
-                    for (const auto& pt : MMWave::Tlv::DetectedPoint::range(tlv)) {
+            for (const auto& tlv : MMWave::TlvRange(sf)) {
+                if (tlv.type == MMWave::Configured::OutOfBox::TLV_DETECTED_POINTS) {
+                    for (const auto& pt : MMWave::Configured::OutOfBox::DetectedPoint::range(tlv)) {
                         QCOMPARE(pt.x, idx == 0 ? 1.0f : 3.0f);
                         QCOMPARE(pt.y, idx == 0 ? 2.0f : 4.0f);
                         idx++;
@@ -286,7 +287,7 @@ class TlvTest : public QObject {
             std::memcpy(hb, &sf.header, sizeof(MMWave::Streaming::FrameHeader));
             bytes.insert(bytes.end(), hb, hb + sizeof(hb));
             bool found = false;
-            for (const auto& tlv : MMWave::Tlv::TlvRange(sf)) {
+            for (const auto& tlv : MMWave::TlvRange(sf)) {
                 (void)tlv;
                 found = true;
             }

@@ -1,13 +1,11 @@
 #pragma once
 
 #include <cstddef>
-#include <cstdint>
 #include <cstring>
 
-#include "../Streaming.hpp"
-#include "TlvTypes.hpp"
+#include "MMWave/Streaming.hpp"
 
-namespace MMWave::Tlv {
+namespace MMWave {
 
 #pragma pack(push, 1)
 
@@ -21,30 +19,11 @@ struct TlvHeader {
 // A view over one TLV entry's payload -- doesn't own the bytes, just
 // points into the Frame's buffer.
 struct TlvEntry {
-    TlvType type;
+    uint32_t type;
     const uint8_t* payload;
     uint32_t length;
 };
 
-// Custom iterator + range for walking every TLV in a completed Frame:
-//
-//   for (const auto& tlv : Tlv::TlvRange(frame)) {
-//       switch (tlv.type) {
-//           case Tlv::TLV_POINT_CLOUD:
-//               for (const auto& point : tlv.compressedPoints()) { ... }
-//               break;
-//           case Tlv::TLV_TARGET_LIST:
-//               for (const auto& target : tlv.targets()) { ... }
-//               break;
-//           case Tlv::TLV_TARGET_INDEX:
-//               for (uint8_t tid : tlv.targetIndices()) { ... }
-//               break;
-//           case Tlv::TLV_PRESENCE_INDICATION:
-//               bool present = tlv.presence() == 1;
-//               break;
-//       }
-//   }
-//
 // Bounds-checked: if numTLVs or any TLV's declared length doesn't
 // actually fit within the frame's bytes (malformed/truncated data),
 // iteration stops early rather than reading out of bounds.
@@ -70,7 +49,7 @@ public:
             // enumerator, e.g. a TLV type this header hasn't been
             // updated for yet) -- well-defined since TlvType has a
             // fixed uint32_t underlying type.
-            return {static_cast<TlvType>(hdr.type), data_ + offset_ + sizeof(TlvHeader), hdr.length};
+            return {hdr.type, data_ + offset_ + sizeof(TlvHeader), hdr.length};
         }
 
         Iterator& operator++() {
