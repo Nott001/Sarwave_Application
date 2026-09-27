@@ -110,6 +110,7 @@ QVariantList DashboardState::drawings() const
 void DashboardState::beginDrawings()
 {
     m_batchDrawing = true;
+    m_drawings.clear();
 }
 
 void DashboardState::endDrawings()

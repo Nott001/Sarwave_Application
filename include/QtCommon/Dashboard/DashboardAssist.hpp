@@ -34,7 +34,7 @@ public:
     static void printObjects(
         MMWave::Configured::PeopleTracking::Processing::Manager& manager,
         DashboardState& dashboard,
-        const std::chrono::steady_clock::time_point& frames_start)
+        const std::chrono::nanoseconds& frames_start)
     {
         allocateColours(manager.getIdentifiedObjectCount());
         dashboard.beginDrawings();
@@ -103,7 +103,7 @@ private:
     static void drawObject(
         const MMWave::Configured::PeopleTracking::Processing::TargetObject& obj,
         const MMWave::Configured::PeopleTracking::Processing::Manager& manager,
-        const std::chrono::steady_clock::time_point& frame_start,
+        const std::chrono::nanoseconds& frame_start,
         DashboardState& dashboard) {
         float minX = std::numeric_limits<float>::max();
         float maxX = std::numeric_limits<float>::lowest();
@@ -160,7 +160,7 @@ private:
 
     static void drawNonObjectPoints(
         MMWave::Configured::PeopleTracking::Processing::Manager& manager,
-        const std::chrono::steady_clock::time_point& frame_start,
+        const std::chrono::nanoseconds& frame_start,
         DashboardState& dashboard)
     {
         const auto& non_obj = manager.getNonObject();

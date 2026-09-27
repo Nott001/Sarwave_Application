@@ -20,10 +20,10 @@
 namespace MMWave::Configured::PeopleTracking::Processing {
 struct PointCompilation {
     const PointUnit unit;
-    const std::chrono::steady_clock::time_point time;
+    const std::chrono::nanoseconds time;
     const std::vector<CompressedPoint>& points;
 
-    PointCompilation(const PointUnit& unit, const std::chrono::steady_clock::time_point& time,
+    PointCompilation(const PointUnit& unit, const std::chrono::nanoseconds& time,
                      const std::vector<CompressedPoint>& points)
         : unit(unit), time(time), points(points) {}
 };
@@ -34,24 +34,24 @@ struct Manager {
     }
 
     struct Entry {
-        Entry(const PointUnit unit, const std::chrono::steady_clock::time_point time)
+        Entry(const PointUnit unit, const std::chrono::nanoseconds time)
             : unit(unit), time(time) {
         }
 
         PointUnit unit;
-        std::chrono::steady_clock::time_point time;
+        std::chrono::nanoseconds time;
     };
 
     private:
     struct FullEntry {
         FullEntry(const std::vector<CompressedPoint>& points, const PointUnit unit,
-                  const std::chrono::steady_clock::time_point time)
+                  const std::chrono::nanoseconds time)
             : points(points), unit(unit), time(time) {
         }
 
         std::vector<CompressedPoint> points;
         PointUnit unit;
-        std::chrono::steady_clock::time_point time;
+        std::chrono::nanoseconds time;
     };
 
     std::optional<FullEntry> last_entry;
@@ -82,7 +82,7 @@ struct Manager {
     }
 
     void updateFrameData(const Streaming::Frame& frame,
-                         const std::chrono::steady_clock::time_point& time) {
+                         const std::chrono::nanoseconds& time) {
         const auto data = unpack(frame);
 
         // saved_last_entry captures the previous frame's point cloud data.
@@ -158,7 +158,7 @@ struct Manager {
 
    private:
     void updatePointCloudData(PointCloud::PointCloudRange point_cloud,
-                              const std::chrono::steady_clock::time_point& time) {
+                              const std::chrono::nanoseconds& time) {
         const auto [payload, length] = point_cloud;
         if (length < sizeof(PointUnit)) return;
 
@@ -183,7 +183,7 @@ struct Manager {
         entry_queue.erase(start, it);
     }
 
-    void managePointCloudTimespan(const std::chrono::steady_clock::time_point& time) {
+    void managePointCloudTimespan(const std::chrono::nanoseconds& time) {
         const auto drop_time = time - timespan;
         std::optional<size_t> length = std::nullopt;
         for (const auto& entry : entry_queue) {
