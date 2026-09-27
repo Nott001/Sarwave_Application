@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QString>
 #include <QVariantList>
+#include <QVariantMap>
 
 class DashboardState final : public QObject {
         Q_OBJECT
@@ -23,6 +24,7 @@ class DashboardState final : public QObject {
          Q_PROPERTY(QString connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
          Q_PROPERTY(bool demoMode READ demoMode CONSTANT)
          Q_PROPERTY(double maxRange READ maxRange CONSTANT)
+         Q_PROPERTY(QVariantList drawings READ drawings NOTIFY drawingsChanged)
 
     public:
         explicit DashboardState(double maxRange = 5.0, QObject* parent = nullptr);
@@ -43,28 +45,38 @@ class DashboardState final : public QObject {
         QString lastUpdated() const;
         QString connectionStatus() const;
         bool demoMode() const;
+        QVariantList drawings() const;
 
         // Replaces the point cloud with `points` (a list of maps with x, y, z and
         // v fields) and marks presence accordingly.
         void updatePointCloud(const QVariantList& points);
 
-    signals:
-        void detectionsChanged();
-        void connectionStatusChanged();
-        void pointCloudChanged();
+        void beginDrawings();
+        void endDrawings();
+        void addLine(double x1, double y1, double x2, double y2, double thickness = 2.0, const QString& colour = QStringLiteral("#FF0000"));
+        void addCircle(double cx, double cy, double radius, double thickness = 2.0, const QString& colour = QStringLiteral("#FF0000"), const QString& fillColour = QStringLiteral(""));
+        void clearDrawings();
 
-    private:
-        bool m_presenceDetected = false;
-        QVariantList m_pointCloud;
-        double m_centroidX = 0.0;
-        double m_centroidY = 0.0;
-        double m_centroidZ = 0.0;
-        double m_distance = 0.0;
-        double m_dopplerVelocity = 0.0;
-        double m_pointDensity = 0.0;
-        double m_snr = 0.0;
-        double m_spatialSpread = 0.0;
-        double m_classificationConfidence = 0.0;
-        QString m_lastUpdated;
-        double m_maxRange = 5.0;
+     signals:
+         void detectionsChanged();
+         void connectionStatusChanged();
+         void pointCloudChanged();
+         void drawingsChanged();
+
+     private:
+         bool m_presenceDetected = false;
+         QVariantList m_pointCloud;
+         QVariantList m_drawings;
+         double m_centroidX = 0.0;
+         double m_centroidY = 0.0;
+         double m_centroidZ = 0.0;
+         double m_distance = 0.0;
+         double m_dopplerVelocity = 0.0;
+         double m_pointDensity = 0.0;
+         double m_snr = 0.0;
+         double m_spatialSpread = 0.0;
+         double m_classificationConfidence = 0.0;
+QString m_lastUpdated;
+         double m_maxRange = 5.0;
+          bool m_batchDrawing = false;
 };

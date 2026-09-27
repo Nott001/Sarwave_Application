@@ -5,11 +5,18 @@
 #include <limits>
 #include <vector>
 #include <cmath>
+#include <cstdio>
 
 #include "MMWave/Configured/PeopleTracking/Processing/Manager.hpp"
 #include "MMWave/Configured/PeopleTracking/PointCloud.hpp"
+#include "Dashboard/DashboardState.h"
 
 namespace QtCommon::Dashboard {
+
+constexpr float STANDARD_THICKNESS = 2.0;
+constexpr float POINT_CLOUD_RADIUS = 0.05;
+constexpr float CENTRAL_RADIUS = 0.03;
+constexpr float BOX_PADDING = POINT_CLOUD_RADIUS;
 
 struct Colour {
     float hue = 0.0f;
@@ -26,20 +33,33 @@ public:
 
     static void printObjects(
         MMWave::Configured::PeopleTracking::Processing::Manager& manager,
+        DashboardState& dashboard,
         const std::chrono::steady_clock::time_point& frames_start)
     {
         allocateColours(manager.getIdentifiedObjectCount());
+        dashboard.beginDrawings();
 
         for (const auto& obj : manager.getAllIdentifiedObjects()) {
             changeColour();
-            drawObject(obj, manager, frames_start);
+            drawObject(obj, manager, frames_start, dashboard);
         }
 
-        setColor(0xFFFFFF);
-        drawNonObjectPoints(manager, frames_start);
+        setColour(0xFFFFFF);
+        drawNonObjectPoints(manager, frames_start, dashboard);
+        dashboard.endDrawings();
     }
 
 private:
+    static QString hexToQString(const std::uint32_t hex, const float alpha) {
+        const uint8_t r = (hex >> 24) & 0xFF;
+        const uint8_t g = (hex >> 16) & 0xFF;
+        const uint8_t b = (hex >> 8) & 0xFF;
+        const uint8_t origA = hex & 0xFF;
+        const auto a = static_cast<uint8_t>(static_cast<float>(origA) * alpha);
+        char buf[10];
+        std::snprintf(buf, sizeof(buf), "#%02X%02X%02X%02X", r, g, b, a);
+        return QString::fromLatin1(buf);
+    }
     [[nodiscard]] static uint32_t HsvToRgba(const Colour& colour) {
         const float h = colour.hue / 60.0f;
         const float s = colour.saturation;
@@ -83,13 +103,14 @@ private:
     static void drawObject(
         const MMWave::Configured::PeopleTracking::Processing::TargetObject& obj,
         const MMWave::Configured::PeopleTracking::Processing::Manager& manager,
-        const std::chrono::steady_clock::time_point& frame_start) {
+        const std::chrono::steady_clock::time_point& frame_start,
+        DashboardState& dashboard) {
         float minX = std::numeric_limits<float>::max();
         float maxX = std::numeric_limits<float>::lowest();
         float minY = std::numeric_limits<float>::max();
         float maxY = std::numeric_limits<float>::lowest();
-        float minZ = std::numeric_limits<float>::max();
-        float maxZ = std::numeric_limits<float>::lowest();
+        //float minZ = std::numeric_limits<float>::max();
+        //float maxZ = std::numeric_limits<float>::lowest();
 
         for (size_t i = 0; i < obj.getSize(); i++) {
             auto const p = manager.getPointsOf(obj, i);
@@ -105,25 +126,40 @@ private:
                 float y = point_value.range * std::cos(point_value.azimuth);
                 float z = point_value.range * std::sin(point_value.elevation);
 
-                //drawPoint(...);
-
                 minX = std::min(minX, x);
                 maxX = std::max(maxX, x);
                 minY = std::min(minY, y);
                 maxY = std::max(maxY, y);
-                minZ = std::min(minZ, z);
-                maxZ = std::max(maxZ, z);
+                //minZ = std::min(minZ, z);
+                //maxZ = std::max(maxZ, z);
+
+                dashboard.addCircle(x, y, POINT_CLOUD_RADIUS, STANDARD_THICKNESS, hexToQString(s_hexColour, alpha));
             }
         }
 
-        //drawBox(obj);
-        //drawCentrePoint(obj);
-        //drawVelocityArrow(obj);
+        const float boxMinX = minX - BOX_PADDING;
+        const float boxMaxX = maxX + BOX_PADDING;
+        const float boxMinY = minY - BOX_PADDING;
+        const float boxMaxY = maxY + BOX_PADDING;
+
+        dashboard.addLine(boxMinX, boxMinY, boxMaxX,
+            boxMinY, STANDARD_THICKNESS, hexToQString(s_hexColour, 1.0f));
+        dashboard.addLine(boxMaxX, boxMinY, boxMaxX,
+            boxMaxY, STANDARD_THICKNESS, hexToQString(s_hexColour, 1.0f));
+        dashboard.addLine(boxMaxX, boxMaxY, boxMinX,
+            boxMaxY, STANDARD_THICKNESS, hexToQString(s_hexColour, 1.0f));
+        dashboard.addLine(boxMinX, boxMaxY, boxMinX,
+            boxMinY, STANDARD_THICKNESS, hexToQString(s_hexColour, 1.0f));
+
+        const float cx = (minX + maxX) / 2.0f;
+        const float cy = (minY + maxY) / 2.0f;
+        dashboard.addCircle(cx, cy, CENTRAL_RADIUS, STANDARD_THICKNESS, hexToQString(s_hexColour, 1.0f), hexToQString(s_hexColour, 1.0f));
     }
 
     static void drawNonObjectPoints(
-    MMWave::Configured::PeopleTracking::Processing::Manager& manager,
-    const std::chrono::steady_clock::time_point& frame_start)
+        MMWave::Configured::PeopleTracking::Processing::Manager& manager,
+        const std::chrono::steady_clock::time_point& frame_start,
+        DashboardState& dashboard)
     {
         const auto& non_obj = manager.getNonObject();
         for (size_t i = 0; i < non_obj.getSize(); i++) {
@@ -139,13 +175,9 @@ private:
                 alpha = std::clamp(alpha, 0.0f, 1.0f);
                 const float x = point_value.range * std::sin(point_value.azimuth);
                 const float y = point_value.range * std::cos(point_value.azimuth);
-                const float z = point_value.range * std::sin(point_value.elevation);
+                //const float z = point_value.range * std::sin(point_value.elevation);
 
-                (void)x;
-                (void)y;
-                (void)z;
-
-                //drawPoint(x, y, z, alpha);
+                dashboard.addCircle(x, y, POINT_CLOUD_RADIUS, STANDARD_THICKNESS, hexToQString(s_hexColour, alpha));
             }
         }
     }

@@ -1,5 +1,5 @@
-#include "DashboardState.h"
 #include <cmath>
+#include "DashboardState.h"
 
 DashboardState::DashboardState(const double maxRange, QObject* parent) : QObject(parent), m_maxRange(maxRange)
 {
@@ -100,4 +100,53 @@ void DashboardState::updatePointCloud(const QVariantList& points)
 
     emit detectionsChanged();
     emit pointCloudChanged();
+}
+
+QVariantList DashboardState::drawings() const
+{
+    return m_drawings;
+}
+
+void DashboardState::beginDrawings()
+{
+    m_batchDrawing = true;
+}
+
+void DashboardState::endDrawings()
+{
+    m_batchDrawing = false;
+    emit drawingsChanged();
+}
+
+void DashboardState::addLine(double x1, double y1, double x2, double y2, double thickness, const QString& colour)
+{
+    QVariantMap line;
+    line["type"] = "line";
+    line["x1"] = x1 / m_maxRange;
+    line["y1"] = y1 / m_maxRange;
+    line["x2"] = x2 / m_maxRange;
+    line["y2"] = y2 / m_maxRange;
+    line["thickness"] = thickness;
+    line["colour"] = colour;
+    m_drawings.append(line);
+}
+
+void DashboardState::addCircle(double cx, double cy, double radius, double thickness, const QString& colour, const QString& fillColour)
+{
+    QVariantMap circle;
+    circle["type"] = "circle";
+    circle["cx"] = cx / m_maxRange;
+    circle["cy"] = cy / m_maxRange;
+    circle["r"] = radius / m_maxRange;
+    circle["thickness"] = thickness;
+    circle["colour"] = colour;
+    if (!fillColour.isEmpty()) {
+        circle["fillColour"] = fillColour;
+    }
+    m_drawings.append(circle);
+}
+
+void DashboardState::clearDrawings()
+{
+    m_drawings.clear();
 }

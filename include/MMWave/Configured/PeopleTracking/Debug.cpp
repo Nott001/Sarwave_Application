@@ -12,6 +12,7 @@
 #include "MMWave/Porter.hpp"
 #include "MMWave/ThreadedStreaming.hpp"
 #include "MMWave/TlvCore.hpp"
+#include "Debug.hpp"
 
 namespace MMWave::Configured::PeopleTracking {
 namespace {
