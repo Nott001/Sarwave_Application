@@ -124,7 +124,7 @@ private:
                 alpha = std::clamp(alpha, 0.0f, 1.0f);
                 float x = point_value.range * std::sin(point_value.azimuth);
                 float y = point_value.range * std::cos(point_value.azimuth);
-                float z = point_value.range * std::sin(point_value.elevation);
+                //float z = point_value.range * std::sin(point_value.elevation);
 
                 minX = std::min(minX, x);
                 maxX = std::max(maxX, x);
