@@ -1,6 +1,7 @@
 #include "DashboardState.h"
+#include <cmath>
 
-DashboardState::DashboardState(QObject* parent) : QObject(parent)
+DashboardState::DashboardState(const double maxRange, QObject* parent) : QObject(parent), m_maxRange(maxRange)
 {
 }
 
@@ -60,11 +61,43 @@ bool DashboardState::demoMode() const
 {
     return true;
 }
+double DashboardState::maxRange() const
+{
+    return m_maxRange;
+}
 
 void DashboardState::updatePointCloud(const QVariantList& points)
 {
     m_pointCloud = points;
     m_presenceDetected = !points.isEmpty();
+
+    double totalDist = 0.0;
+    int count = 0;
+    for (const auto& p : points) {
+        const QVariantMap pm = p.toMap();
+        const double x = pm.value("x").toDouble();
+        const double y = pm.value("y").toDouble();
+        const double z = pm.value("z").toDouble();
+        totalDist += std::sqrt(x * x + y * y + z * z);
+        ++count;
+    }
+    m_distance = (count > 0) ? (totalDist / count) : 0.0;
+
+    m_centroidX = 0.0;
+    m_centroidY = 0.0;
+    m_centroidZ = 0.0;
+    if (count > 0) {
+        for (const auto& p : points) {
+            const QVariantMap pm = p.toMap();
+            m_centroidX += pm.value("x").toDouble();
+            m_centroidY += pm.value("y").toDouble();
+            m_centroidZ += pm.value("z").toDouble();
+        }
+        m_centroidX /= count;
+        m_centroidY /= count;
+        m_centroidZ /= count;
+    }
+
     emit detectionsChanged();
     emit pointCloudChanged();
 }

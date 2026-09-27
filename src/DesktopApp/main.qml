@@ -550,7 +550,7 @@ ApplicationWindow {
                             const sensorX = plotLeft + plotW / 2;
                             const sensorY = plotBottom;
 
-                            const maxRange = 5.0;
+                            const maxRange = dashboard.maxRange;
                             const fovHalfRad = Math.PI / 4;
 
                             // Helper: range (m) → canvas Y coordinate

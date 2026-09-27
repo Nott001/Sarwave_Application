@@ -15,12 +15,24 @@
 #include "MMWave/Configured/PeopleTracking/PointCloud.hpp"
 #include "MMWave/Configured/PeopleTracking/TlvOutput.hpp"
 #include "MMWave/Streaming.hpp"
-#include "MMWave/TlvCore.hpp"
 #include "TargetObject.hpp"
 
-namespace MMWave::Configured::PeopleTracking {
+namespace MMWave::Configured::PeopleTracking::Processing {
+struct PointCompilation {
+    const PointUnit unit;
+    const std::chrono::steady_clock::time_point time;
+    const std::vector<CompressedPoint>& points;
+
+    PointCompilation(const PointUnit& unit, const std::chrono::steady_clock::time_point& time,
+                     const std::vector<CompressedPoint>& points)
+        : unit(unit), time(time), points(points) {}
+};
+
 struct Manager {
-   public:
+    explicit Manager(const std::chrono::steady_clock::duration timespan) :
+    non_objects(0), timespan(timespan) {
+    }
+
     struct Entry {
         Entry(const PointUnit unit, const std::chrono::steady_clock::time_point time)
             : unit(unit), time(time) {
@@ -30,7 +42,7 @@ struct Manager {
         std::chrono::steady_clock::time_point time;
     };
 
-   private:
+    private:
     struct FullEntry {
         FullEntry(const std::vector<CompressedPoint>& points, const PointUnit unit,
                   const std::chrono::steady_clock::time_point time)
@@ -49,10 +61,20 @@ struct Manager {
     ObjectTracker object_tracker;
     std::deque<Entry> entry_queue;
 
-   public:
+    public:
     std::chrono::steady_clock::duration timespan;
-    const std::deque<Entry>& getEntryQueue() const {
-        return entry_queue;
+
+    uint32_t getIdentifiedObjectCount() const {
+        return object_tracker.getTargetCount();
+    }
+
+    ObjectTracker::ObjectIteratorRange getAllIdentifiedObjects() {
+        return object_tracker.getAllObjects();
+    }
+
+    PointCompilation getPointsOf(const TargetObject* obj, const uint32_t i) const {
+        const Entry& entry = entry_queue.at(i + obj->getOffset());
+        return {entry.unit, entry.time, obj->getPointCloud(i)};
     }
 
     void updateFrameData(const Streaming::Frame& frame,
@@ -76,11 +98,9 @@ struct Manager {
             const auto target = data.target.value();
 
             for (const auto& track : target.tracks) {
-                if (object_tracker.instantiate(track.targetID)) {
-                    IdentifiedObject* obj = object_tracker.getObject(track.targetID);
-                    if (obj) obj->offset = entry_queue.size();
-                }
-                IdentifiedObject* obj = object_tracker.instantiateAndOrGet(track.targetID);
+                IdentifiedObject* obj = object_tracker.instantiateAndOrGet(
+                    track.targetID,
+                    entry_queue.size());
                 if (!obj)
                     throw std::runtime_error("Failed to instantiate object with id=" +
                                              std::to_string(track.targetID));
@@ -119,7 +139,7 @@ struct Manager {
                     else
                         obj = object_tracker.getObject(id);
 
-                    if (obj->point_clouds.size() + obj->offset != entry_queue.size()) {
+                    if (obj->getOffsetSize() != entry_queue.size()) {
                         throw std::runtime_error("TargetObject id=" + std::to_string(id) +
                                                  (id == 255 ? " non-object" : "") +
                                                  " point_clouds.size()+offset!=entry_queue.size()");

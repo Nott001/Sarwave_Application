@@ -12,19 +12,22 @@ class DashboardState final : public QObject {
         Q_PROPERTY(double centroidX READ centroidX NOTIFY detectionsChanged)
         Q_PROPERTY(double centroidY READ centroidY NOTIFY detectionsChanged)
         Q_PROPERTY(double centroidZ READ centroidZ NOTIFY detectionsChanged)
-        Q_PROPERTY(double distance READ distance NOTIFY detectionsChanged)
-        Q_PROPERTY(double dopplerVelocity READ dopplerVelocity NOTIFY detectionsChanged)
-        Q_PROPERTY(double pointDensity READ pointDensity NOTIFY detectionsChanged)
-        Q_PROPERTY(double snr READ snr NOTIFY detectionsChanged)
-        Q_PROPERTY(double spatialSpread READ spatialSpread NOTIFY detectionsChanged)
-        Q_PROPERTY(
-            double classificationConfidence READ classificationConfidence NOTIFY detectionsChanged)
-        Q_PROPERTY(QString lastUpdated READ lastUpdated NOTIFY detectionsChanged)
-        Q_PROPERTY(QString connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
-        Q_PROPERTY(bool demoMode READ demoMode CONSTANT)
+         Q_PROPERTY(double distance READ distance NOTIFY detectionsChanged)
+         Q_PROPERTY(double dopplerVelocity READ dopplerVelocity NOTIFY detectionsChanged)
+         Q_PROPERTY(double pointDensity READ pointDensity NOTIFY detectionsChanged)
+         Q_PROPERTY(double snr READ snr NOTIFY detectionsChanged)
+         Q_PROPERTY(double spatialSpread READ spatialSpread NOTIFY detectionsChanged)
+         Q_PROPERTY(
+             double classificationConfidence READ classificationConfidence NOTIFY detectionsChanged)
+         Q_PROPERTY(QString lastUpdated READ lastUpdated NOTIFY detectionsChanged)
+         Q_PROPERTY(QString connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
+         Q_PROPERTY(bool demoMode READ demoMode CONSTANT)
+         Q_PROPERTY(double maxRange READ maxRange CONSTANT)
 
     public:
-        explicit DashboardState(QObject* parent = nullptr);
+        explicit DashboardState(double maxRange = 5.0, QObject* parent = nullptr);
+
+        double maxRange() const;
 
         bool presenceDetected() const;
         QVariantList pointCloud() const;
@@ -63,4 +66,5 @@ class DashboardState final : public QObject {
         double m_spatialSpread = 0.0;
         double m_classificationConfidence = 0.0;
         QString m_lastUpdated;
+        double m_maxRange = 5.0;
 };

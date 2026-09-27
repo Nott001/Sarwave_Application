@@ -1,19 +1,36 @@
 #pragma once
 
-#include <chrono>
 #include <deque>
 #include <unordered_map>
 #include <vector>
 
-#include "MMWave/Configured/PeopleTracking/PointCloud.hpp"
-#include "MMWave/Configured/PeopleTracking/TlvOutput.hpp"
-#include "MMWave/Streaming.hpp"
-#include "MMWave/TvlCore.hpp"
+#include "../PointCloud.hpp"
+#include "../TlvOutput.hpp"
 
-namespace MMWave::Configured::PeopleTracking {
+namespace MMWave::Configured::PeopleTracking::Processing {
 struct TargetObject {
+    explicit TargetObject(const size_t initial_offset) : offset(initial_offset) {}
+
+    private:
     std::deque<std::vector<CompressedPoint>> point_clouds;
     size_t offset = 0;
+
+    public:
+    [[nodiscard]] const std::vector<CompressedPoint>& getPointCloud(const uint32_t id) const {
+        return point_clouds.at(id);
+    }
+
+    [[nodiscard]] size_t getOffset() const {
+        return offset;
+    }
+
+    [[nodiscard]] size_t getSize() const {
+        return point_clouds.size();
+    }
+
+    [[nodiscard]] size_t getOffsetSize() const {
+        return getSize() + getOffset();
+    }
 
     void updateCloud(const std::vector<CompressedPoint>& point_cloud) {
         point_clouds.push_back(point_cloud);
@@ -43,6 +60,9 @@ struct TargetObject {
 };
 
 struct IdentifiedObject : TargetObject {
+    explicit IdentifiedObject(const size_t initial_offset)
+        : TargetObject(initial_offset) {}
+
     // See TargetHeight
     float maxZ{}, minZ{};
 
@@ -87,14 +107,18 @@ struct ObjectTracker {
     std::unordered_map<uint32_t, IdentifiedObject> objects;
 
    public:
-    bool instantiate(const uint32_t id) {
+    size_t getTargetCount() const {
+        return objects.size();
+    }
+
+    bool instantiate(const uint32_t id, size_t initial_offset) {
         if (objects.contains(id)) return false;
-        objects.emplace(id, IdentifiedObject{});
+        objects.emplace(id, IdentifiedObject(initial_offset));
         return true;
     }
 
-    IdentifiedObject* instantiateAndOrGet(const uint32_t id) {
-        instantiate(id);
+    IdentifiedObject* instantiateAndOrGet(const uint32_t id, const size_t initial_offset) {
+        instantiate(id, initial_offset);
         return getObject(id);
     }
 
