@@ -2,7 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
-#include "DashboardState.h"
+#include "../../include/QtCommon/Dashboard/DashboardState.h"
 
 int main(int argc, char* argv[])
 {

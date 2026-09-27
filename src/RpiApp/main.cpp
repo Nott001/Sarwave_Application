@@ -5,7 +5,7 @@
 #include <QVariantMap>
 #include <cmath>
 
-#include "DashboardState.h"
+#include "../../include/QtCommon/Dashboard/DashboardState.h"
 #include "MMWave/Configured/PeopleTracking/TlvOutput.hpp"
 #include "MMWave/Configured/PeopleTracking/TlvTypes.hpp"
 #include "MMWave/Porter.hpp"

@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "../../include/MMWave/TlvCore.hpp"
-#include "DashboardState.h"
+#include "../../include/QtCommon/Dashboard/DashboardState.h"
 #include "MMWave/Configured/OutOfBox/TlvOutput.hpp"
 #include "MMWave/Configured/OutOfBox/TlvTypes.hpp"
 #include "MMWave/Prompting/General.hpp"
