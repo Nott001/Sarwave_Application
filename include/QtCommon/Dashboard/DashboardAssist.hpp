@@ -133,7 +133,8 @@ private:
                 //minZ = std::min(minZ, z);
                 //maxZ = std::max(maxZ, z);
 
-                dashboard.addCircle(x, y, POINT_CLOUD_RADIUS, STANDARD_THICKNESS, hexToQString(s_hexColour, alpha));
+                dashboard.addCircle(x, y, POINT_CLOUD_RADIUS, STANDARD_THICKNESS,
+                    hexToQString(s_hexColour, alpha));
             }
         }
 
@@ -153,7 +154,8 @@ private:
 
         const float cx = (minX + maxX) / 2.0f;
         const float cy = (minY + maxY) / 2.0f;
-        dashboard.addCircle(cx, cy, CENTRAL_RADIUS, STANDARD_THICKNESS, hexToQString(s_hexColour, 1.0f), hexToQString(s_hexColour, 1.0f));
+        dashboard.addCircle(cx, cy, CENTRAL_RADIUS, STANDARD_THICKNESS,
+            hexToQString(s_hexColour, 1.0f), hexToQString(s_hexColour, 1.0f));
     }
 
     static void drawNonObjectPoints(
@@ -177,7 +179,8 @@ private:
                 const float y = point_value.range * std::cos(point_value.azimuth);
                 //const float z = point_value.range * std::sin(point_value.elevation);
 
-                dashboard.addCircle(x, y, POINT_CLOUD_RADIUS, STANDARD_THICKNESS, hexToQString(s_hexColour, alpha));
+                dashboard.addCircle(x, y, POINT_CLOUD_RADIUS, STANDARD_THICKNESS,
+                    hexToQString(s_hexColour, alpha));
             }
         }
     }
