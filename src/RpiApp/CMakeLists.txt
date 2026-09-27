@@ -1,6 +1,6 @@
 qt_add_executable(RpiApp
     main.cpp
-    ../../include/QtCommon/DashboardState.h
+    ../../include/QtCommon/Dashboard/DashboardState.h
 )
 
 qt_add_qml_module(RpiApp

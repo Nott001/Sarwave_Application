@@ -1,6 +1,6 @@
 qt_add_executable(DesktopApp
     main.cpp
-    ../../include/QtCommon/DashboardState.h
+    ../../include/QtCommon/Dashboard/DashboardState.h
 )
 
 qt_add_qml_module(DesktopApp
