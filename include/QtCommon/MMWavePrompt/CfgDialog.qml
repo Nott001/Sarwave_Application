@@ -15,6 +15,7 @@ Window {
     color: "#111d31"
 
     property string cfgPath: ""
+    property url cfgFolder: ""
     property bool didAccept: false
     property string errorMessage: ""
     property string outputText: ""
@@ -39,6 +40,7 @@ Window {
     FileDialog {
         id: fileDialog
         title: "Select Configuration File"
+        currentFolder: cfgFolder
         nameFilters: ["Configuration files (*.cfg)"]
         onAccepted: root.cfgPath = fileDialog.selectedFile
     }

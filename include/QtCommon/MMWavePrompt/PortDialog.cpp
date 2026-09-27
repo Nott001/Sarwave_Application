@@ -87,7 +87,7 @@ MMWave::Porter::Context portGUI()
     auto* root = component.create();
     if (!root) {
         throw std::runtime_error("Failed to create PortDialog: " +
-                                 component.errorString().toStdString());
+                                  component.errorString().toStdString());
     }
 
     auto* window = qobject_cast<QQuickWindow*>(root);
@@ -95,6 +95,9 @@ MMWave::Porter::Context portGUI()
         delete root;
         throw std::runtime_error("PortDialog root item is not a window");
     }
+
+    window->setProperty("commonName", QString(General::DEFAULT_PORT_DIRECTORY));
+    window->setProperty("dataNumber", 1);
 
     QEventLoop loop;
     std::unique_ptr<MMWave::Porter::Context> result;

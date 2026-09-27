@@ -1,5 +1,6 @@
 #include "QtCommon/MMWavePrompt/CfgDialog.hpp"
 
+#include <QDir>
 #include <QEventLoop>
 #include <QGuiApplication>
 #include <QQmlComponent>
@@ -8,6 +9,7 @@
 #include <QQuickWindow>
 #include <QUrl>
 #include <QVariant>
+#include <fstream>
 #include <filesystem>
 #include <functional>
 #include <memory>
@@ -92,6 +94,34 @@ void streamCliReport(const std::string& line, const std::string& response)
     QGuiApplication::processEvents();
 }
 
+// Returns the filesystem path to the file that stores the last-used config path.
+std::string configPathFile()
+{
+    return (QDir::homePath().toStdString() + "/.config/sarwave/cfg_path.txt");
+}
+
+// Load the last saved config path from disk.
+std::string loadLastCfgPath()
+{
+    const std::string path = configPathFile();
+    std::ifstream in(path);
+    if (!in) return "";
+    std::string saved;
+    std::getline(in, saved);
+    return saved;
+}
+
+// Save the config path to disk for future use.
+void saveCfgPath(const std::string& path)
+{
+    const std::string dir = std::filesystem::path(configPathFile()).parent_path().string();
+    std::filesystem::create_directories(dir);
+    std::ofstream out(configPathFile());
+    if (out) {
+        out << path;
+    }
+}
+
 // Loads the dialog and runs its event loop. When ctx is non-null the
 // selected config is sent through MMWave::Porter::sendConfigFile with the
 // report streamed into the dialog; otherwise the selection is merely
@@ -110,13 +140,13 @@ std::string runCfgDialog(MMWave::Porter::Context* ctx, const std::string& prefil
 
     if (component.isError()) {
         throw std::runtime_error("Failed to load CfgDialog.qml: " +
-                                 component.errorString().toStdString());
+                                  component.errorString().toStdString());
     }
 
     auto* root = component.create();
     if (!root) {
         throw std::runtime_error("Failed to create CfgDialog: " +
-                                 component.errorString().toStdString());
+                                  component.errorString().toStdString());
     }
 
     auto* window = qobject_cast<QQuickWindow*>(root);
@@ -127,6 +157,12 @@ std::string runCfgDialog(MMWave::Porter::Context* ctx, const std::string& prefil
 
     if (!prefillPath.empty()) {
         window->setProperty("cfgPath", QString::fromStdString(prefillPath));
+    }
+
+    const std::string lastPath = loadLastCfgPath();
+    if (!lastPath.empty()) {
+        window->setProperty("cfgPath", QString::fromStdString(lastPath));
+        window->setProperty("cfgFolder", QUrl::fromLocalFile(QString::fromStdString(std::filesystem::path(lastPath).parent_path().string())));
     }
 
     QEventLoop loop;
@@ -162,6 +198,8 @@ std::string runCfgDialog(MMWave::Porter::Context* ctx, const std::string& prefil
                 g_reportSink.window = nullptr;
                 g_reportSink.output = nullptr;
             }
+
+            saveCfgPath(path);
 
             result = std::make_unique<std::string>(std::move(path));
             window->setProperty("didAccept", true);

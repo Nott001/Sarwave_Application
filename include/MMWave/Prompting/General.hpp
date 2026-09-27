@@ -4,9 +4,16 @@
 #include <string>
 
 namespace MMWave::Prompting::General {
+#ifdef _WIN32
+constexpr auto DEFAULT_PORT_DIRECTORY = "COM";
+#else
+constexpr auto DEFAULT_PORT_DIRECTORY = "/dev/ttyUSB";
+#endif
+
+
 struct MMWavePortPaths {
-        std::string cli;
-        std::string data;
+    std::string cli;
+    std::string data;
 };
 
 inline int checkStrArgument(const std::string& str_input)
@@ -34,11 +41,7 @@ inline int checkStrArgument(const std::string& str_input)
 
 inline std::string buildPortName(const int portNumber)
 {
-#ifdef _WIN32
-    return std::format("COM{}", portNumber);
-#else
-    return std::format("/dev/ttyUSB{}", portNumber);
-#endif
+    return std::format("{}{}", DEFAULT_PORT_DIRECTORY, portNumber);
 }
 
 inline MMWavePortPaths createPath(const int cli, const int data)

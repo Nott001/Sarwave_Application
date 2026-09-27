@@ -16,7 +16,7 @@ Window {
     property string commonName: ""
     property bool separate: false
     property int cliNumber: 0
-    property int dataNumber: 0
+    property int dataNumber: 1
     property string cliName: ""
     property string dataName: ""
     property bool didAccept: false
