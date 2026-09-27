@@ -68,13 +68,17 @@ struct Manager {
         return object_tracker.getTargetCount();
     }
 
+    const TargetObject& getNonObject() const {
+        return non_objects;
+    }
+
     ObjectTracker::ObjectIteratorRange getAllIdentifiedObjects() {
         return object_tracker.getAllObjects();
     }
 
-    PointCompilation getPointsOf(const TargetObject* obj, const uint32_t i) const {
-        const Entry& entry = entry_queue.at(i + obj->getOffset());
-        return {entry.unit, entry.time, obj->getPointCloud(i)};
+    PointCompilation getPointsOf(const TargetObject& obj, const uint32_t i) const {
+        const Entry& entry = entry_queue.at(i + obj.getOffset());
+        return {entry.unit, entry.time, obj.getPointCloud(i)};
     }
 
     void updateFrameData(const Streaming::Frame& frame,
