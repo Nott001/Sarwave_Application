@@ -17,6 +17,51 @@
 #include "MMWave/Streaming.hpp"
 #include "TargetObject.hpp"
 
+/*
+Root cause: In Manager::updateFrameData (Manager.hpp:84-157), the invariant
+    point_clouds.size() + offset == entry_queue.size()
+    breaks when a tracked object disappears from target.tracks and later reappears.
+Here's the sequence:
+1. Frame N: Object 0 is in target.tracks. entry_queue.emplace_back runs, growing entry_queue by 1.
+    updateCloud also runs for object 0, growing its point_clouds by 1. Invariant holds.
+2. Frame N+1: Object 0 disappears from target.tracks. target_ids (built from target.tracks + 255)
+    does NOT include object 0's ID. So updateCloud is not called for object 0.
+    But entry_queue.emplace_back still runs (because other tracks + 255 are present).
+    entry_queue grows by 1; object 0's point_clouds does not. Invariant broken for object 0.
+3. Frame N+2: Object 0 reappears in target.tracks.
+    The check obj->getOffsetSize() != entry_queue.size() finds that object 0's
+    point_clouds.size() + offset is now less than entry_queue.size() → throws std::runtime_error.
+Fix needed: When instantiateAndOrGet finds an existing object whose state is inconsistent with the
+    current entry_queue.size(), it should reset the object's point_clouds and offset to match the
+    current queue size — essentially treating the reappearing object as a fresh tracking instance
+    rather than carrying stale state from before it went missing.
+
+To add more context, TargetList is a source of truth when it comes to tracking and counting targets.
+    target.tracks's trackID is guaranteed to be unique, but not guaranteed to be in order.
+The issue comes in when it identifies or reidentifies a new object, it actually requires a certain
+    algorithm to reassociate from past targetIDs, or to identify if it's a new one.
+There's also a missing implementation to drop IdentifiedTargets in Manager when that target is no
+    longer being tracked.
+
+That additional context clarifies the full picture. Here's the complete diagnosis:
+Two missing pieces in Manager::updateFrameData:
+1. No cleanup of stale targets. When a target ID disappears from target.tracks, it should be
+    removed from object_tracker. Without this, the unordered_map accumulates orphaned
+    IdentifiedObject instances whose point_clouds and offset never get updated (since updateCloud
+    is only called for IDs in target.tracks), but entry_queue keeps growing. This is the direct
+    cause of the invariant violation.
+2. No reassociation handling. Because TargetList IDs are unique but not ordered,
+    the radar can reassign a track ID to a different physical target across frames. When object 0
+    is reidentified, the existing IdentifiedObject for ID=0 still has stale point_clouds from a
+    completely different physical target. There's no logic to detect this and either reset or
+    replace the stale object state.
+What needs to happen: After processing target.tracks, Manager should remove any IdentifiedObject
+    entries from object_tracker whose IDs are no longer present in the current target.tracks.
+    This keeps point_clouds and entry_queue in sync for tracked objects, and when a reappeared
+    (or reidentified) target comes back, it gets instantiated fresh with
+    offset = entry_queue.size(), satisfying the invariant.
+ */
+
 namespace MMWave::Configured::PeopleTracking::Processing {
 struct PointCompilation {
     const PointUnit unit;

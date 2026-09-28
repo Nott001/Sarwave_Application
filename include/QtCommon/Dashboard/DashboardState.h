@@ -23,13 +23,13 @@ class DashboardState final : public QObject {
          Q_PROPERTY(QString lastUpdated READ lastUpdated NOTIFY detectionsChanged)
          Q_PROPERTY(QString connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
          Q_PROPERTY(bool demoMode READ demoMode CONSTANT)
-         Q_PROPERTY(double maxRange READ maxRange CONSTANT)
+         Q_PROPERTY(double maxRangeMetres READ maxRangeMetres CONSTANT)
          Q_PROPERTY(QVariantList drawings READ drawings NOTIFY drawingsChanged)
 
     public:
-        explicit DashboardState(double maxRange = 5.0, QObject* parent = nullptr);
+        explicit DashboardState(double maxRangeMetres = 5.0, QObject* parent = nullptr);
 
-        double maxRange() const;
+        double maxRangeMetres() const;
 
         bool presenceDetected() const;
         QVariantList pointCloud() const;
@@ -77,6 +77,6 @@ class DashboardState final : public QObject {
          double m_spatialSpread = 0.0;
          double m_classificationConfidence = 0.0;
 QString m_lastUpdated;
-         double m_maxRange = 5.0;
+         double m_maxRangeMetres = 5.0;
           bool m_batchDrawing = false;
 };

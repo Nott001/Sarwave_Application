@@ -14,8 +14,8 @@
 namespace QtCommon::Dashboard {
 
 constexpr float STANDARD_THICKNESS = 2.0;
-constexpr float POINT_CLOUD_RADIUS = 0.05;
-constexpr float CENTRAL_RADIUS = 0.03;
+constexpr float POINT_CLOUD_RADIUS = 2;
+constexpr float CENTRAL_RADIUS = 6;
 constexpr float BOX_PADDING = POINT_CLOUD_RADIUS;
 
 struct Colour {
@@ -114,14 +114,17 @@ private:
 
         for (size_t i = 0; i < obj.getSize(); i++) {
             auto const p = manager.getPointsOf(obj, i);
+            float alpha = static_cast<float>(
+                std::chrono::duration_cast<std::chrono::duration<double>>(
+                    frame_start - p.time).count() /
+                    static_cast<double>(manager.timespan.count()));
+            alpha = std::clamp(alpha, 0.0f, 1.0f);
+            auto colour = hexToQString(s_hexColour, 1);
+
             for (auto const point : p.points) {
                 const auto point_value =
                     MMWave::Configured::PeopleTracking::PointValue::Convert(point, p.unit);
-                float alpha = static_cast<float>(
-                    std::chrono::duration_cast<std::chrono::duration<double>>(
-                        p.time - frame_start).count() / static_cast<double>(manager.timespan.count()));
 
-                alpha = std::clamp(alpha, 0.0f, 1.0f);
                 float x = point_value.range * std::sin(point_value.azimuth);
                 float y = point_value.range * std::cos(point_value.azimuth);
                 //float z = point_value.range * std::sin(point_value.elevation);
@@ -133,8 +136,7 @@ private:
                 //minZ = std::min(minZ, z);
                 //maxZ = std::max(maxZ, z);
 
-                dashboard.addCircle(x, y, POINT_CLOUD_RADIUS, STANDARD_THICKNESS,
-                    hexToQString(s_hexColour, alpha));
+                dashboard.addCircle(x, y, POINT_CLOUD_RADIUS, STANDARD_THICKNESS, colour);
             }
         }
 
@@ -166,21 +168,22 @@ private:
         const auto& non_obj = manager.getNonObject();
         for (size_t i = 0; i < non_obj.getSize(); i++) {
             auto const p = manager.getPointsOf(non_obj, i);
+            float alpha = static_cast<float>(
+                std::chrono::duration_cast<std::chrono::duration<double>>(
+                    frame_start - p.time).count() /
+                    static_cast<double>(manager.timespan.count()));
+            alpha = std::clamp(alpha, 0.0f, 1.0f);
+            auto colour = hexToQString(s_hexColour, alpha);
+
             for (auto const point : p.points) {
                 const auto point_value =
                     MMWave::Configured::PeopleTracking::PointValue::Convert(point, p.unit);
-                float alpha = static_cast<float>(
-                    std::chrono::duration_cast<std::chrono::duration<double>>(
-                        p.time - frame_start).count() /
-                        static_cast<double>(manager.timespan.count()));
 
-                alpha = std::clamp(alpha, 0.0f, 1.0f);
                 const float x = point_value.range * std::sin(point_value.azimuth);
                 const float y = point_value.range * std::cos(point_value.azimuth);
                 //const float z = point_value.range * std::sin(point_value.elevation);
 
-                dashboard.addCircle(x, y, POINT_CLOUD_RADIUS, STANDARD_THICKNESS,
-                    hexToQString(s_hexColour, alpha));
+                dashboard.addCircle(x, y, POINT_CLOUD_RADIUS, STANDARD_THICKNESS, colour);
             }
         }
     }

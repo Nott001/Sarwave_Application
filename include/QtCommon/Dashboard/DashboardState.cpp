@@ -1,7 +1,7 @@
 #include <cmath>
 #include "DashboardState.h"
 
-DashboardState::DashboardState(const double maxRange, QObject* parent) : QObject(parent), m_maxRange(maxRange)
+DashboardState::DashboardState(const double maxRangeMetres, QObject* parent) : QObject(parent), m_maxRangeMetres(maxRangeMetres)
 {
 }
 
@@ -61,9 +61,9 @@ bool DashboardState::demoMode() const
 {
     return true;
 }
-double DashboardState::maxRange() const
+double DashboardState::maxRangeMetres() const
 {
-    return m_maxRange;
+    return m_maxRangeMetres;
 }
 
 void DashboardState::updatePointCloud(const QVariantList& points)
@@ -123,10 +123,10 @@ void DashboardState::addLine(double x1, double y1, double x2, double y2, double 
 {
     QVariantMap line;
     line["type"] = "line";
-    line["x1"] = x1 / m_maxRange;
-    line["y1"] = y1 / m_maxRange;
-    line["x2"] = x2 / m_maxRange;
-    line["y2"] = y2 / m_maxRange;
+    line["x1"] = x1 / m_maxRangeMetres;
+    line["y1"] = y1 / m_maxRangeMetres;
+    line["x2"] = x2 / m_maxRangeMetres;
+    line["y2"] = y2 / m_maxRangeMetres;
     line["thickness"] = thickness;
     line["colour"] = colour;
     m_drawings.append(line);
@@ -136,9 +136,9 @@ void DashboardState::addCircle(double cx, double cy, double radius, double thick
 {
     QVariantMap circle;
     circle["type"] = "circle";
-    circle["cx"] = cx / m_maxRange;
-    circle["cy"] = cy / m_maxRange;
-    circle["r"] = radius / m_maxRange;
+    circle["cx"] = cx / m_maxRangeMetres;
+    circle["cy"] = cy / m_maxRangeMetres;
+    circle["r"] = radius / m_maxRangeMetres;
     circle["thickness"] = thickness;
     circle["colour"] = colour;
     if (!fillColour.isEmpty()) {
