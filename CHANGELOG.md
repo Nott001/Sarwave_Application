@@ -12,7 +12,27 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > Changes staged locally that have not yet been tagged as a release.
 
 ### Added
-- `CHANGELOG.md` — this file
+- **PeopleTracking module** (`include/MMWave/Configured/PeopleTracking/`) — new `Manager.hpp`, `TargetObject.hpp`, `EntryDecompiler.hpp`, `PointCloud.hpp`, `CloudZip.hpp`, `Debug.cpp/.hpp`, `TlvOutput.hpp`, `TlvTypes.hpp`
+- **Dashboard files** — `include/QtCommon/Dashboard/DashboardAssist.hpp`, `DashboardState.cpp`, `DashboardState.h`
+- **Configuration-specific TlvOutput/TlvTypes** under `include/MMWave/Configured/OutOfBox/` and `include/MMWave/Configured/PeopleTracking/`
+- **`.qtcreator/CMakeLists.txt.user`** for QtCreator project integration
+- **`BUILD_TEST_RPI_APP`** directory existence check in root `CMakeLists.txt` to gracefully skip if `src/TestRpiApp` is absent
+
+### Changed
+- Split `include/MMWave/Tlv/TlvOutput.hpp` and `include/MMWave/Tlv/TlvTypes.hpp` into configuration-specific versions under `include/MMWave/Configured/`
+- Moved `QtCommon/DashboardState.*` to `QtCommon/Dashboard/DashboardState.*` to prepare for adding related files
+- Renamed `include/MMWave/Tlv/TlvCore.hpp` to `include/MMWave/TlvCore.hpp`
+- Removed `m_drawings` in favour of storing point data directly
+- Updated dashboards and changed time tracking type
+- `.clang-format` compliance: set `IndentAccessModifiers: false` and `BreakBeforeBraces: Attach` across all `include/MMWave/Configured` files
+- Fixed include directories and added indexers on TlvOutput.hpp
+- QoL improvements to GUI to minimise interactions
+- Updated `MMWaveTerminal/main.cpp`, `RpiApp/main.cpp`, `DesktopApp/main.cpp`, `tests/test_main.cpp`, `MMWavePrompt/CfgDialog.qml`, `PortDialog.qml`
+- Multiple `CMakeLists.txt` updates for `MMWave`, `QtCommon`, `DesktopApp`, `RpiApp`
+
+### Removed
+- `include/MMWave/Tlv/TlvOutput.hpp` and `include/MMWave/Tlv/TlvTypes.hpp` (replaced by configuration-specific versions)
+- `include/QtCommon/DashboardState.cpp` and `include/QtCommon/DashboardState.h` (moved to `QtCommon/Dashboard/`)
 
 ---
 
