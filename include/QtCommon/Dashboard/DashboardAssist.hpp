@@ -31,7 +31,7 @@ class DashboardAssist {
         allocateColours(manager.getIdentifiedObjectCount());
 
         for (const auto& obj : manager.getAllIdentifiedObjects()) {
-            uint32_t hex = changeColour();
+            const uint32_t hex = changeColour();
             drawObject(obj, manager, frames_start, dashboard, hex);
         }
 
