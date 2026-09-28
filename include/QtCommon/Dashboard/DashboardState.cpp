@@ -1,73 +1,58 @@
-#include <cmath>
 #include "DashboardState.h"
 
-DashboardState::DashboardState(const double maxRangeMetres, QObject* parent) : QObject(parent), m_maxRangeMetres(maxRangeMetres)
-{
+#include <cmath>
+
+DashboardState::DashboardState(const double maxRangeMetres, QObject* parent)
+    : QObject(parent), m_maxRangeMetres(maxRangeMetres) {
 }
 
-bool DashboardState::presenceDetected() const
-{
+bool DashboardState::presenceDetected() const {
     return m_presenceDetected;
 }
-QVariantList DashboardState::pointCloud() const
-{
+QVariantList DashboardState::pointCloud() const {
     return m_pointCloud;
 }
-double DashboardState::centroidX() const
-{
+double DashboardState::centroidX() const {
     return m_centroidX;
 }
-double DashboardState::centroidY() const
-{
+double DashboardState::centroidY() const {
     return m_centroidY;
 }
-double DashboardState::centroidZ() const
-{
+double DashboardState::centroidZ() const {
     return m_centroidZ;
 }
-double DashboardState::distance() const
-{
+double DashboardState::distance() const {
     return m_distance;
 }
-double DashboardState::dopplerVelocity() const
-{
+double DashboardState::dopplerVelocity() const {
     return m_dopplerVelocity;
 }
-double DashboardState::pointDensity() const
-{
+double DashboardState::pointDensity() const {
     return m_pointDensity;
 }
-double DashboardState::snr() const
-{
+double DashboardState::snr() const {
     return m_snr;
 }
-double DashboardState::spatialSpread() const
-{
+double DashboardState::spatialSpread() const {
     return m_spatialSpread;
 }
-double DashboardState::classificationConfidence() const
-{
+double DashboardState::classificationConfidence() const {
     return m_classificationConfidence;
 }
-QString DashboardState::lastUpdated() const
-{
+QString DashboardState::lastUpdated() const {
     return m_lastUpdated;
 }
-QString DashboardState::connectionStatus() const
-{
+QString DashboardState::connectionStatus() const {
     return QStringLiteral("Demo feed");
 }
-bool DashboardState::demoMode() const
-{
+bool DashboardState::demoMode() const {
     return true;
 }
-double DashboardState::maxRangeMetres() const
-{
+double DashboardState::maxRangeMetres() const {
     return m_maxRangeMetres;
 }
 
-void DashboardState::updatePointCloud(const QVariantList& points)
-{
+void DashboardState::updatePointCloud(const QVariantList& points) {
     m_pointCloud = points;
     m_presenceDetected = !points.isEmpty();
 
@@ -102,25 +87,22 @@ void DashboardState::updatePointCloud(const QVariantList& points)
     emit pointCloudChanged();
 }
 
-QVariantList DashboardState::drawings() const
-{
+QVariantList DashboardState::drawings() const {
     return m_drawings;
 }
 
-void DashboardState::beginDrawings()
-{
+void DashboardState::beginDrawings() {
     m_batchDrawing = true;
     m_drawings.clear();
 }
 
-void DashboardState::endDrawings()
-{
+void DashboardState::endDrawings() {
     m_batchDrawing = false;
     emit drawingsChanged();
 }
 
-void DashboardState::addLine(double x1, double y1, double x2, double y2, double thickness, const QString& colour)
-{
+void DashboardState::addLine(double x1, double y1, double x2, double y2, double thickness,
+                             const QString& colour) {
     QVariantMap line;
     line["type"] = "line";
     line["x1"] = x1 / m_maxRangeMetres;
@@ -132,8 +114,8 @@ void DashboardState::addLine(double x1, double y1, double x2, double y2, double 
     m_drawings.append(line);
 }
 
-void DashboardState::addCircle(double cx, double cy, double radius, double thickness, const QString& colour, const QString& fillColour)
-{
+void DashboardState::addCircle(double cx, double cy, double radius, double thickness,
+                               const QString& colour, const QString& fillColour) {
     QVariantMap circle;
     circle["type"] = "circle";
     circle["cx"] = cx / m_maxRangeMetres;
@@ -147,7 +129,6 @@ void DashboardState::addCircle(double cx, double cy, double radius, double thick
     m_drawings.append(circle);
 }
 
-void DashboardState::clearDrawings()
-{
+void DashboardState::clearDrawings() {
     m_drawings.clear();
 }
