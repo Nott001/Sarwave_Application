@@ -112,8 +112,7 @@ class DashboardAssist {
     static void drawPointCloud(
         const MMWave::Configured::PeopleTracking::Processing::PointCompilation p,
         const std::chrono::nanoseconds& frame_start,
-        const std::chrono::steady_clock::duration timespan,
-        DashboardState& dashboard,
+        const std::chrono::steady_clock::duration timespan, DashboardState& dashboard,
         const uint32_t hex) {
         const float alpha = pointPercentage(frame_start, p.time, timespan);
         auto colour = hexToQString(hex, alpha);
@@ -124,24 +123,21 @@ class DashboardAssist {
             const auto cartesian_point =
                 MMWave::Configured::PeopleTracking::CartesianPoint::Convert(point_value);
 
-            //PointCloud
+            // PointCloud
         }
     }
 
-    static void drawObject(const MMWave::Configured::PeopleTracking::Processing::IdentifiedObject& obj,
-                           const MMWave::Configured::PeopleTracking::Processing::Manager& manager,
-                           const std::chrono::nanoseconds& frame_start, DashboardState& dashboard,
-                           const uint32_t hex) {
+    static void drawObject(
+        const MMWave::Configured::PeopleTracking::Processing::IdentifiedObject& obj,
+        const MMWave::Configured::PeopleTracking::Processing::Manager& manager,
+        const std::chrono::nanoseconds& frame_start, DashboardState& dashboard,
+        const uint32_t hex) {
         MMWave::Configured::PeopleTracking::CartesianPoint min = {
-            std::numeric_limits<float>::max(),
-            std::numeric_limits<float>::max(),
-            std::numeric_limits<float>::max()
-        };
+            std::numeric_limits<float>::max(), std::numeric_limits<float>::max(),
+            std::numeric_limits<float>::max()};
         MMWave::Configured::PeopleTracking::CartesianPoint max = {
-            std::numeric_limits<float>::lowest(),
-            std::numeric_limits<float>::lowest(),
-            std::numeric_limits<float>::lowest()
-        };
+            std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(),
+            std::numeric_limits<float>::lowest()};
 
         for (size_t i = 0; i < obj.getSize() - 1; ++i) {
             const auto p = manager.getPointsOf(obj, i);
@@ -166,17 +162,17 @@ class DashboardAssist {
                 max.y = std::max(max.y, cartesian_point.x);
                 max.z = std::max(max.z, cartesian_point.y);
 
-                //PointCloud
+                // PointCloud
             }
         }
 
-        //Box
-        //Circle
+        // Box
+        // Circle
     }
 
-    static void drawPointOnly(
-        MMWave::Configured::PeopleTracking::Processing::Manager& manager,
-        const std::chrono::nanoseconds& frame_start, DashboardState& dashboard) {
+    static void drawPointOnly(MMWave::Configured::PeopleTracking::Processing::Manager& manager,
+                              const std::chrono::nanoseconds& frame_start,
+                              DashboardState& dashboard) {
         const auto& non_obj = manager.getNonObject();
 
         for (size_t i = 0; i < non_obj.getSize(); ++i) {
