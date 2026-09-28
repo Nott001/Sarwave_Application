@@ -46,4 +46,16 @@ struct PointValue {
                 static_cast<float>(point.snr) * unit.snrUnit};
     }
 };
+
+struct CartesianPoint {
+    float x, y, z;
+
+    [[nodiscard]] static CartesianPoint Convert(const PointValue& point) {
+        return {
+            point.range * std::sin(point.azimuth),
+            point.range * std::cos(point.azimuth),
+            point.range * std::sin(point.elevation)
+        };
+    }
+};
 }  // namespace MMWave::Configured::PeopleTracking

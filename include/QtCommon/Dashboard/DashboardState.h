@@ -45,20 +45,10 @@ class DashboardState final : public QObject {
     [[nodiscard]] QString lastUpdated() const;
     [[nodiscard]] QString connectionStatus() const;
     [[nodiscard]] bool demoMode() const;
-    [[nodiscard]] QVariantList drawings() const;
 
     // Replaces the point cloud with `points` (a list of maps with x, y, z and
     // v fields) and marks presence accordingly.
     void updatePointCloud(const QVariantList& points);
-
-    void beginDrawings();
-    void endDrawings();
-    void addLine(double x1, double y1, double x2, double y2, double thickness = 2.0,
-                 const QString& colour = QStringLiteral("#FF0000"));
-    void addCircle(double cx, double cy, double radius, double thickness = 2.0,
-                   const QString& colour = QStringLiteral("#FF0000"),
-                   const QString& fillColour = QString());
-    void clearDrawings();
 
    signals:
     void detectionsChanged();
@@ -69,7 +59,6 @@ class DashboardState final : public QObject {
    private:
     bool m_presenceDetected = false;
     QVariantList m_pointCloud;
-    QVariantList m_drawings;
     double m_centroidX = 0.0;
     double m_centroidY = 0.0;
     double m_centroidZ = 0.0;
