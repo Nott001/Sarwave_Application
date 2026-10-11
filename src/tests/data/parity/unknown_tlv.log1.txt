@@ -1,0 +1,12 @@
+New Frame (#0) (00:00.000000)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=1):
+      |       id:1 x:1 y:2 z:0.8
+New Frame (#1) (00:00.050000)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=3):
+   - Tlv Type: 999 (uint=999)
+
+New Frame (#2) (00:00.100000)
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true

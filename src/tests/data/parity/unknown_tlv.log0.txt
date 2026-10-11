@@ -1,0 +1,28 @@
+New Frame (#0) (00:00.000000)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Bytes (112)
+      | 01 00 00 00 00 00 80 3f 00 00 00 40 cd cc 4c 3f 
+      | cd cc cc 3d cd cc 4c 3e 00 00 00 00 00 00 00 00 
+      | 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+      | 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+      | 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+      | 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+      | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
+      Targets (Count=1):
+      |       id:1 x:1 y:2 z:0.8
+New Frame (#1) (00:00.050000)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Bytes (44)
+      | 0a d7 23 3c 0a d7 23 3c cd cc 4c 3d 6f 12 83 39 
+      | 0a d7 23 3d 03 fc 0a 00 40 1f 2c 01 03 fc 0a 00 
+      | 40 1f 2c 01 03 fc 0a 00 40 1f 2c 01
+      Points (Count=3):
+   - Tlv Type: 999 (uint=999)
+      Bytes (4)
+      | 61 62 63 64
+
+New Frame (#2) (00:00.100000)
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Bytes (4)
+      | 01 00 00 00
+      Presence: true

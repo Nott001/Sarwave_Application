@@ -1,0 +1,552 @@
+New Frame (#0) (00:00.000000)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=9):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: false
+New Frame (#1) (00:00.057787)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=3):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: false
+New Frame (#2) (00:00.112054)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=4):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: false
+New Frame (#3) (00:00.165682)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=6):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: false
+New Frame (#4) (00:00.222093)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=3):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: false
+New Frame (#5) (00:00.275984)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=5):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: false
+New Frame (#6) (00:00.333131)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=0):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: false
+New Frame (#7) (00:00.390553)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=6):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: false
+New Frame (#8) (00:00.447695)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=7):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: false
+New Frame (#9) (00:00.504441)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=8):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: false
+New Frame (#10) (00:00.562279)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=9):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: false
+New Frame (#11) (00:00.619744)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=1):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: false
+New Frame (#12) (00:00.675795)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=0):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: false
+New Frame (#13) (00:00.729676)
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=1):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: false
+New Frame (#14) (00:00.785729)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=1):
+      |       id:0 x:-0.8259903 y:3.3992174 z:0.7840422
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=1):
+      | 255
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:0 height:0.09877615~1.5294139
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=12):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#15) (00:00.839525)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.8237642 y:3.3774993 z:0.7840422
+      |       id:1 x:1.3522824 y:4.6406565 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=12):
+      |   0   0   0   0   0   0   0   0   0 254 
+      | 255 255
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.15506941~1.6019937
+      |       id:1 height:0.0046738647~1.4673287
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=18):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#16) (00:00.896796)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.8222196 y:3.356126 z:0.7840422
+      |       id:1 x:1.3547548 y:4.6033397 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=18):
+      |   0   0   0   0   0   0   0   0   0   0 
+      |   0   1   1   1   1   1 253   1
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.037631985~1.5716063
+      |       id:1 height:0.16707577~1.4295212
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=32):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#17) (00:00.954541)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.8201117 y:3.3353605 z:0.7840422
+      |       id:1 x:1.3578511 y:4.5673046 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=32):
+      |   0   0   0   0   0   0 253   0   0   0 
+      |   0   0   0 253   1   1   1   1   1 254 
+      |   1   1   1   1   1   1   1   1   1   1 
+      | 254 254
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.19937977~1.6120151
+      |       id:1 height:0.1696688~1.511706
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=20):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#18) (00:01.006937)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.8176381 y:3.315113 z:0.7840422
+      |       id:1 x:1.3600984 y:4.531722 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=20):
+      |   0   0   0   0   0   0   1   1   1   1 
+      |   1   1   1   1   1   1   1   1   1 254
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.026579088~1.6080694
+      |       id:1 height:0.037293974~1.4396219
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=20):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#19) (00:01.063441)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.8149846 y:3.2949429 z:0.7840422
+      |       id:1 x:1.3627439 y:4.4960747 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=20):
+      |   0   0   0   0 255   1   1   1   1   1 
+      |   1   1   1   1 254   1   1 255 253 253
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.07450143~1.5908214
+      |       id:1 height:0.016561769~1.4191368
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=28):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#20) (00:01.116386)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.81240374 y:3.27454 z:0.7840422
+      |       id:1 x:1.364753 y:4.4604363 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=28):
+      |   0   0   0   0   0   0   0   0   0   0 
+      |   0 254   0   0   0 255   1   1   1   1 
+      |   1   1   1   1   1   1   1 253
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.029060384~1.5420889
+      |       id:1 height:0.017730338~1.4533621
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=26):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#21) (00:01.170337)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.8091772 y:3.2539415 z:0.7840422
+      |       id:1 x:1.3673123 y:4.42446 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=26):
+      |   0   0   0   0   0   0   0   0   0   0 
+      |   1   1   1   1   1   1   1   1   1   1 
+      | 255   1   1   1   1   1
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.06377055~1.5859693
+      |       id:1 height:0.15958355~1.5147439
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=22):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#22) (00:01.226086)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.80601263 y:3.2332213 z:0.7840422
+      |       id:1 x:1.3695288 y:4.388927 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=22):
+      |   0   0   0   0   0   0   0   0   0   0 
+      |   1   1 255   1   1   1   1   1 253 255 
+      | 255 253
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.13445345~1.5585291
+      |       id:1 height:0.087578036~1.4478881
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=30):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#23) (00:01.280565)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.80321455 y:3.2128925 z:0.7840422
+      |       id:1 x:1.3708522 y:4.35353 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=30):
+      |   0   0   0   0   0 254   0   0   0   0 
+      |   0   0   1   1   1   1   1   1   1   1 
+      |   1   1   1   1   1 253 255 255 253 253
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.050333615~1.5744784
+      |       id:1 height:0.09083268~1.4231853
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=33):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#24) (00:01.336996)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.80080295 y:3.1922588 z:0.7840422
+      |       id:1 x:1.3726655 y:4.3184752 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=33):
+      |   0   0   0 253   0   0   0   0   0   0 
+      |   0   0 253   0   0   0   0   0   1   1 
+      |   1   1   1   1   1   1   1   1   1   1 
+      |   1 255 254
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.18848623~1.5937202
+      |       id:1 height:0.19932568~1.4443729
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=29):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#25) (00:01.391311)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.7975447 y:3.1721332 z:0.7840422
+      |       id:1 x:1.3751405 y:4.2842712 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=29):
+      |   0   0   0   0   0   0   0   0   0   0 
+      |   0   0   0   0   0   1   1   1   1   1 
+      | 253   1 254   1 253 255 255 253 253
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.12567453~1.5699579
+      |       id:1 height:0.04362512~1.5153418
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=16):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#26) (00:01.444241)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.79411095 y:3.1523707 z:0.7840422
+      |       id:1 x:1.3775737 y:4.2510757 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=16):
+      |   0   0   0   0   0   0   0   0   0   1 
+      |   1   1   1 254 255 255
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.037469797~1.5401763
+      |       id:1 height:0.1472353~1.5105121
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=24):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#27) (00:01.499499)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.7900564 y:3.1331155 z:0.7840422
+      |       id:1 x:1.3795443 y:4.2176023 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=24):
+      |   0   0   0   0   0   0   0   0   0   0 
+      |   0 255   0   0   0   1   1   1 255   1 
+      |   1 254 255 255
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.16887257~1.5970021
+      |       id:1 height:0.06174046~1.4275435
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=14):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#28) (00:01.555982)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.7862676 y:3.1133604 z:0.7840422
+      |       id:1 x:1.3813311 y:4.1840887 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=14):
+      |   0   0   0   0   0   0   0   0   0   0 
+      |   1   1   1   1
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.15736629~1.528417
+      |       id:1 height:0.10228494~1.4602646
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=23):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#29) (00:01.613271)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.7820986 y:3.092831 z:0.7840422
+      |       id:1 x:1.383148 y:4.1512346 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=23):
+      |   0   0   0   0   0   0 253   0   0   0 
+      | 253   0   0   0   0   1   1   1   1   1 
+      |   1   1 255
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.031326838~1.5933197
+      |       id:1 height:0.15963238~1.5132234
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=38):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#30) (00:01.666142)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.77811056 y:3.0718448 z:0.7840422
+      |       id:1 x:1.3852841 y:4.1185946 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=38):
+      | 254 253   0   0   0   0   0   0   0   0 
+      |   0   0   0   0   0   1 255   1   1   1 
+      |   1   1   1   1   1   1   1   1   1   1 
+      |   1 254 254 255 253 254 254 253
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.027819414~1.5617293
+      |       id:1 height:0.13570987~1.4936978
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=30):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#31) (00:01.721006)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.7739102 y:3.0497649 z:0.7840422
+      |       id:1 x:1.38759 y:4.0855246 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=30):
+      |   0   0   0   0   0   0   0   0   0   0 
+      | 253   0   1 255 253   1   1   1   1   1 
+      |   1   1   1   1   1 253 253 255 253 253
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.16888483~1.5995578
+      |       id:1 height:0.03189991~1.5062014
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=30):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#32) (00:01.775144)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.7695817 y:3.0269785 z:0.7840422
+      |       id:1 x:1.38976 y:4.0529737 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=30):
+      |   0   0   0   0   0   0   0   0 254   0 
+      |   0   0   0   0 255   0   0 254   1   1 
+      |   1   1   1   1   1   1 255 253 253 255
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.04833856~1.5475687
+      |       id:1 height:0.12983823~1.5093799
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=31):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#33) (00:01.828387)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=2):
+      |       id:0 x:-0.76584876 y:3.0044336 z:0.7840422
+      |       id:1 x:1.3926847 y:4.0202646 z:0.73421335
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=31):
+      |   0   0   0   0   0   0   0   0   0 254 
+      |   0   0   0   0   1   1   1   1   1   1 
+      |   1   1   1   1 253   1   1 255   1 253 
+      | 253
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:0 height:0.15828812~1.5873116
+      |       id:1 height:0.10214803~1.4304597
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=17):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#34) (00:01.882206)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=3):
+      |       id:0 x:-0.76192987 y:2.982592 z:0.7840422
+      |       id:1 x:1.3952862 y:3.9875257 z:0.73421335
+      |       id:2 x:1.0220506 y:5.072994 z:0.85595024
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=17):
+      |   0   0   0   0   0   0   0 253   0 253 
+      |   0   1   1   1   1 255 255
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=3):
+      |       id:0 height:0.08062111~1.5677313
+      |       id:1 height:0.19909634~1.4798452
+      |       id:2 height:0.17118049~1.7028667
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=32):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#35) (00:01.940033)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=3):
+      |       id:0 x:-0.7574475 y:2.9605181 z:0.7840422
+      |       id:1 x:1.3978329 y:3.9543583 z:0.73421335
+      |       id:2 x:1.0538292 y:5.0596075 z:0.85595024
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=32):
+      |   0   0   0   0   0   0   0   0   0   0 
+      | 255   1   1   1 255   1   1   1   1   1 
+      |   2 255   2   2   2   2   2   2   2 254 
+      | 255 253
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=3):
+      |       id:0 height:0.0036207957~1.5245285
+      |       id:1 height:0.19176634~1.4980686
+      |       id:2 height:0.17295155~1.7569625
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=35):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#36) (00:01.997573)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=3):
+      |       id:0 x:-0.7526523 y:2.9378734 z:0.7840422
+      |       id:1 x:1.4004557 y:3.9210198 z:0.73421335
+      |       id:2 x:1.0850933 y:5.0471945 z:0.85595024
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=35):
+      |   0   0   0   0   0   0   0   0   0   0 
+      |   0 253 255   1   1   1 253   1 255   2 
+      |   2   2   2 255   2   2   2   2   2   2 
+      |   2 253 254 253 255
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=3):
+      |       id:0 height:0.009926254~1.5410564
+      |       id:1 height:1.3218722E-05~1.4452318
+      |       id:2 height:0.1859957~1.7465744
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=41):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#37) (00:02.052457)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=3):
+      |       id:0 x:-0.7474203 y:2.9145722 z:0.7840422
+      |       id:1 x:1.4020652 y:3.886819 z:0.73421335
+      |       id:2 x:1.1164646 y:5.0343695 z:0.85595024
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=41):
+      |   0   0   0   0   0   0   0   0   0   0 
+      |   0   0   0   0   0   0   0   1   1   1 
+      |   1   1   1   1   1   1   1   1   1   1 
+      |   2   2   2   2 255 255 254 253 254 254 
+      | 254
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=3):
+      |       id:0 height:0.13983184~1.5625161
+      |       id:1 height:0.09701699~1.4507233
+      |       id:2 height:0.1379304~1.7169363
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=22):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#38) (00:02.105320)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=4):
+      |       id:0 x:-0.74259144 y:2.8903022 z:0.7840422
+      |       id:1 x:1.4033834 y:3.852727 z:0.73421335
+      |       id:2 x:1.1478865 y:5.0220814 z:0.85595024
+      |       id:3 x:-0.47398528 y:2.7405431 z:0.7261321
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=22):
+      |   0   0   0   0   0   0   0   0 255   1 
+      | 253   1   1   2   2   2   2   2   2 253 
+      | 254 255
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=4):
+      |       id:0 height:0.057725944~1.6095703
+      |       id:1 height:0.08563718~1.439438
+      |       id:2 height:0.16213906~1.7554532
+      |       id:3 height:0.120196655~1.4879247
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=38):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true
+New Frame (#39) (00:02.158029)
+   - Tlv Type: TlvTargetList (uint=1010)
+      Targets (Count=4):
+      |       id:0 x:-0.73845726 y:2.8661664 z:0.7840422
+      |       id:1 x:1.4051813 y:3.8188708 z:0.73421335
+      |       id:2 x:1.1801003 y:5.0100327 z:0.85595024
+      |       id:3 x:-0.50135034 y:2.7494287 z:0.7261321
+   - Tlv Type: TlvTargetIndex (uint=1011)
+      Indexes (Count=38):
+      |   0   0   0   0 253   0   0   0   0   0 
+      |   0   0   1   1 253   1   1 254   1   2 
+      |   2   2   2   2   2 255   3   3   3   3 
+      |   3 254 255 253 254 254 254 253
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=4):
+      |       id:0 height:0.18667887~1.5211878
+      |       id:1 height:0.0059848544~1.4286113
+      |       id:2 height:0.19366065~1.7019572
+      |       id:3 height:0.17321353~1.4770093
+   - Tlv Type: TlvPointCloud (uint=1020)
+      Points (Count=66):
+   - Tlv Type: TlvPresenceIndication (uint=1021)
+      Presence: true

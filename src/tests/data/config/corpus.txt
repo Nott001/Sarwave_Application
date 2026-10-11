@@ -1,0 +1,337 @@
+# One case per line, escapes: \n \r \t \0 \\ \uXXXX. "@num X" runs token X through an int field
+# (stateParam), a float field (maxAcceleration), an enum field (adcCfg) and a bool field (bpmCfg).
+# ---- SDK commands
+sensorStop
+sensorStop 1
+flushCfg extra
+sensorStart
+sensorStart 0
+sensorStart 1 2
+sensorStart x
+sensorStart 1.0
+sensorStart -0
+dfeDataOutputMode 1
+dfeDataOutputMode 0
+dfeDataOutputMode 4
+dfeDataOutputMode
+dfeDataOutputMode -1
+dfeDataOutputMode 3.0
+channelCfg 15 7 0
+channelCfg 16 7 0
+channelCfg 31 7 0
+channelCfg 15 8 0
+channelCfg 0 0 0
+channelCfg -1 7 0
+channelCfg 15 7
+channelCfg 5 3 0
+adcCfg 2 1
+adcCfg 2 7
+adcCfg 3 1
+adcCfg 2.0 1.0
+adcCfg -1 1
+adcbufCfg -1 0 1 1 1
+adcbufCfg -1 2 1 1 1
+adcbufCfg -1 0 2 1 1
+adcbufCfg -1 0 1 2 1
+lowPower 0 0
+lowPower 0 1
+lowPower 0 2
+profileCfg 0 60.75 30.00 25.00 59.10 394758 0 54.71 1 96 2950.00 2 1 36
+profileCfg 0 60.75 30.00 25.00 59.10 394758 0 54.71 1 96 2950.5 2 1 36
+profileCfg 0 60.75 30.00 25.00 59.10 394758 0 54.71 1 96 2950.00 4 1 36
+profileCfg 0 60.75 30.00 25.00 59.10 394758 0 54.71 1 96 2950.00 2 4 36
+profileCfg 0 60.75
+profileCfg 0 60.75 30.00 25.00 59.10 394758 0 54.71 1 96 2950.00 2 1 36 99 100
+profileCfg 0 60 7 3 24 0 0 166 1 256 12500 0 0 158
+chirpCfg 0 0 0 0 0 0 0 1
+chirpCfg 0 0 0 0 0 0 0 3
+chirpCfg 0 0 0 0 0 0 0 7
+chirpCfg 0 0 0 0 0 0 0 8
+chirpCfg 0 0 0 1e-05 -0 0.0010 1E+10 1
+frameCfg 0 2 96 0 55.00 1 0
+frameCfg 0 2 96 0 55.00 3 0
+frameCfg 0 2 96 0 55.00 2 0.5
+frameCfg 0 2 32 0 100 1 0
+bpmCfg -1 0 0 1
+bpmCfg -1 1 0 1
+bpmCfg -1 2 0 1
+bpmCfg -1 01 0 1
+bpmCfg -1 true 0 1
+compRangeBiasAndRxChanPhase 0 1 0 1 0
+compRangeBiasAndRxChanPhase 0 1 0 1
+compRangeBiasAndRxChanPhase 0
+compRangeBiasAndRxChanPhase
+compRangeBiasAndRxChanPhase 0.0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0
+compRangeBiasAndRxChanPhase 0 1 0 x 0
+compRangeBiasAndRxChanPhase 0.5 0.70711 -0.70711 1 0
+compRangeBiasAndRxChanPhase x 1 0
+# ---- people tracking commands
+dynamicRACfarCfg -1 4 4 2 2 8 12 4 12 5.00 8.00 0.40 1 1
+dynamicRACfarCfg -1 4 4 2 2 8 12 4 12 5.00 8.00 0.40 1 4
+dynamicRACfarCfg -1 4 4 2 2 8 12 4 12 5.00 8.00 0.40 2 1
+dynamicRACfarCfg -1 4 4 2 2 8 12 4 12 5.00 8.00 0.40 1
+staticRACfarCfg -1 6 2 2 2 8 8 6 4 8.00 15.00 0.30 0 0
+staticRACfarCfg -1 6 2 2 2 8 8 6 4 8.00 15.00 0.30 0 7
+dynamicRangeAngleCfg -1 0.75 0.0010 1 0
+dynamicRangeAngleCfg -1 0.75 0.0010 2 0
+dynamicRangeAngleCfg -1 0.75 0.0010 3 0
+dynamicRangeAngleCfg -1 0.75 0.0010 1 1
+dynamic2DAngleCfg -1 3.0 0.0300 1 0 1 0.30 0.85 8.00
+dynamic2DAngleCfg -1 4 1 1 1.0 30.0 2
+dynamic2DAngleCfg -1 4 1 1 1.0 30.0 0
+dynamic2DAngleCfg -1 4 1 1 1.0 30.0 3
+dynamic2DAngleCfg -1 3.0 0.0300 1 0 1 0.30 0.85
+dynamic2DAngleCfg -1 3.0 0.0300 1 0 1 0.30
+dynamic2DAngleCfg -1 3.0 0.0300 1 0 1
+dynamic2DAngleCfg -1 3.0 0.0300 1 0 1 0.30 0.85 8.00 1
+dynamic2DAngleCfg
+dynamic2DAngleCfg -1 3.0 0.0300 1 0 2 0.30 0.85 8.00
+dynamic2DAngleCfg -1 3.5 1 1 1.0 30.0 2
+dynamic2DAngleCfg -1 3 0.03 1.5 0 1 0.30 0.85 8.00
+staticRangeAngleCfg -1 0 8 8
+staticRangeAngleCfg -1 1 8 8
+fineMotionCfg -1 1 1.5 4 3
+fineMotionCfg -1 0 0 0 0
+antGeometry0 -1 -1 0 0 -3 -3 -2 -2 -1 -1 0 0
+antGeometry0
+antGeometry0 1 x
+antGeometry0 1 2.0 1e1
+antGeometry1 -1 0 -1 0 -3 -2 -3 -2 -3 -2 -3 -2
+antPhaseRot 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1
+antPhaseRot 1 -1 0
+antPhaseRot 2
+antPhaseRot
+antPhaseRot 1 y
+fovCfg -1 70.0 70.0
+fovCfg -1 70.0
+staticBoundaryBox -3 3 0.5 7.5 0 3
+boundaryBox -4 4 0 8 0 3
+presenceBoundaryBox -3 3 0.5 7.5 0 3
+sensorPosition 2 0 15
+gatingParam 3 2 2 3 4
+stateParam 3 3 12 500 5 6000
+allocationParam 20 100 0.1 20 0.5 20
+maxAcceleration 0.1 0.1 0.1
+trackingCfg 1 2 800 30 46 96 55
+trackingCfg 1 2 800 30 46 96 55 1
+trackingCfg 1 2 800 30 46 96 55 0
+trackingCfg 1 2 800 30 46 96 55 2
+trackingCfg 1 2 800 30 46 96
+trackingCfg 1 2 800 30 46 96 55 1 1
+trackingCfg 1 2 800 30 46 96 55 1 1 1
+# ---- unknown commands and case
+unknownCmd 1 2 3
+unknownCmd
+UnknownCmd    a\tb
+SENSORSTOP
+sensorstop
+guiMonitor -1 1 1 1 0 0 1
+measureRangeBiasAndRxChanPhase 0 1. 0.2
+# ---- whitespace, comments, line endings
+\tsensorStop
+sensorStop\t
+  channelCfg   15\t7  0  
+channelCfg 15 7 0
+channelCfg　15 7 0
+channelCfg 15 7 0
+channelCfg\u008515 7 0
+channelCfg 15\u000B7\u000C0
+channelCfg 15​7 0
+channelCfg 15᠎7 0
+channelCfg 15\u001C7 0
+channelCfg 15\u001F7 0
+sensorStop\u0085
+sensorStop 　
+sensorStop\0
+\0sensorStop
+﻿sensorStop
+sensorStop﻿
+% comment
+%
+%% double
+% comment with trailing   
+% comment with trailing nbsp 
+%\tcomment with tab\t
+  % indented comment
+\t% tab indented comment
+% héllo wörld 中文
+ 
+   
+\t
+　 
+
+sensorStop\nflushCfg
+sensorStop\r\nflushCfg\r\n
+sensorStop\rflushCfg\r
+sensorStop\n\nflushCfg\n\n
+\n
+\r\n\r\n
+\r
+\r\r\n
+a\r\r\nb
+\n\r
+sensorStop flushCfg
+sensorStop\nchannelCfg 16 7 0
+sensorStop\r\n\r\nchannelCfg 16 7 0
+sensorStop\rchannelCfg 15 7 9 9
+% x\n\n  \nfrobnicate\nprofileCfg 0 1\n
+sensorStop\n% c\nsensorStart\nsensorStart 0
+# ---- find/all semantics
+dynamic2DAngleCfg -1 4 1 1 1.0 30.0 2\ndynamic2DAngleCfg -1 3.0 0.0300 1 0 1 0.30 0.85 8.00
+dynamic2DAngleCfg -1 3.0 0.0300 1 0 1 0.30 0.85 8.00\ndynamic2DAngleCfg -1 4 1 1 1.0 30.0 2
+chirpCfg 0 0 0 0 0 0 0 1\nchirpCfg 1 1 0 0 0 0 0 2\nchirpCfg 2 2 0 0 0 0 0 4
+profileCfg 0 60 7 3 24 0 0 166 1 256 12500 0 0 158\nprofileCfg 1 61 7 3 24 0 0 166 1 256 12500 0 0 158
+a 1\nb 2\na 3
+# ---- numbers
+@num 0
+@num -0
+@num +0
+@num +5
+@num -5
+@num 007
+@num 1
+@num 2
+@num 2950.00
+@num 2950.5
+@num 1e3
+@num 1E3
+@num 1e+3
+@num 1e-3
+@num 1.5e1
+@num 1.e1
+@num .5
+@num 5.
+@num .
+@num -
+@num +
+@num e5
+@num 1e
+@num 1e+
+@num 1e-
+@num 1e5.5
+@num 0x10
+@num 1,000
+@num 1_000
+@num ++1
+@num --1
+@num +-1
+@num 1-
+@num 1+
+@num 2147483647
+@num 2147483648
+@num -2147483648
+@num -2147483649
+@num 2147483647.0
+@num 2147483648.0
+@num -2147483648.0
+@num -2147483904
+@num 2147483520
+@num 2147483583.9
+@num 2147483584
+@num 4294967296
+@num 1e10
+@num -1e10
+@num 9999999999999999999999
+@num 0.0010
+@num 0.30
+@num 60.75
+@num 59.10
+@num 54.71
+@num 1E-05
+@num 1e-05
+@num 0.0001
+@num 0.00001
+@num 123456789
+@num 1234567890
+@num 1e9
+@num 999999999
+@num 1e-45
+@num 1e-46
+@num 7e-46
+@num 8e-46
+@num 1.4e-45
+@num 1.401298464324817e-45
+@num 7.006492321624085e-46
+@num 7.006492321624086e-46
+@num 1.1754942e-38
+@num 1.17549435e-38
+@num 3.4028235e38
+@num 3.4028236e38
+@num 3.40282357e38
+@num 3.4028235677973366e38
+@num 3.4028235677973367e38
+@num 1e39
+@num 1e308
+@num 1e309
+@num 1e-400
+@num 1e99999999999
+@num -1e99999999999
+@num 1e-99999999999
+@num 0e999999
+@num 0e-999999
+@num NaN
+@num nan
+@num NAN
+@num -NaN
+@num +NaN
+@num Infinity
+@num -Infinity
+@num +Infinity
+@num infinity
+@num INFINITY
+@num -INFINITY
+@num inf
+@num -inf
+@num Inf
+@num ∞
+@num -∞
+@num +∞
+@num 1\0
+@num 1\0\0
+@num \01
+@num 5e0\0
+@num Infinity\0
+@num NaN\0
+@num 1.5\0
+@num -\0
+@num ١٢
+@num 1d
+@num 1f
+@num 1F
+@num 0b1
+@num 00000000000000000000000001
+@num 1.00000000000000000000000000001
+@num 0.99999999999999999999999999999
+@num 16777217
+@num 16777216.5
+@num 16777218
+@num 0.1e1
+@num 1234567890123
+@num -0.0
+@num 0e0
+@num 0.1
+@num 0.2
+@num 0.3
+@num 1.1
+@num 100
+@num 1000000
+@num 10000000
+@num 100000000
+@num 1000000000
+@num 1e8
+@num 1.5e9
+@num 123456792
+@num 0.001
+@num 0.0009765625
+@num 3.14159265358979
+@num 2.718281828
+@num 1e-10
+@num 1.23456789e-7
+@num 100000000000000000000000000000000000000
+@num 340282346638528859811704183484516925440
+@num 340282356779733661637539395458142568448
+@num 0.000000000000000000000000000000000000000000001
+@num 4.9e-324
+@num 1E+10
+@num 1e+010
+@num 1.0E-005
