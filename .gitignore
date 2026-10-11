@@ -19,9 +19,8 @@ compile_commands.json
 cmake_install.cmake
 Makefile
 
-# Handover & thesis docs — local reference only, not for VCS
+# Handover doc — local reference only, not for VCS
 HANDOVER.md
-thesis_context.md
 Fak, Qt Qu
 # C# parity harness build output
 src/tests/Parity/csharp/bin/
