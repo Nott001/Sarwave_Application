@@ -1,35 +1,47 @@
-cmake_minimum_required(VERSION 4.2)
-project(SarwaveApp VERSION 0.1 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.25)
+project(SarwaveApp VERSION 0.2 LANGUAGES CXX)
+
+# C++ port of the SarwaveApplication C# solution. Each C# project has a counterpart here:
+#
+#   Sarwave.Core.MMWave         -> include/MMWave   (SarwaveCoreMMWave, SarwaveCoreMMWaveConfig)
+#   Sarwave.Core.Gui            -> include/Gui      (SarwaveCoreGui)
+#   Sarwave.DevEnv              -> include/DevEnv   (SarwaveDevEnv)
+#   Sarwave.Source.Terminal     -> src/Terminal     (SarwaveTerminal)
+#   Sarwave.Source.TestRpiApp   -> src/TestRpiApp   (TestRpiApp)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-find_package(Boost REQUIRED)
-
-# QtQuick.Controls is imported by both QML entry points.  It must be found here
-# so Qt can link and deploy its QML plugins along with each executable.
-find_package(Qt6 REQUIRED COMPONENTS Core Network Quick QuickControls2 Test)
-qt_standard_project_setup(REQUIRES 6.5)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Enable compile_commands.json for IDEs
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+find_package(Boost REQUIRED CONFIG)
+find_package(Threads REQUIRED)
+
+option(SARWAVE_BUILD_GUI "Build the Qt based GUI libraries and applications" ON)
+
+if(SARWAVE_BUILD_GUI)
+    find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2 Test)
+    qt_standard_project_setup(REQUIRES 6.5)
+    if(QT_KNOWN_POLICY_QTP0004)
+        qt_policy(SET QTP0004 NEW)  # qmldir for the QML files in sub-folders of a module
+    endif()
+endif()
+
 enable_testing()
 
 add_subdirectory(include/MMWave)
-add_subdirectory(include/QtCommon)
-add_subdirectory(src/MMWaveTerminal)
-add_subdirectory(src/RpiApp)
-add_subdirectory(src/DesktopApp)
-add_subdirectory(src/tests)
+add_subdirectory(src/Terminal)
 
-# Nonexistent test project on github.
-option(BUILD_TEST_RPI_APP "Build TestRpiApp" ON)
-if(BUILD_TEST_RPI_APP)
-    # Check if the directory exists and contains a CMakeLists.txt
-    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/TestRpiApp/CMakeLists.txt")
+if(SARWAVE_BUILD_GUI)
+    add_subdirectory(include/Gui)
+    add_subdirectory(include/DevEnv)
+
+    option(BUILD_TEST_RPI_APP "Build TestRpiApp" ON)
+    if(BUILD_TEST_RPI_APP)
         add_subdirectory(src/TestRpiApp)
-    else()
-        message(STATUS "Directory src/TestRpiApp not found. Skipping.")
     endif()
 endif()
+
+add_subdirectory(src/tests)
