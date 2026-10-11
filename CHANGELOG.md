@@ -11,6 +11,31 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 > Changes staged locally that have not yet been tagged as a release.
 
+### Changed — C++ port of the C# SarwaveApplication
+- The whole C++ code base is replaced by a port of the C# solution (`SarwaveApplication/`), one
+  CMake target per C# project: `SarwaveCoreMMWave`, `SarwaveCoreMMWaveConfig`, `SarwaveCoreGui`,
+  `SarwaveDevEnv`, `SarwaveTerminal`, `TestRpiApp`. Namespaces mirror the C# ones.
+- Core: serial `Context` (Boost.Asio, cancellable reads), `FrameReader` (C# resync state machine),
+  `ConstantCapture`, TLV views, People Tracking TLV records, `CombinedManager` association with
+  .NET-ordered collections, `DebugLogger`, recording format `SWMMWREC` v1 (`FrameRecorder`,
+  `FrameRecording`, `FramePlayback`), port prompts.
+- Config: typed `.cfg` model with all 32 commands, registry, layout, reader, `AopBoard`.
+- GUI: Avalonia dashboards ported to Qt Quick; radar grid, data overlay and Z-range bar are
+  QPainter items ported from the Avalonia `Render` code. Inter fonts embedded.
+- DevEnv: port and cfg dialogues, `RunStuff`, `RunRecorded`, `ConfigMemory` (`config.json`
+  written like System.Text.Json).
+- `.NET`-compatible number/time formatting so console output, `.cfg` files and on-screen figures
+  match the C# app character for character.
+- Tests: C# parity fixtures, pseudo-terminal serial tests, GUI tests; C#/C++ parity harnesses.
+- `tools/generate_recording.py` writes synthetic People Tracking sessions.
+- CI installs Qt 6.8 and runs the GUI tests offscreen.
+
+### Removed
+- `RpiApp`, `DesktopApp`, `MMWaveTerminal`, `QtCommon` (`DashboardState`, `NetworkManager`,
+  `ProtocolDefinitions`, `MMWavePrompt`) and the old `MMWave` headers -- superseded by the port.
+  They remain in git history.
+
+### Earlier unreleased changes
 ### Added
 - **PeopleTracking module** (`include/MMWave/Configured/PeopleTracking/`) — new `Manager.hpp`, `TargetObject.hpp`, `EntryDecompiler.hpp`, `PointCloud.hpp`, `CloudZip.hpp`, `Debug.cpp/.hpp`, `TlvOutput.hpp`, `TlvTypes.hpp`
 - **Dashboard files** — `include/QtCommon/Dashboard/DashboardAssist.hpp`, `DashboardState.cpp`, `DashboardState.h`
