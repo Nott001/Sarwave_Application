@@ -22,7 +22,7 @@ jobs:
       - name: Check clang-format
         run: |
           CLANG_FORMAT=$(command -v clang-format || command -v clang-format-17 || command -v clang-format-18 || true)
-          FORMAT_FILES=$(find . \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" \) -not -path "./build/*" -not -path "./.git/*")
+          FORMAT_FILES=$(find include src tools \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" \))
           if [ -n "$CLANG_FORMAT" ] && [ -n "$FORMAT_FILES" ]; then
             $CLANG_FORMAT --dry-run --Werror -style=file $FORMAT_FILES
           else
@@ -30,32 +30,39 @@ jobs:
           fi
 
       - name: Check editorconfig
+        # Test fixtures hold program output verbatim (trailing spaces included).
         run: |
-          ec -exclude "build/|.git/" -f github-actions
+          ec -exclude "build|\.git/|src/tests/data/|SarwaveApplication/|\.(ttf|ico|swrec|bin)$" -f github-actions
 
   build-and-test:
     needs: lint-format
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            cmake ninja-build g++ \
-            qt6-qtbase-dev qt6-qtquick-dev qt6-qtquickcontrols2-dev \
-            qt6-qttest-dev libboost-dev
+          sudo apt-get install -y cmake ninja-build g++-14 libboost-dev libgl-dev libxkbcommon-dev
+
+      # Ubuntu's own Qt is 6.4; the code needs 6.5+ (loadFromModule, QML_VALUE_TYPE).
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          cache: true
 
       - name: Configure
         run: |
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug \
-            -DCMAKE_CXX_STANDARD=23
+            -DCMAKE_CXX_COMPILER=g++-14
 
       - name: Build
         run: cmake --build build
 
       - name: Run tests
+        env:
+          QT_QPA_PLATFORM: offscreen
         run: |
           ctest --test-dir build --output-on-failure --verbose

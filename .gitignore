@@ -1,4 +1,5 @@
 build/
+build-*/
 *.iml
 *.o
 *.a
@@ -22,3 +23,8 @@ Makefile
 HANDOVER.md
 thesis_context.md
 Fak, Qt Qu
+# C# parity harness build output
+src/tests/Parity/csharp/bin/
+src/tests/Parity/csharp/obj/
+src/tests/Parity/csharp-config/bin/
+src/tests/Parity/csharp-config/obj/
