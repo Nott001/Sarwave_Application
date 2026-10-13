@@ -1,0 +1,160 @@
+Recorded Data
+Table of Contents
+
+    Overview
+    Recording File Format (.swrec)
+    The Recordings Measured
+    Frame Contents
+        Frame Header
+        Packet Layout
+        Point Cloud TLV (1020)
+        Target List TLV (1010)
+        Target Height TLV (1012)
+        Target Index TLV (1011)
+        Presence Indication TLV (1021)
+    Damaged and Missing Frames
+    Not Yet Known
+
+Overview
+
+This file describes the data Sarwave records from the IWR6843AOP running TI's 3D People Tracking demo: how a recording is stored on disk, and what the frames inside it really contain. user_guide.txt is TI's description of the UART output; it is incomplete and wrong in places. Everything here was measured on recorded frames, and where it disagrees with user_guide.txt, this file is the one that matches the device. Statements that could not be measured are collected under "Not Yet Known".
+
+All multi-byte values, in the recording file and in the frames, are little endian.
+
+Recording File Format (.swrec)
+
+Written by FrameRecorder, read by FrameRecording, defined in include/MMWave/Recording/RecordingFormat.hpp (Sarwave.Core.MMWave/Recording/RecordingFormat.cs in the C# solution). The default file is default_session.swrec in the Sarwave folder under the user's local application data (~/.local/share/Sarwave on Linux).
+
+File header, once, 12 bytes:
+Value 	Type 	Bytes 	Comments
+Signature 	char[8] 	8 	The ASCII text "SWMMWREC"
+Version 	int32 	4 	1
+
+Then one record per frame, repeated until the end of the file:
+Value 	Type 	Bytes 	Comments
+Timestamp 	int64 	8 	When the frame arrived, in ticks of 100 nanoseconds (10,000,000 per second)
+Length 	int32 	4 	Number of frame bytes that follow
+Frame 	byte[] 	Length 	The frame exactly as it came off the data port, starting with the Magic Word
+
+    The timestamp is time since the capture started (a stopwatch), not a date or time of day. The first record is typically around 0.15 s.
+    The frame bytes are not decoded, checked or repaired on the way in. A frame that arrived damaged is stored damaged, and a frame that never arrived has no record. This is what makes a recording usable for diagnosing those cases.
+    Length always equals the frame's own Total Packet Length field, because the reader cuts frames at that length.
+    There is no index, frame count or end marker. A file is read by walking the records. Each record is flushed as it is written, so a recording from a process that crashed or was killed is complete up to its last frame; if the file ends part-way through a record, FrameRecording::isTruncated() (IsTruncated in C#) is set and the earlier frames still load.
+    Nothing about the session is stored besides the frames: not the .cfg that was sent to the sensor, not the port names, not the host. See "Not Yet Known".
+    Size is roughly 12 + sum of (12 + frame length). The recordings below run at 3 to 22 KB per second.
+
+The Recordings Measured
+
+Four recordings, 2,361 frames in total. All report software version 0x03050004 and platform 0x000A6843. Which .cfg each used was not recorded; the configuration column is inferred from the frame period (frameCfg 55 ms or 60 ms) and the farthest point seen.
+Recording 	Host 	Frames 	Duration 	Frame period 	Frame bytes (min / median / max) 	Most targets at once 	Likely configuration
+A 	Laptop 	765 	42.0 s 	55 ms 	192 / 1088 / 1856 	3 	AOP_6m_*
+B 	Laptop 	490 	26.9 s 	55 ms 	64 / 1120 / 2432 	8 	AOP_6m_*
+C 	Laptop 	752 	45.0 s 	60 ms 	64 / 128 / 736 	1 	A 60 ms configuration reaching past 10 m (Sarwave_12m*)
+D 	Raspberry Pi 5 	354 	19.6 s 	55 ms 	64 / 1088 / 2080 	5 	AOP_6m_staticRetention
+
+    A, B and C have no missing or damaged frames. D has one damaged frame and two missing frames; see "Damaged and Missing Frames".
+    D is kept in the C# repository at tmp/default_session.swrec.
+
+Frame Contents
+
+Frame Header
+
+    The header is the 8-byte Magic Word followed by eight uint32 fields, 40 bytes in total.
+    Frame Number starts at 1 on sensorStart and goes up by exactly 1 per frame. A step larger than 1 means frames were lost.
+    Time [in CPU Cycles] is always 0. It cannot be used for timing; use the recording's timestamp.
+    Subframe Number is always 0.
+    Num Detected Obj equals the number of points in the same frame's Point Cloud TLV.
+    Total Packet Length is the whole frame including the Magic Word, the header and the padding.
+
+Packet Layout
+
+    TLV Length counts the payload only. The next TLV starts 8 + Length bytes after the start of the current one.
+    A TLV with nothing to carry is not sent at all. The six combinations seen, in wire order:
+TLVs in the frame 	Frames 	Situation
+1021 	264 	Empty scene
+1020, 1021 	294 	Points, nothing tracked
+1020, 1010, 1012, 1021 	78 	Targets, but the previous frame had no points
+1020, 1010, 1012, 1011, 1021 	1516 	The normal case
+1010, 1012, 1021 	128 	Targets coasting with no points in this frame or the previous one
+1010, 1012, 1011, 1021 	80 	Targets, no points in this frame, points in the previous one
+
+    The order is always 1020, 1010, 1012, 1011, 1021, which is not the order user_guide.txt lists them in.
+    After the last TLV the frame is padded to a multiple of 32 bytes (0 to 31 bytes). The padding is not zeroed (bytes of 0xBE and 0x00 were seen) and carries no information.
+    The smallest frame is 64 bytes: header (40), Presence TLV (12), padding (12).
+    Frames stay well under 4 KB. The largest seen was 2,432 bytes, with 150 points and 8 targets.
+    There is no checksum anywhere in the frame.
+
+Point Cloud TLV (1020)
+
+    Payload is the 20-byte pointUnit followed by 8 bytes per point: points = (Length - 20) / 8.
+    pointUnit was the same in every frame of every recording: elevationUnit 0.01, azimuthUnit 0.01, dopplerUnit 0.00028, rangeUnit 0.00025, snrUnit 0.04.
+    At most 150 points are sent in a frame. Busy scenes sit at exactly 150, so points are being cut off there.
+    Field types on the wire: elevation int8, azimuth int8, doppler int16, range uint16, snr uint16. user_guide.txt gives range and snr as int16, which is wrong: a raw range of 42646 is 10.66 m, and reads as -5.72 m if treated as signed. With rangeUnit 0.00025 every range beyond 8.19 m has the top bit set.
+Value 	Seen (after multiplying by the unit) 	Comments
+elevation 	-1.19 to 1.12 rad
+azimuth 	-1.28 to 1.27 rad 	The raw int8 reaches -128 and 127, so wider angles are clipped to about 73 degrees
+doppler 	-4.44 to 4.51 m/s
+range 	0.25 to 10.85 m
+snr 	0 to 2620.76 	A linear ratio, not decibels. Median 28, 99th percentile about 1700; 2621.4 is the largest value the field can hold
+
+    To Cartesian (Detection Layer Tuning Guide, section 1.2): x = range x cos(elevation) x sin(azimuth), y = range x cos(elevation) x cos(azimuth), z = range x sin(elevation). +Y points away from the sensor, +X to its right, +Z up. The result is relative to the sensor and does not include sensorPosition.
+
+Target List TLV (1010)
+
+    112 bytes per target: targets = Length / 112.
+    tid occupies 4 bytes. The upper three were zero in all 4,156 intact records.
+    Track IDs are handed out upwards from 0 and are reused after a track ends. The highest seen was 26; trackingCfg allows 30 tracks in these configurations.
+    Up to 8 targets were listed in one frame.
+Value 	Seen 	Comments
+posX 	-3.36 to 1.89 m
+posY 	-0.45 to 7.14 m
+posZ 	-1.62 to 2.44 m 	Negative in about a third of the records; see "Not Yet Known"
+velocity (length of velX/Y/Z) 	0 to 4.04 m/s
+acceleration (length of accX/Y/Z) 	0 to 3.36 m/s^2
+ec[16] 	All 16 entries used 	Exactly symmetric in every record, so reading it by rows or by columns gives the same matrix. All zero in about 1% of records
+g 	Always 3.0 	The gating gain from the configuration, not a measurement
+confidenceLevel 	0.37 to 1.0 	A fraction; multiply by 100 for a percentage
+
+Target Height TLV (1012)
+
+    12 bytes per target, not the 9 that user_guide.txt documents: the target ID in a 4-byte slot (upper three bytes zero), maxZ at offset 4, minZ at offset 8. Length was 12 x targets in all 1,802 frames.
+    Sent in every frame that has a Target List TLV, listing the same targets in the same order.
+Value 	Seen 	Comments
+maxZ 	0.01 to 2.60 m
+minZ 	0 to 2.42 m 	Never negative
+maxZ - minZ 	0 to 1.11 m
+
+Target Index TLV (1011)
+
+    One byte per point of the PREVIOUS frame's point cloud. The count matched the previous frame's point count in all 1,594 cases where both frames were present.
+    Sent only when this frame has a Target List TLV and the previous frame had points. While nothing is tracked there is no Target Index TLV, so those points never receive an ID.
+    An ID may belong to a track that is listed for the first time in this same frame (60 frames), or to a track that was in the previous frame's Target List and is gone from this one (8 frames). It was never an ID absent from both.
+    Of 121,147 entries: 82% named a track, 11% were 255 (noise), 7% were 254 (outside the boundary box). 253 (SNR too weak) never appeared.
+
+Presence Indication TLV (1021)
+
+    4 bytes, value 0 or 1. Present in every frame; it is the only TLV that is.
+    It was 1 in 78% of frames.
+
+Damaged and Missing Frames
+
+Seen only in recording D (Raspberry Pi 5). Bytes were lost between the sensor and the program; the frames are recorded as they arrived.
+
+    Frame 341 is damaged. Its header claims 1,824 bytes and it is recorded with 1,824 bytes, but 7 bytes are missing from inside its Target List TLV, so the last 7 bytes of the record are really the start of frame 342. The first two target records are intact and the next two are shifted garbage (track IDs such as 0x08753E3E), followed by a TLV type that does not exist.
+    Frame 342 is missing as a direct result: its Magic Word was swallowed by frame 341, so the reader could not find its start.
+    Frame 355 is missing with no damaged neighbour. Frame 356 then carries a Target Index TLV with 95 entries, written for frame 355's points, while the last cloud received (frame 354) had 150 points.
+
+How to recognise these when reading a recording:
+    Frame Number does not follow on from the previous record: frames are missing, and this frame's Target Index TLV must not be applied to the last point cloud received.
+    Walking the TLVs runs past Total Packet Length, or meets a type other than 1010, 1011, 1012, 1020 and 1021: the frame is damaged.
+    A track ID above 249 in a Target List or Target Height record, or non-zero upper ID bytes: the frame is damaged.
+    A frame that lost fewer than 8 bytes cannot be detected by its length alone, since the reader fills the shortfall from the next frame.
+
+Not Yet Known
+
+    Which coordinate frame the Target List positions use. The tracker guide describes world coordinates with the origin on the floor under the sensor, but posZ is often negative while the Target Height TLV's minZ never is. Until this is settled, do not assume posZ and maxZ/minZ share an origin.
+    What units and order the four rows of ec are in beyond the guide's "range/azimuth/elevation/doppler".
+    Whether Time [in CPU Cycles] and Subframe Number are ever non-zero in other firmware versions or configurations.
+    Which configuration file each recording used. The recording format does not store it, so a recording cannot currently be tied to its sensorPosition, boundary boxes or frame period.
+    Why 253 never appears in the Target Index TLV.
+    Whether the 150-point limit is fixed in the firmware or follows from the configuration.

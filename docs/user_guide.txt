@@ -1,0 +1,345 @@
+3D People Tracking User Guide
+Table of Contents
+
+    Overview
+    Quickstart
+    Developer’s Guide
+    Need More Help?
+
+⚠️ Device Compatibility
+
+This lab is only compatible with the xWRx843 family (IWR6843/AWR6843/IWR1843/AWR1843). For the people tracking offering on the IWLR6432, see the IWRL6432 People Tracking page
+Overview
+
+This lab demonstrates the use of TI mmWave sensors to track and count moving and stationary people using the IWR6843ISK, IWR6843ISK-ODS or IWR6843AOPEVM sensor module positioned in side-mount configuration (e.g. on a wall). Detection and tracking algorithms run onboard the IWR6843 mmWave sensor and are used to localize people and track their movement.
+
+In this demonstration, localization and tracking is performed upon any moving object in the scene and the people or objects will continue being tracked until they leave the scene. This will even continue tracking people as they sit or lie down and remain stationary.
+
+With the 3D people tracking software running on the IWR6843 chip, the mmWave sensor module outputs a data stream consisting of 3 dimensional point cloud information and a list of tracked objects which can be visualized using the PC based visualizer included in the toolbox.
+
+This user guide covers the procedures to Flash, Run, and Compile the 3D People Tracking demo. For details regarding the demo software algorithms and implementation, please refer to the following documents available in the People Tracking Lab docs directory.
+
+    3D People Tracking Demo Software Implementation Guide
+    Group Tracker Algorithm Implementation Guide
+
+⚠️ IWR6843 ES2.0 Only
+
+This lab is only compatible with ES2.0 version of IWR6843.
+ISK or ODS
+
+If using an IWR6843ISK or IWR6843ISKODS, check the device version on your IWR6843 using the on-chip device markings as shown below
+
+    If line 4 reads 678A, you have an ES2 device. In this case, this lab is compatible with your EVM.
+    If line 4 reads 60 GHZi, you have an older ES1 device. In this case, the lab is NOT compatible with your EVM. ES2 IWR6843ISK/IWR6843ISK-ODS boards are orderable from the EVM link above.
+
+On AOP, the EVM must be Rev F or later. This can be distinguished by the shape of the EVM if it is as shown above.
+AOP
+
+The IWR6843AoP version of this lab is only compatible with ES2.0 silicon and the corresponding EVM. Please ensure your EVM is the same as in the below image.
+
+Quickstart
+Prerequisites
+Prerequisite 1 - Run Out of Box Demo
+
+Before continuing with this lab, users should first run the out of box demo for the EVM. This will enable users to gain familiarity with the sensor’s capabilities as well as the various tools used across all labs in the Radar Toolbox.
+Prerequisite 2 - XDS Firmware
+
+If using MMWAVEICBOOST, the latest XDS110 firmware is required. The XDS110 Firmware runs on the microcontroler onboard the MMWAVEICBOOST Carrier Card, which provides the JTAG Emulation and serial port communication over the XDS110 USB port. We have observed packet loss on the serial port (COM ports) with some versions of the XDS110 firmware which can cause the demo to fail.
+
+The latest XDS110 firmware is installed with the latest version of Code Composer Studio. CCS version 10.1 or later required.
+Prerequisite 3 - PC CPU and GPU Resources
+
+The visualizer requires sufficient GPU and CPU resources to process the incoming UART data every frame and run the demo smoothly. Users with insufficent PC resources may notice occasional visualizer lag or missed frames in the log file. The demo should still run on most PCs regardless of hardware resources, but performance might be slightly different.
+1. Hardware and Software Requirements
+Hardware
+Item 	Details
+Device 	IWR6843ISK or IWR6843ISK-ODS or IWR6843AOP or IWR6843L optionally with mmWave Carrier Board.
+Mounting Hardware 	The EVM needs to be mounted at a height of ~1.5-2.5m with a slight downtilt. An adjustable clamp style smartphone adapter mount for tripods and a 60-75” tripod can be used to clamp and elevate the EVM. This is only an example solution for mounting; other methods can be used so far as setup specifications are met.
+Computer 	PC with Windows 7 or 10. If a laptop is used, please use the ‘High Performance’ power plan in Windows.
+Micro USB Cable 	Due to the high mounting height of the EVM, an 8ft+ cable or USB extension cable is recommended.
+Power Supply 	5V, >3.0A with 2.1-mm barrel jack (center positive). The power supply can be wall adapter style or a battery pack with a USB to barrel jack cable.
+Software
+Tool 	Version 	Download Link
+TI mmWave SDK 	3.5.x.x 	Link to Latest mmWave SDK. To access a previous version of the mmWave SDK scroll to the bottom of the table and click the link under “MMWAVE-SDK previous release”. Repeat to continue stepping back to previous versions.
+Uniflash 	Latest 	Uniflash tool is used for flashing TI mmWave Radar devices. Download offline tool or use the Cloud version
+Silicon Labs CP210x USB to UART Bridge VCP Drivers
+(only required in standalone mode) 	Latest 	Latest SiLabs Driver
+TI Radar Toolbox 	Latest 	Radar toolbox should be downloaded to access binaries and source code. Download Instructions in the readme file.
+2. Flash the EVM
+
+    Set the device in flashing mode:
+
+    a. If using the EVM standalone module, follow the instructions for setting Modular EVM to flashing mode
+
+    b. If using the EVM with ICBOOST, follow the instructions for Hardware Setup of ICB for Flashing Mode
+
+    Follow the instruction to Flash the mmWave Device
+    Image 	Location
+    Meta Image 1/RadarSS 	<toolbox_install_dir>\source\ti\examples\people_tracking\3D_people_tracking\prebuilt_binaries\3D_people_track_68xx_demo.bin
+
+3. Physical Setup
+
+    Setup the device for functional mode
+
+    a. If using ISK standalone, follow the instructions for setting Modular EVM to functional mode
+
+    b. If using the ICBOOST, follow the instructions for Hardware Setup of ICB for Functional Mode
+
+    For best results, the EVM should be positioned high enough to be above the top of tracked objects and with a slight down tilt. The aim is to position the EVM so that the antenna beam can encompass the area of interest. If the down tilt is too severe, noise from ground clutter would increase and the effective sensing area would decrease. If there is no down tilt, tracking performance would be worse for cases in which one person is in line with and shielded by another person.
+
+    📝 NOTE: More Information
+    For a more detailed discussion of the optimal placement and angle of the radar device, refer to TI’s Application Brief on the topic - Best Practices for Placement and Angle of mmWave Radar Devices
+
+Setup Requirements:
+
+    EVM Height: 1.5-2.5m high
+    Down tilt angle: ~10-15 degree
+
+Setup using suggested tripod and smartphone clamp mount:
+
+    Screw on clamp mount to tripod
+    Clamp EVM across its width below power barrel jack to attach EVM
+    Adjust tripod head for ~10 degree down tilt (Tip: Bubble or level smartphone apps can be used to measure down tilt)
+    Plug in micro-usb and power supply to EVM
+    Extend tripod so that the EVM is elevated 1.5-2.5m from the ground
+    Position EVM and tripod assembly in desired location of room. The EVM should be positioned so that the 120 degree FOV of the EVM antenna encompasses the area of interest and points to the region in which people are expected to enter the space.
+
+4. Run the Lab
+
+To run the lab, launch and configure the visualizer which displays the detection and tracked object data received via UART. See the instructions in the visualizer folder
+
+Please ensure you use the default chirp for your device:
+EVM 	Configuration File(s)
+IWR6843ISK 	ISK_6m_default.cfg or ISK_14m_extended.cfg
+IWR6843ISKODS 	ODS_6m_default.cfg
+IWR6843AOPEVM 	AOP_6m_default.cfg
+IWR6843LEVM 	ISK_6m_default.cfg or ISK_14m_extended.cfg
+
+📝 Note - If using the IWR6843LEVM, maximum range may be limited compared
+to the IWR6843ISKEVM. However, both EVMs should reach 14m range for
+indoor applications.
+
+    ⚠️ Warning
+    Device must be restarted before sending a new configuration.
+
+Typical Chirp Parameters
+Chirp Parameter (Units) 	Value
+Start Frequency (GHz) 	60.6
+Slope (MHz/us) 	54.725
+Samples per chirp 	96
+Chirps per frame 	288
+Frame duration (ms) 	50
+Sampling rate (Msps) 	2.950
+Bandwidth (MHz) 	2249
+Range resolution (m) 	0.084
+Max Unambiguous Range (m) 	7.2
+Max Radial Velocity (m/s) 	8.38
+Velocity resolution (m/s) 	0.17
+Azimuth resolution (deg) 	14.5
+Elevation resolution (deg) 	58
+Number of Rx 	4
+Number of Tx 	3
+Developer’s Guide
+Build the Firmware from Source Code
+1. Software Requirements
+Tool 	Version 	Download Link
+TI mmWave SDK 	3.5.x.x 	Link to Latest mmWave SDK. To access a previous version of the mmWave SDK scroll to the bottom of the table and click the link under “MMWAVE-SDK previous release”. Repeat to continue stepping back to previous versions.
+Code Composer Studio 	Latest 	Code Composer Studio
+2. Import Lab Project
+
+For the People Tracking lab, there are two projects, the DSS for the C674x DSP core and the MSS project for the R4F core, that need to be imported to CCS and compiled to generate firmware for the xWR6843.
+
+    ⚠️ WARNING
+    When importing projects to a workspace, a copy is created in the workspace. All modifications will only be implemented for the workspace copy. The original project downloaded from the Toolbox is not touched.
+
+    Start CCS and setup workspace as desired.
+    Import the project(s) specified below to CCS from the src/ folder. See instructions for importing here.
+        3D_people_track_68xx_dss
+        3D_people_track_68xx_mss
+    Verify that the import occurred without error: in CCS Project Explorer, both 3D_ppltrack_68xx_mss and 3D_ppltrack_68xx_dss should appear.
+
+3. Build the Lab
+
+The DSS project must be built before the MSS project.
+
+    Select the 3D_people_track_68xx_dss so it is highlighted. Right click on the project and select Rebuild Project. The DSS project will build.
+    Select the 3D_people_track_68xx_mss so it is highlighted. Right click on the project and select Rebuild Project. The MSS project will build, the the lab binary will be constructed automatically.
+    On successful build, the following should appear:
+        In 3D_people_track_68xx_dss → Debug, 3D_people_track_68xx_dss.xe674 (this is the C67x binary used for CCS debug mode)
+        In 3D_people_track_68xx_mss → Debug, 3D_people_track_68xx_mss.xer4f (this is the Cortex R4F binary used for CCS debug mode) and 3D_people_track_68xx_demo.bin (this is the flashable binary used for deployment mode)
+
+    ⚠️ WARNING - Selecting Rebuild
+    Selecting Rebuild instead of Build ensures that the project is always re-compiled. This is especially important in case the previous build failed with errors.
+
+    ⚠️ WARNING - Build Fails with Errors
+    If the build fails with errors, please ensure that all the software requirements are installed as listed above and in the mmWave SDK release notes.
+
+    📝 NOTE - Existing Binaries
+    As mentioned in the Quickstart section, pre-built binary files, both debug and deployment binaries are provided in the pre-compiled directory of the lab.
+
+4. Execute the Lab
+
+There are two ways to execute the compiled code on the EVM:
+
+    Deployment mode: the EVM boots autonomously from flash and starts running the bin image
+        Using Uniflash, flash the PC_lab_68xx.bin found at <PROJECT_WORKSPACE_DIR>\PC_mss_68xx\Debug\PC_lab_68xx.bin
+        The same procedure for flashing can be use as detailed in the Quickstart Flash the EVM section.
+    Debug mode: Follow the instructions for Using CCS Debug for Development
+
+After executing the lab using either method, the lab can be visualized following the steps in Run the Lab section under Quickstart.
+Customization
+
+For detailed description of the configuration parameters and recommendations related to tuning the parameters, please refer to the following documents available in the People Tracking Lab docs directory.
+
+    3D People Tracking Demo Detection Layer Tuning Guide
+    3D People Tracking Demo Tracker Layer Tuning Guide
+
+Modifying the Configuration Files for the Physical Setup
+
+The configuration files included a set of commands which are used to specify the scene boundaries (i.e. area of interest) in relation to the sensor position and may need to be modified accordingly. These commands and their respective parameters are listed below.
+
+    staticBoundaryBox [Xmin] [Xmax] [Ymin] [yMax] [Zmin] [Zmax]
+        This sets boundaries where static points can be used by the tracker and tracks are allowed to become static. Each value denotes an edge of the 3D cube. Currently, it is recommend to keep minY greater than or equal to 2.
+    boundaryBox [Xmin] [Xmax] [Ymin] [yMax] [Zmin] [Zmax]
+        This sets boundaries where tracks can exists. Only points inside the box will be used by the tracker. Each value denotes an edge of the 3D cube.
+    presenceBoundaryBox [Xmin] [Xmax] [Ymin] [yMax] [Zmin] [Zmax]
+        The demo supports early presence detection if a pre-configured number of points are detected in the boundary box defined by presenceBoundaryBox. The points also have to meet a pre-defined velocity threshold which is modeled after typical human walking motion. Early presence detection could be useful in applications such as smart lighting, where it may be desirable to turn on the lights as soon as human presence is detected in the area, even before tracks could be allocated.
+    sensorPosition [Z] [AzimuthTilt] [ElevationTilt]
+        Z - height of sensor.
+        AzimuthTilt - horizontal rotation of sensor with respect to the back wall, as represented by FarY.
+        ElevationTilt - vertical rotation of the sensor with respect the the ground.
+
+Modifying the Configuration File for Performance
+
+The configuration file contains a number of commands that can be modified to optimize device performance. The commands inside the configuration file for the people tracking labs are described in detail in three locations, in the mmWave SDK User’s Guide (found at C:\ti$MMWAVE_SDK_DIRECTORY$\docs), the 3D People Tracking Demo Detection Layer Tuning Guide and the 3D People Tracking Demo Tracker Layer Tuning Guide.
+
+    📝 NOTE - Typical Configuration Challenges
+    Typical problems and solutions for first-time users working with the mmWave devices are documented in Section 4 of the 3D People Tracking Demo Detection Layer Tuning Guide and in Section 4 of the 3D People Tracking Demo Tracker Layer Tuning Guide. These scenarios include tuning the range and velocity, reducing noise, discerning true tracks from ghost tracks and more.
+
+UART Output Data Format
+
+The demo outputs the point cloud and tracking information using a TLV(type-length-value) encoding scheme with little endian byte order. For every frame, a packet is sent consisting of a fixed sized Frame Header and then a variable number of TLVs depending on what was detected in that scene. The TLVs can be of types representing the 3D point cloud, target list object, and associated points.
+
+[Sarwave note] Lines marked "[Sarwave note]" are not part of TI's guide. They record where the bytes actually sent by the IWR6843AOP differ from, or add to, the text above them. They were measured on 2,361 recorded frames (software version 0x03050004, platform 0x000A6843) unless marked "assumed".
+[Sarwave note] A TLV is left out entirely when it has nothing to carry: no Point Cloud TLV when there are no points, no Target List or Target Height TLV when there are no targets, no Target Index TLV when the previous frame had no points or this frame has no targets. An empty scene is a header followed by the Presence Indication TLV alone.
+[Sarwave note] TLVs arrive in the order 1020, 1010, 1012, 1011, 1021 (minus the omitted ones), which is not the order of the sections below. Read them by type, not by position.
+[Sarwave note] The packet is padded after the last TLV so that its total length is a multiple of 32 bytes (0 to 31 extra bytes). Total Packet Length includes the padding. The padding bytes are not zeroed and are not a TLV.
+[Sarwave note] There is no checksum. A packet that lost bytes on the serial line can only be recognised by its TLVs not fitting inside Total Packet Length, by a TLV type that is not one of the five, or by a gap in Frame Number.
+
+Frame Header
+
+Length: 40 Bytes
+A Frame Header is sent at the start of each packet. Use the Magic Word to find the start of each packet.
+Value 	Type 	Bytes 	Comments
+Magic Word 	uint64_t 	8 	syncPattern in hex is: ‘02 01 04 03 06 05 08 07’
+Version 	unint32_t 	4 	Software Version
+Total Packet Length 	unint32_t 	4 	In bytes, including header
+Platform 	unint32_t 	4 	A6843
+Frame Number 	unint32_t 	4 	Frame Number
+Time [in CPU Cycles] 	unint32_t 	4 	Message create time in cycles
+Num Detected Obj 	unint32_t 	4 	Number of detected points in this frame
+Num TLVs 	unint32_t 	4 	Number of TLVs in this frame
+Subframe Number 	unint32_t 	4 	Sub-Frame number
+
+[Sarwave note] The 40 bytes are the 8-byte Magic Word plus eight uint32 fields (32 bytes). Frame Number starts at 1. Num Detected Obj equals the number of points in this packet's Point Cloud TLV. Subframe Number and Time [in CPU Cycles] were always 0.
+[Sarwave note] recorded_data.txt describes the recorded frames in full, including value ranges and what damaged frames look like.
+
+TLV Header
+
+Length: 8 Bytes
+A TLV Header is sent at the start of each TLV. Following the header, is the the TLV-type specific payload. The TLVs can be of type POINT CLOUD, TARGET LIST, TARGET INDEX, PRESENCE INDICATION or TARGET HEIGHT.
+Value 	Type 	Bytes 	Comments
+Type 	unint32_t 	4 	TLV Type: 1020 = Point Cloud, 1010 = Target object list, 1011 = Target Index, 1012 = Target Height, 1021 = Presence Indication
+Length [number of bytes] 	unint32_t 	4 	In bytes
+
+[Sarwave note] Length counts the payload only, not the 8-byte TLV Header. The next TLV starts 8 + Length bytes after the start of this one.
+
+TLVs
+Compressed Point Cloud TLV
+
+Size: sizeof (tlvHeaderStruct) + sizeof(pointUnit) + sizeof (pointStruct) x numberOfPoints
+
+Each Point Cloud TLV consists of an array of points. Each point is defined in 8 bytes. The pointUnit struct is used to uncompress each point to five floats (20 bytes).
+Value 	Type 	Bytes 	Comments
+elevationUnit 	float 	4 	Multiply each point by this value - used for compression
+azimuthUnit 	float 	4 	Multiply each point by this value - used for compression
+dopplerUnit 	float 	4 	Multiply each point by this value - used for compression
+rangeUnit 	float 	4 	Multiply each point by this value - used for compression
+snrUnit 	float 	4 	Multiply each point by this value - used for compression
+Value 	Type 	Bytes 	Comments
+elevation 	int8_t 	1 	Elevation in radians
+azimuth 	int8_t 	1 	Azimuth, in radians
+doppler 	int16_t 	2 	Doppler, in m/s
+range 	int16_t 	2 	Range, in meters
+snr 	int16_t 	2 	SNR, ratio
+
+[Sarwave note] The first table (pointUnit, 20 bytes) is sent once per TLV; the second (8 bytes) repeats per point, so numberOfPoints = (Length - 20) / 8. At most 150 points were ever sent in one frame.
+[Sarwave note] range and snr are unsigned (uint16) on the wire, not int16 as the table says. With the 12 m configuration and rangeUnit 0.00025, a raw range of 42646 is 10.66 m; read as int16 it becomes -5.72 m. Raw snr values above 32767 also occur, and a negative ratio has no meaning. elevation, azimuth and doppler are signed as documented.
+[Sarwave note] The guide does not say how to turn a point into X/Y/Z. From section 1.2 of the Detection Layer Tuning Guide: azimuth is measured from +Y towards +X, elevation from the XY plane towards +Z, so x = range x cos(elevation) x sin(azimuth), y = range x cos(elevation) x cos(azimuth), z = range x sin(elevation). Points are relative to the sensor, before sensorPosition is applied.
+
+Target List TLV
+
+Size: sizeof (tlvHeaderStruct) + sizeof (trackerProc_Target) x numberOfTargets The Target List TLV consists of an array of targets. Each target object is defined as given below.
+Value 	Type 	Bytes 	Comments
+tid 	uint32 	4 	Track ID
+posX 	float 	4 	Target position in X dimension, meters
+posY 	float 	4 	Target position in Y dimension, meters
+posZ 	float 	4 	Target position in Z dimension, meters
+velX 	float 	4 	Target velocity in X dimension, meters/s
+velY 	float 	4 	Target velocity in Y dimension, meters/s
+velZ 	float 	4 	Target velocity in Z dimension, meters/s
+accX 	float 	4 	Target acceleration in X dimension, meters/s^2
+accY 	float 	4 	Target acceleration in Y dimension, meters/s^2
+accZ 	float 	4 	Target acceleration in Z dimension, meters/s^2
+ec[16] 	float 	16x4 	Tracking error covariance matrix, [4x4] in range/azimuth/elevation/doppler coordinates
+g 	float 	4 	Gating function gain
+confidenceLevel 	float 	4 	Confidence Level
+
+[Sarwave note] Each target is 112 bytes, so numberOfTargets = Length / 112. tid really is 4 bytes wide here, although the same ID is a single byte in the Target Index TLV. Its upper three bytes were zero in every intact record, so TlvTargetList reads only the first byte (as a TlvTargetIndex) and skips the other three; posX starts at offset 4.
+[Sarwave note] The guide does not give the order of the 16 ec floats. TlvTargetList.EcMatrix reads it row by row (ec[0..3] is the first row). The matrix was exactly symmetric in all 4,156 records, so the order makes no difference.
+
+Target Index TLV
+
+Size: sizeof (tlvHeaderStruct) + sizeof(uint8) x numberOfPoints (NOTE: here the number of points are for frame n-1)
+
+The Target Index TLV consists of an array of target IDs. A targetID at index i is the target to which point i of the previous frame’s point cloud was associated. Valid IDs range from 0-249.
+Value 	Type 	Bytes 	Comments
+targetID 	uint8_t 	1 	Track ID
+
+Other Target ID values:
+Value 	Meaning
+253 	Point not associated, SNR too weak
+254 	Point not associated, located outside boundary of interest
+255 	Point not associated, considered as noise
+
+[Sarwave note] Entry i describes point i of the previous packet's Point Cloud TLV, so the count must be checked against that cloud, not this packet's. The count matched the previous cloud in all 1,594 consecutive packets checked. The TLV is sent only when this packet has a Target List TLV and the previous packet had points: it can appear in a packet with no Point Cloud TLV of its own, and it is absent while nothing is tracked, in which case that cloud's points never get an ID. If a packet is lost, the next Target Index TLV belongs to points that were never received.
+[Sarwave note] An ID in this TLV is not always in the previous packet's Target List. It can be a track listed for the first time in this same packet (60 of 1,596 packets), or a track that was listed in the previous packet and is gone from this one (8 of 1,596). It was never an ID missing from both.
+
+Presence Indication TLV
+
+Size: sizeof (tlvHeaderStruct) + sizeof(uint32)
+
+The Presence Indication TLV consists of a single uint32 value to provide a binary indication of presence in the presence boundary box. A value of 1 represents presence detected and 0 represents no presence detected.
+
+[Sarwave note] This is the only TLV sent in every packet.
+
+Target Height TLV
+
+Size: sizeof(tlvHeaderStruct) + (sizeof(targetHeight)) x numberOfTargets
+
+The Target Height TLV consists of a single uint8 corresponding to the track number it refers to, then the maximum Z estimate given as a float and the minimum Z estimate given as a float. For a more detailed explanation of the height estimation algorithm, see the 3D People Tracking Implementation Guide.
+Value 	Type 	Bytes 	Comments
+targetID 	uint8_t 	1 	Track ID
+maxZ 	float 	4 	Target maxZ estimate
+minZ 	float 	4 	Target minZ estimate
+
+[Sarwave note] The table is wrong about the size. Each record is 12 bytes, not 9: targetID takes 4 bytes (the ID in the first byte, the other three zero), maxZ is at offset 4 and minZ at offset 8. Length was 12 x numberOfTargets in all 1,802 packets and never 9 x numberOfTargets. TlvTargetHeight is laid out this way.
+[Sarwave note] This TLV is sent whenever the Target List TLV is, with the same targets in the same order.
+
+Need More Help?
+
+    Search for your issue or post a new question on the mmWave E2E forum
+    For details regarding the demo software algorithm and implementation, please refer to the following documents available in the People Tracking Lab docs directory.
+        3D People Tracking Demo Software Implementation Guide
+        Group Tracker Algorithm Implementation Guide
+
