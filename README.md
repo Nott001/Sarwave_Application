@@ -17,6 +17,8 @@ Every C# project has a counterpart:
 | `Sarwave.DevEnv` | `include/DevEnv/` — port and cfg dialogues, `RunStuff` (live), `RunRecorded` (replay), `ConfigMemory` | `SarwaveDevEnv` |
 | `Sarwave.Source.Terminal` | `src/Terminal/` | `SarwaveTerminal` |
 | `Sarwave.Source.TestRpiApp` | `src/TestRpiApp/` | `TestRpiApp` |
+| `Sarwave.Source.LiveRpiApp` | `src/LiveRpiApp/` — the live sensor run (`RunStuff`) in one bare window | `LiveRpiApp` |
+| `Sarwave.Source.RecordedRpiApp` | `src/RecordedRpiApp/` — the recorded replay (`RunRecorded`) in one bare window | `RecordedRpiApp` |
 
 Namespaces mirror the C# ones (`Sarwave::Core::MMWave::Streaming`, `Sarwave::Core::Gui::Views`, ...).
 
@@ -35,20 +37,29 @@ QT_QPA_PLATFORM=offscreen ctest --test-dir build --output-on-failure
 ## Run
 
 ```bash
-# Replay default_session.swrec from the working directory into the MaximalGui dashboard,
-# printing every frame (what the C# TestRpiApp does). No sensor? Generate a session:
-python3 tools/generate_recording.py default_session.swrec
-./build/bin/TestRpiApp
+# The live run: port + cfg dialogues, MinimalGui, prints every frame and records the session.
+./build/bin/LiveRpiApp
 
-# The live run: port + cfg dialogues, MinimalGui, records to default_session.swrec.
+# Replay the recorded session into the MaximalGui dashboard, printing every frame.
+# No sensor? Generate a session first:
+mkdir -p ~/.local/share/Sarwave
+python3 tools/generate_recording.py ~/.local/share/Sarwave/default_session.swrec
+./build/bin/RecordedRpiApp
+
+# TestRpiApp does the same replay (what the C# TestRpiApp does); --live switches it to the live run.
+./build/bin/TestRpiApp
 ./build/bin/TestRpiApp --live
 
 # Terminal: prompts for port numbers and the cfg path, sends the cfg, starts the sensor.
 ./build/src/Terminal/SarwaveTerminal
 ```
 
-`--live` is the only addition to the C# behaviour: in C# switching to the live run means
-editing `MainWindow.axaml.cs`.
+The session is `default_session.swrec` in a `Sarwave` folder under the user's local application
+data (`~/.local/share`, or `$XDG_DATA_HOME`, on Linux; `%LOCALAPPDATA%` on Windows), so the live
+and recorded apps share it whichever folder they are started from.
+
+`TestRpiApp --live` is the only addition to the C# behaviour: in C# switching `TestRpiApp` to
+the live run means editing `MainWindow.axaml.cs`.
 
 ## Verification
 

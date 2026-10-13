@@ -1,3 +1,5 @@
+#include <QStandardPaths>
+#include <QString>
 #include <memory>
 
 #include "DevEnv/Gui/Run.hpp"
@@ -29,12 +31,24 @@ std::unique_ptr<FramePlayback> g_playback;
 
 }  // namespace
 
+const std::filesystem::path& RunRecorded::sessionFile() {
+    static const std::filesystem::path file = [] {
+        const QString localData =
+            QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
+        const std::filesystem::path folder =
+            std::filesystem::path(localData.toStdU16String()) / "Sarwave";
+        std::filesystem::create_directories(folder);
+        return folder / "default_session.swrec";
+    }();
+    return file;
+}
+
 void RunRecorded::onOpened(QQuickWindow& window, QQmlEngine& engine) {
     // The dashboard gets its own view model up front.
     g_data = std::make_unique<CoreGui::Models::RadarData>(PointRetention);
     CoreGui::Views::showMaximalGui(window, engine, *g_data);
 
-    g_recording = std::make_unique<FrameRecording>(FrameRecording::load(SessionFile));
+    g_recording = std::make_unique<FrameRecording>(FrameRecording::load(sessionFile()));
     g_playback = std::make_unique<FramePlayback>(*g_recording);
     g_playback->loop = true;
     g_playback->begin(

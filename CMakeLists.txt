@@ -3,11 +3,13 @@ project(SarwaveApp VERSION 0.2 LANGUAGES CXX)
 
 # C++ port of the SarwaveApplication C# solution. Each C# project has a counterpart here:
 #
-#   Sarwave.Core.MMWave         -> include/MMWave   (SarwaveCoreMMWave, SarwaveCoreMMWaveConfig)
-#   Sarwave.Core.Gui            -> include/Gui      (SarwaveCoreGui)
-#   Sarwave.DevEnv              -> include/DevEnv   (SarwaveDevEnv)
-#   Sarwave.Source.Terminal     -> src/Terminal     (SarwaveTerminal)
-#   Sarwave.Source.TestRpiApp   -> src/TestRpiApp   (TestRpiApp)
+#   Sarwave.Core.MMWave           -> include/MMWave     (SarwaveCoreMMWave, SarwaveCoreMMWaveConfig)
+#   Sarwave.Core.Gui              -> include/Gui        (SarwaveCoreGui)
+#   Sarwave.DevEnv                -> include/DevEnv     (SarwaveDevEnv)
+#   Sarwave.Source.Terminal       -> src/Terminal       (SarwaveTerminal)
+#   Sarwave.Source.TestRpiApp     -> src/TestRpiApp     (TestRpiApp)
+#   Sarwave.Source.LiveRpiApp     -> src/LiveRpiApp     (LiveRpiApp)
+#   Sarwave.Source.RecordedRpiApp -> src/RecordedRpiApp (RecordedRpiApp)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -42,6 +44,9 @@ if(SARWAVE_BUILD_GUI)
     if(BUILD_TEST_RPI_APP)
         add_subdirectory(src/TestRpiApp)
     endif()
+
+    add_subdirectory(src/LiveRpiApp)
+    add_subdirectory(src/RecordedRpiApp)
 endif()
 
 add_subdirectory(src/tests)

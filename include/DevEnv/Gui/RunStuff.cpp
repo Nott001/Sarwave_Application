@@ -17,6 +17,7 @@
 #include "Gui/Views/GuiHost.hpp"
 #include "MMWave/Common/Exceptions.hpp"
 #include "MMWave/Common/TimeSpan.hpp"
+#include "MMWave/Configured/PeopleTracking/DebugLogger.hpp"
 #include "MMWave/Porting/Context.hpp"
 #include "MMWave/Recording/FrameRecorder.hpp"
 #include "MMWave/Streaming/ConstantCapture.hpp"
@@ -26,6 +27,7 @@ namespace {
 
 using namespace Sarwave::Core;
 namespace CoreGui = Sarwave::Core::Gui;
+using MMWave::Configured::PeopleTracking::DebugLogger;
 using MMWave::Porting::Context;
 using MMWave::Recording::FrameRecorder;
 using MMWave::Streaming::ConstantCapture;
@@ -38,6 +40,7 @@ const MMWave::TimeSpan PointRetention = MMWave::TimeSpans::fromSeconds(1);
 std::unique_ptr<CoreGui::Models::RadarData> g_data;
 std::unique_ptr<Context> g_ctx;
 std::unique_ptr<FrameRecorder> g_recorder;
+DebugLogger g_debugLogger(DebugLogger::Config{.hideBytes = true});
 std::unique_ptr<ConstantCapture> g_capture;
 
 /// `await Task.Run(work)`: runs blocking work on another thread while the GUI keeps processing
@@ -94,8 +97,7 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine) {
         ConfigMemory::saveConfigLocation(*cfgPath);
 
         // Frame recording
-        g_recorder =
-            std::make_unique<FrameRecorder>(std::filesystem::path(RunRecorded::SessionFile));
+        g_recorder = std::make_unique<FrameRecorder>(RunRecorded::sessionFile());
 
         // Frames arrive on the capture thread. RadarData is only ever touched from there; the
         // view models copy what they need and hand it to the GUI thread themselves.
@@ -107,7 +109,7 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine) {
                 try {
                     const MMWave::TimeSpan elapsed =
                         MMWave::TimeSpans::from(std::chrono::steady_clock::now() - clockStart);
-                    // g_debugLogger.printFrameDataVerbose(frame, elapsed);
+                    g_debugLogger.printFrameDataVerbose(frame, elapsed);
                     g_recorder->record(frame, elapsed);
                     g_data->update(frame, elapsed);
                 } catch (const std::exception& ex) {

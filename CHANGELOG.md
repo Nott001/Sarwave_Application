@@ -30,6 +30,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `tools/generate_recording.py` writes synthetic People Tracking sessions.
 - CI installs Qt 6.8 and runs the GUI tests offscreen.
 
+### Added
+- `LiveRpiApp` (`src/LiveRpiApp/`) and `RecordedRpiApp` (`src/RecordedRpiApp/`), ports of
+  `Sarwave.Source.LiveRpiApp` and `Sarwave.Source.RecordedRpiApp`: one bare window each, filled by
+  the dev environment's live sensor run (`RunStuff`) or recorded replay (`RunRecorded`).
+
+### Changed
+- The recorded session moved from the working directory to `Sarwave/default_session.swrec`
+  under the user's local application data (`RunRecorded::sessionFile()`), as in the C# version,
+  so the live and recorded apps share it wherever they are started from.
+- The live run (`RunStuff`) now prints every frame with the `DebugLogger`, as in the C# version.
+
 ### Removed
 - `RpiApp`, `DesktopApp`, `MMWaveTerminal`, `QtCommon` (`DashboardState`, `NetworkManager`,
   `ProtocolDefinitions`, `MMWavePrompt`) and the old `MMWave` headers -- superseded by the port.
