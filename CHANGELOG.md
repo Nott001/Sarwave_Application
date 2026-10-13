@@ -39,7 +39,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The recorded session moved from the working directory to `Sarwave/default_session.swrec`
   under the user's local application data (`RunRecorded::sessionFile()`), as in the C# version,
   so the live and recorded apps share it wherever they are started from.
-- The live run (`RunStuff`) now prints every frame with the `DebugLogger`, as in the C# version.
+- `RunStuff::onOpened` takes a `save` flag, as in the C# version: when true the live run also
+  prints every frame with the `DebugLogger`. `LiveRpiApp` and `TestRpiApp --live` pass false.
+- `FrameRecorder` flushes after every frame, so a recording from a process that crashed or was
+  killed is complete up to its last frame.
+- `docs/recorded_data.txt` (the `.swrec` format and what recorded frames really contain) and
+  `docs/user_guide.txt` (TI's guide with `[Sarwave note]` lines where the wire differs), from
+  the C# repository.
 
 ### Removed
 - `RpiApp`, `DesktopApp`, `MMWaveTerminal`, `QtCommon` (`DashboardState`, `NetworkManager`,

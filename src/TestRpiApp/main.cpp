@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
             [=, &engine] {
                 try {
                     if (live)
-                        RunStuff::onOpened(*window, engine);
+                        RunStuff::onOpened(*window, engine, false);
                     else
                         RunRecorded::onOpened(*window, engine);
                 } catch (...) {

@@ -14,8 +14,10 @@ namespace Sarwave::Core::MMWave::Recording {
 /// only needs the Frame and a timestamp, so it hooks in wherever frames are already handled --
 /// typically one extra line inside a ConstantCapture callback.
 ///
-/// The frame is copied out during record(); nothing is retained afterwards. Safe to call from
-/// the capture thread while another thread disposes it.
+/// The frame is copied out during record(); nothing is retained afterwards. Each frame reaches
+/// the file as soon as it is recorded, so the recording is complete up to the last frame even if
+/// the process is killed before dispose() runs. Safe to call from the capture thread while
+/// another thread disposes it.
 class FrameRecorder {
    public:
     /// Creates the file, replacing any existing one. Throws IOException if it can't.

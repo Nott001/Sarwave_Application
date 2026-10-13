@@ -37,7 +37,7 @@ QT_QPA_PLATFORM=offscreen ctest --test-dir build --output-on-failure
 ## Run
 
 ```bash
-# The live run: port + cfg dialogues, MinimalGui, prints every frame and records the session.
+# The live run: port + cfg dialogues, MinimalGui, records the session.
 ./build/bin/LiveRpiApp
 
 # Replay the recorded session into the MaximalGui dashboard, printing every frame.

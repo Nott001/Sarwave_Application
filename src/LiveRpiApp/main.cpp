@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
             &window,
             [&] {
                 try {
-                    RunStuff::onOpened(window, engine);
+                    RunStuff::onOpened(window, engine, false);
                 } catch (...) {
                     // An exception escaping the Opened handler is unhandled in the C# app too.
                     Sarwave::Core::failUnhandled(std::current_exception());

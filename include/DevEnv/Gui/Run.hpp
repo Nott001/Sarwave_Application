@@ -28,7 +28,10 @@ struct RunRecorded {
 /// then captures frames -- recording them to RunRecorded::sessionFile() -- and starts the sensor.
 struct RunStuff {
     /// Call once the window is shown. Fails the process (like Environment.FailFast) on error.
-    static void onOpened(QQuickWindow& window, QQmlEngine& engine);
+    ///
+    /// save: when true, every frame is also printed with the DebugLogger. (The name is the C#
+    /// parameter's; frames are recorded either way.)
+    static void onOpened(QQuickWindow& window, QQmlEngine& engine, bool save);
 
     static void onClosed();
 };

@@ -81,7 +81,7 @@ std::string trim(const std::string& text) {
 
 }  // namespace
 
-void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine) {
+void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine, bool save) {
     try {
         // The dashboard gets its own view model up front.
         g_data = std::make_unique<CoreGui::Models::RadarData>(PointRetention);
@@ -105,11 +105,11 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine) {
         QPointer<QQuickWindow> windowRef(&window);
         g_capture = std::make_unique<ConstantCapture>(*g_ctx);
         g_capture->beginConstantCapture(
-            [clockStart, windowRef](const MMWave::Streaming::Frame& frame) {
+            [clockStart, windowRef, save](const MMWave::Streaming::Frame& frame) {
                 try {
                     const MMWave::TimeSpan elapsed =
                         MMWave::TimeSpans::from(std::chrono::steady_clock::now() - clockStart);
-                    g_debugLogger.printFrameDataVerbose(frame, elapsed);
+                    if (save) g_debugLogger.printFrameDataVerbose(frame, elapsed);
                     g_recorder->record(frame, elapsed);
                     g_data->update(frame, elapsed);
                 } catch (const std::exception& ex) {

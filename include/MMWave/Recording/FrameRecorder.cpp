@@ -70,6 +70,12 @@ void FrameRecorder::record(const Streaming::Frame& frame, TimeSpan timestamp) {
 
     write(header);
     write(bytes);
+
+    // Handed to the operating system after every frame. Recordings are mostly wanted when
+    // something went wrong, which is exactly when dispose() may never be reached; with the
+    // frames only in this process's buffer, a crash or a kill would lose the last of them,
+    // including the frame that caused it.
+    m_stream->flush();
     m_frameCount++;
 }
 
