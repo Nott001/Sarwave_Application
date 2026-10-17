@@ -12,6 +12,12 @@ project(SarwaveApp VERSION 0.2 LANGUAGES CXX)
 #   Sarwave.Source.LiveRpiApp   -> src/LiveRpiApp   (LiveRpiApp)
 #   Sarwave.Source.RecordedRpiApp -> src/RecordedRpiApp (RecordedRpiApp)
 
+# Release unless told otherwise. A Debug build runs the per-frame work about five times slower,
+# so it is for development only, never for the Pi (cmake -DCMAKE_BUILD_TYPE=Debug).
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Debug, Release, RelWithDebInfo or MinSizeRel" FORCE)
+endif()
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -21,6 +27,19 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # last bit there but not on x86.
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(-ffp-contract=off)
+endif()
+
+# Code tuned for the CPU doing the build (the Pi 5's Cortex-A76 when built on the Pi); those
+# binaries may not run on another machine. Measured gain is small (about 10% of the worker's
+# already tiny per-frame time), so it is off by default. Results stay bit-identical to the C#
+# app's: the flag changes instruction choice, not the order or rounding of float operations.
+option(SARWAVE_NATIVE_CPU "Optimise for the CPU that builds it" OFF)
+if(SARWAVE_NATIVE_CPU AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
+        add_compile_options(-mcpu=native)
+    else()
+        add_compile_options(-march=native)
+    endif()
 endif()
 
 # Enable compile_commands.json for IDEs
