@@ -30,9 +30,11 @@ jobs:
           fi
 
       - name: Check editorconfig
-        # Test fixtures hold program output verbatim (trailing spaces included).
+        # Kept byte for byte, so not checked: test fixtures hold program output verbatim, the
+        # configs/*.cfg files are TI's (CRLF, trailing spaces) and the config parity test reads
+        # them as they are, and docs/*.html are TI's pages saved as they are.
         run: |
-          ec -exclude "build|\.git/|src/tests/data/|SarwaveApplication/|\.(ttf|ico|swrec|bin)$" -f github-actions
+          ec -exclude "build|\.git/|src/tests/data/|SarwaveApplication/|configs/.*\.cfg$|docs/.*\.html$|\.(ttf|ico|swrec|bin|pdf)$" -f github-actions
 
   build-and-test:
     needs: lint-format
