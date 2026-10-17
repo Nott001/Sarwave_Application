@@ -97,16 +97,14 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine) {
         g_recorder =
             std::make_unique<FrameRecorder>(std::filesystem::path(RunRecorded::SessionFile));
 
-        // Frames arrive on the capture thread. RadarData is only ever touched from there; the
-        // view models copy what they need and hand it to the GUI thread themselves.
-        const auto clockStart = std::chrono::steady_clock::now();
+        // Frames arrive on the capture's worker thread, stamped when they were read. RadarData is
+        // only ever touched from there; the view models copy what they need and hand it to the
+        // GUI thread themselves.
         QPointer<QQuickWindow> windowRef(&window);
         g_capture = std::make_unique<ConstantCapture>(*g_ctx);
         g_capture->beginConstantCapture(
-            [clockStart, windowRef](const MMWave::Streaming::Frame& frame) {
+            [windowRef](const MMWave::Streaming::Frame& frame, MMWave::TimeSpan elapsed) {
                 try {
-                    const MMWave::TimeSpan elapsed =
-                        MMWave::TimeSpans::from(std::chrono::steady_clock::now() - clockStart);
                     // g_debugLogger.printFrameDataVerbose(frame, elapsed);
                     g_recorder->record(frame, elapsed);
                     g_data->update(frame, elapsed);

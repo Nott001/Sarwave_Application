@@ -140,10 +140,8 @@ int run(const std::vector<std::string>& args) {
 
     Streaming::ConstantCapture cc(*mmwaveCtx);
 
-    const auto sw = std::chrono::steady_clock::now();
     mmwaveCtx->sendCliCommand(Porting::Context::SensorStartCommand);
-    cc.beginConstantCapture([sw](const Streaming::Frame&) {
-        const TimeSpan elapsed = TimeSpans::from(std::chrono::steady_clock::now() - sw);
+    cc.beginConstantCapture([](const Streaming::Frame&, TimeSpan elapsed) {
         (void)elapsed;
         // DebugLogger.PrintFrameDataVerbose(frame, elapsed);
     });
