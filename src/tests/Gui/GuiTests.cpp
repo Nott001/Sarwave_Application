@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cmath>
 #include <memory>
+#include <thread>
 
 #include "../Core/FrameBuilder.hpp"
 #include "DevEnv/ConfigMemory.hpp"
@@ -190,6 +191,35 @@ TEST_CASE("Live view models follow RadarData across threads") {
     data.update(FrameBuilder().targets({5}).heights({5}, 1.7f, 0.2f).frame(1),
                 MMWave::TimeSpan(100));
     processEvents();
+}
+
+TEST_CASE("A GUI that falls behind is handed only the newest state") {
+    app();
+    Models::RadarData data(MMWave::TimeSpans::fromSeconds(1));
+    ViewModels::Radar::RadarGridViewModel radar(data);
+    ViewModels::Object::ObjectsPanelViewModel panel(data);
+    int snapshots = 0;
+    QObject::connect(&radar, &ViewModels::Radar::RadarGridViewModel::snapshotChanged,
+                     [&] { snapshots++; });
+
+    // 30 frames arrive while the UI thread is busy (here: blocked in join).
+    std::thread worker([&] {
+        for (std::uint32_t n = 0; n < 30; n++) {
+            const std::vector<std::uint8_t> ids =
+                n < 29 ? std::vector<std::uint8_t>{1, 2, 3} : std::vector<std::uint8_t>{7};
+            data.update(FrameBuilder().targets(ids).heights(ids, 1.7f, 0.2f).frame(n),
+                        MMWave::TimeSpan(n * 550'000));
+        }
+    });
+    worker.join();
+    processEvents();
+
+    // One delivery, of the last frame: 1, 2 and 3 are gone (no points kept them), 7 is new.
+    CHECK_EQ(snapshots, 1);
+    REQUIRE(radar.snapshot()->targets().size() == 1);
+    CHECK_EQ(radar.snapshot()->targets()[0].objectId, 3);  // ids follow arrival: 7 is object 3
+    CHECK_EQ(panel.count(), 1);
+    CHECK(panel.tryGet(3) != nullptr);
 }
 
 TEST_CASE("RadarDataOverlay's point sprites look like the ellipses they replace") {

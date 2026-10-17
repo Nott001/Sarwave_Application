@@ -40,6 +40,10 @@ class MaximalGuiViewModel : public ViewModelBase {
     Radar::RadarGridViewModel* m_radar;
     Object::ObjectsPanelViewModel* m_objects;
 
+    LatestOnUiThread<StatusValues> m_statusPost{this, [this](StatusValues values) {
+                                                    m_status->setPresenceDetected(values.presence);
+                                                    m_status->setHoldSteady(values.holdSteady);
+                                                }};
     RadarDataSubscription m_subscription;  // last: ended first
 };
 

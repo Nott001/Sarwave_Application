@@ -34,6 +34,10 @@ class MinimalGuiViewModel : public ViewModelBase {
     Radar::RadarGridViewModel* m_radar;
     // public MetricsViewModel Metrics { get; } = new();  (commented out in the C# version)
 
+    LatestOnUiThread<StatusValues> m_statusPost{this, [this](StatusValues values) {
+                                                    m_status->setPresenceDetected(values.presence);
+                                                    m_status->setHoldSteady(values.holdSteady);
+                                                }};
     RadarDataSubscription m_subscription;  // last: ended first
 };
 

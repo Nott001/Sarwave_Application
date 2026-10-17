@@ -44,10 +44,9 @@ RadarGridViewModel::RadarGridViewModel(DesignModeTag, QObject* parent) : ViewMod
 RadarGridViewModel::RadarGridViewModel(Models::RadarData& data, QObject* parent)
     : ViewModelBase(parent) {
     // The snapshot is taken here, on the thread that called RadarData::update, while the data is
-    // stable; only the finished copy crosses to the UI thread.
+    // stable; only the finished copy crosses to the UI thread, replacing one not yet drawn.
     m_subscription = RadarDataSubscription(data, [this, &data] {
-        auto snapshot = std::make_shared<const RadarSnapshot>(createSnapshot(data));
-        onUiThread([this, snapshot] { setSnapshot(snapshot); });
+        m_snapshotPost.post(std::make_shared<const RadarSnapshot>(createSnapshot(data)));
     });
 }
 

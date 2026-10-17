@@ -1,8 +1,5 @@
 #include "Gui/ViewModels/Object/ObjectsPanelViewModel.hpp"
 
-#include <QMetaObject>
-#include <QPointer>
-#include <QThread>
 #include <algorithm>
 #include <memory>
 
@@ -30,17 +27,8 @@ ObjectsPanelViewModel::ObjectsPanelViewModel(Models::RadarData& data, QObject* p
                                target->confidenceLevel, target->pos, target->vel, target->acc,
                                target->minZ, target->maxZ});
         }
-        postApply(std::move(targets));
+        m_targetsPost.post(std::move(targets));
     });
-}
-
-void ObjectsPanelViewModel::postApply(std::vector<TargetValues> targets) {
-    if (QThread::currentThread() == thread()) {
-        apply(targets);
-        return;
-    }
-    auto shared = std::make_shared<std::vector<TargetValues>>(std::move(targets));
-    QMetaObject::invokeMethod(this, [this, shared] { apply(*shared); }, Qt::QueuedConnection);
 }
 
 int ObjectsPanelViewModel::rowCount(const QModelIndex& parent) const {

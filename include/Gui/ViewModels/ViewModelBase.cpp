@@ -1,18 +1,8 @@
 #include "Gui/ViewModels/ViewModelBase.hpp"
 
-#include <QMetaObject>
-#include <QThread>
 #include <utility>
 
 namespace Sarwave::Core::Gui::ViewModels {
-
-void ViewModelBase::onUiThread(std::function<void()> action) {
-    if (QThread::currentThread() == thread()) {
-        action();
-    } else {
-        QMetaObject::invokeMethod(this, std::move(action), Qt::QueuedConnection);
-    }
-}
 
 RadarDataSubscription::RadarDataSubscription(Models::RadarData& data,
                                              Models::RadarData::Handler handler)

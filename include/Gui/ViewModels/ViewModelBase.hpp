@@ -2,8 +2,13 @@
 
 #include <QtQml/qqmlregistration.h>
 
+#include <QMetaObject>
 #include <QObject>
+#include <QThread>
 #include <functional>
+#include <mutex>
+#include <optional>
+#include <utility>
 
 #include "Gui/Models/RadarData.hpp"
 
@@ -24,11 +29,66 @@ class ViewModelBase : public QObject {
 
    public:
     using QObject::QObject;
+};
 
-   protected:
-    /// Runs `action` on the UI thread: inline if already there, posted otherwise. The post is
-    /// tied to this object, so it is dropped if the view model is destroyed before it runs.
-    void onUiThread(std::function<void()> action);
+/// Hands the newest value to the UI thread, replacing one still waiting there instead of queueing
+/// behind it. Each value is a whole state (a snapshot, a target list), not an event, so only the
+/// latest matters: a GUI that draws slower than frames arrive then skips the stale ones instead
+/// of falling further and further behind and holding all of them in memory.
+///
+/// `apply` runs on `context`'s thread: inline if post() is called there, queued otherwise. The
+/// queued call is tied to `context`, so it is dropped if that is destroyed first. Declare this
+/// before the RadarDataSubscription that posts to it.
+template <class T>
+class LatestOnUiThread {
+   public:
+    LatestOnUiThread(QObject* context, std::function<void(T)> apply)
+        : m_context(context), m_apply(std::move(apply)) {
+    }
+
+    LatestOnUiThread(const LatestOnUiThread&) = delete;
+    LatestOnUiThread& operator=(const LatestOnUiThread&) = delete;
+
+    void post(T value) {
+        if (QThread::currentThread() == m_context->thread()) {
+            // Anything still waiting is older than this.
+            {
+                std::lock_guard lock(m_gate);
+                m_pending.reset();
+            }
+            m_apply(std::move(value));
+            return;
+        }
+
+        {
+            std::lock_guard lock(m_gate);
+            const bool alreadyPosted = m_pending.has_value();
+            m_pending = std::move(value);
+            if (alreadyPosted) return;  // the call already queued will take this one
+        }
+        QMetaObject::invokeMethod(m_context, [this] { deliver(); }, Qt::QueuedConnection);
+    }
+
+   private:
+    void deliver() {
+        std::optional<T> value;
+        {
+            std::lock_guard lock(m_gate);
+            value.swap(m_pending);
+        }
+        if (value) m_apply(std::move(*value));
+    }
+
+    QObject* m_context;
+    std::function<void(T)> m_apply;
+    std::mutex m_gate;
+    std::optional<T> m_pending;  // guarded by m_gate; set while a delivery is queued
+};
+
+/// The status header's two values, copied off the capture thread.
+struct StatusValues {
+    bool presence = false;
+    bool holdSteady = false;
 };
 
 /// One subscription to RadarData's Updated event, ended (waiting out a running handler) when this

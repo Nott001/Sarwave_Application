@@ -109,6 +109,8 @@ class RadarGridViewModel : public ViewModelBase {
     double m_azimuthStep = 15;
     QString m_sensorLabel = QStringLiteral("IWR6843");
 
+    LatestOnUiThread<RadarSnapshotPtr> m_snapshotPost{
+        this, [this](RadarSnapshotPtr s) { setSnapshot(s); }};
     RadarDataSubscription m_subscription;  // last: ended first
 };
 

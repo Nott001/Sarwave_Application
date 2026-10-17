@@ -90,12 +90,13 @@ class ObjectsPanelViewModel : public QAbstractListModel {
 
    private:
     void addDesignItems();
-    void postApply(std::vector<TargetValues> targets);
 
     std::vector<ObjectItemViewModel*> m_items;  // children of this object
     std::unordered_map<int, ObjectItemViewModel*> m_itemsById;
     std::unordered_set<int> m_presentScratch;  // reused by apply, not reallocated each frame
 
+    LatestOnUiThread<std::vector<TargetValues>> m_targetsPost{
+        this, [this](std::vector<TargetValues> targets) { apply(targets); }};
     RadarDataSubscription m_subscription;  // last: ended first
 };
 
