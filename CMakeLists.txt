@@ -76,6 +76,9 @@ if(SARWAVE_BUILD_GUI)
     # The two apps the Raspberry Pi runs: live from the sensor (recording), and the replay.
     add_subdirectory(src/LiveRpiApp)
     add_subdirectory(src/RecordedRpiApp)
+
+    # Times the per-frame work on a recording (run it on the Pi).
+    add_subdirectory(src/bench)
 endif()
 
 add_subdirectory(src/tests)

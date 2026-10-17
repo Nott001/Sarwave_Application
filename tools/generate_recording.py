@@ -102,8 +102,12 @@ def compress_point(rng, x, y, z, doppler):
     )
 
 
-def generate(frames, seed, period_ms):
+def generate(frames, seed, period_ms, busy=False):
     rng = random.Random(seed)
+    # --busy: a crowded room, close to the busiest frames recorded (8 targets, about 150 points).
+    max_people = 8 if busy else 4
+    spawn_chance = 0.3 if busy else 0.03
+    points_per_person = (15, 19) if busy else (4, 18)
     people = []
     free_ids = list(range(0, 8))
     prev_point_owner = []  # owner wire id (or 253..255) of each point of the previous cloud
@@ -119,7 +123,7 @@ def generate(frames, seed, period_ms):
         for p in [p for p in people if p.life <= 0]:
             people.remove(p)
             free_ids.append(p.tid)
-        if free_ids and len(people) < 4 and rng.random() < 0.03:
+        if free_ids and len(people) < max_people and rng.random() < spawn_chance:
             free_ids.sort()
             people.append(Person(rng, free_ids.pop(0)))
 
@@ -157,7 +161,7 @@ def generate(frames, seed, period_ms):
         if not drop_cloud:
             points = b""
             for p in people:
-                for _ in range(rng.randint(4, 18)):
+                for _ in range(rng.randint(*points_per_person)):
                     px = p.x + rng.gauss(0, 0.18)
                     py = p.y + rng.gauss(0, 0.18)
                     pz = rng.uniform(0.1, p.height) - sensor_height
@@ -198,9 +202,10 @@ def main():
     parser.add_argument("--frames", type=int, default=600, help="number of frames (default 600)")
     parser.add_argument("--seed", type=int, default=1, help="random seed (default 1)")
     parser.add_argument("--period-ms", type=float, default=55.0, help="frame period in ms (default 55)")
+    parser.add_argument("--busy", action="store_true", help="up to 8 people and about 150 points per frame")
     args = parser.parse_args()
 
-    frames = generate(args.frames, args.seed, args.period_ms)
+    frames = generate(args.frames, args.seed, args.period_ms, args.busy)
     write_recording(args.output, frames)
     print(f"wrote {len(frames)} frames to {args.output}")
 
