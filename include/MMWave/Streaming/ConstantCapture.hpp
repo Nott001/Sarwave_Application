@@ -81,6 +81,11 @@ class ConstantCapture {
     /// Read when the capture begins.
     std::size_t queueCapacity = DefaultQueueCapacity;
 
+    /// Real-time priority (1 to 99) for the reader thread, so nothing else on the machine can
+    /// keep it from draining the port; 0 leaves it a normal thread. Best effort: see
+    /// readerIsRealtime(). Read when the capture begins.
+    int readerPriority = 0;
+
     /// Optional; read when the capture begins.
     DroppedCallback onDropped;
 
@@ -94,6 +99,12 @@ class ConstantCapture {
     /// Damaged packets the reader has skipped since the capture began.
     [[nodiscard]] int skippedFrames() const {
         return m_skippedFrames.load();
+    }
+
+    /// Whether the reader thread got readerPriority. False without the permission for it (see
+    /// trySetRealtimePriority), and when readerPriority is 0.
+    [[nodiscard]] bool readerIsRealtime() const {
+        return m_readerRealtime.load();
     }
 
     /// Intact frames dropped unprocessed because the worker fell behind, since the capture
@@ -168,6 +179,7 @@ class ConstantCapture {
     std::atomic<std::chrono::steady_clock::rep> m_clockStart{0};
     std::atomic<int> m_skippedFrames{0};
     std::atomic<int> m_droppedFrames{0};
+    std::atomic<bool> m_readerRealtime{false};
     std::atomic<std::thread::id> m_callbackThreadId{};
 };
 

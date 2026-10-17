@@ -47,6 +47,16 @@ class ImuSampler {
     /// Optional; read when sampling starts.
     CompletedCallback onCompleted;
 
+    /// Real-time priority (1 to 99) for the sampler thread, so its polls stay on time however
+    /// busy the machine is; 0 leaves it a normal thread. Best effort: see isRealtime(). Read when
+    /// sampling starts.
+    int priority = 0;
+
+    /// Whether the sampler thread got `priority`.
+    [[nodiscard]] bool isRealtime() const {
+        return m_realtime.load();
+    }
+
     [[nodiscard]] bool isRunning() const;
 
     /// Blocks until sampling ends. Returns at once when it is not running.
@@ -106,6 +116,7 @@ class ImuSampler {
     std::exception_ptr m_callbackError;  // guarded by m_gate
     std::atomic<std::int64_t> m_samples{0};
     std::atomic<int> m_overflows{0};
+    std::atomic<bool> m_realtime{false};
 };
 
 }  // namespace Sarwave::Core::Imu::Sampling

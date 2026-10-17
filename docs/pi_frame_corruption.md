@@ -68,6 +68,15 @@ against a fake IWR6843 on pseudo-terminals, including a callback five times slow
 frame rate (no malformed frames, overflow reported apart) and packets damaged the way recording D
 was (reported in order, capture carries on).
 
+### The reader runs real-time
+
+`LiveRpiApp` asks Linux to run the reader thread under the real-time FIFO policy
+(`ConstantCapture::readerPriority`, priority 30, below the kernel's interrupt threads). It then
+runs the moment data arrives, ahead of the GUI, the desktop and every other normal thread, so not
+even a busy machine can hold it up long enough to overflow the buffers. The permission is given
+once (`echo "$USER - rtprio 30" | sudo tee /etc/security/limits.d/sarwave.conf`, then log in
+again); without it the app prints how and runs the reader as a normal thread.
+
 ### Verbose printing during recording: off by default
 
 In C#, `RunStuff.OnOpened(window, save)` printed every frame in full whenever `save` was true.

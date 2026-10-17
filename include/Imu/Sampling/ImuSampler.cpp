@@ -3,6 +3,7 @@
 #include <array>
 
 #include "MMWave/Common/Exceptions.hpp"
+#include "MMWave/Common/ThreadPriority.hpp"
 
 namespace Sarwave::Core::Imu::Sampling {
 
@@ -56,6 +57,7 @@ void ImuSampler::start(Clock clock, BatchCallback onBatch) {
     m_thread =
         std::thread([this, clock = std::move(clock), onBatch = std::move(onBatch),
                      completed = onCompleted, period] { run(clock, onBatch, completed, period); });
+    m_realtime = priority > 0 && MMWave::trySetRealtimePriority(m_thread, priority);
 }
 
 void ImuSampler::stop() {

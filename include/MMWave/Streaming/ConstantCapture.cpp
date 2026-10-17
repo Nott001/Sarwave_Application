@@ -4,6 +4,7 @@
 #include <utility>
 
 #include "MMWave/Common/Exceptions.hpp"
+#include "MMWave/Common/ThreadPriority.hpp"
 
 namespace Sarwave::Core::MMWave::Streaming {
 
@@ -66,6 +67,7 @@ void ConstantCapture::beginConstantCapture(FrameCallback onNewFrame,
     m_activeThreads = 2;
     m_workerThread = std::thread([this, stop = m_stop] { workerLoop(stop.get_token()); });
     m_readerThread = std::thread([this, token = m_stop.get_token()] { readerLoop(token); });
+    m_readerRealtime = readerPriority > 0 && trySetRealtimePriority(m_readerThread, readerPriority);
 }
 
 void ConstantCapture::stopConstantCapture(std::optional<std::chrono::milliseconds> waitTimeout) {

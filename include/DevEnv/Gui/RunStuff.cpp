@@ -42,6 +42,12 @@ using MMWave::Streaming::ConstantCapture;
 /// How long point clouds stay on the radar grid.
 const MMWave::TimeSpan PointRetention = MMWave::TimeSpans::fromSeconds(1);
 
+/// Real-time priorities for the threads that must never wait: the data-port reader first, then
+/// the IMU sampler. Both sleep almost all the time. Kept below the kernel's own interrupt
+/// threads (50).
+constexpr int ReaderPriority = 30;
+constexpr int ImuPriority = 20;
+
 // Process-lifetime state, as the C# static fields; destroyed in reverse order at exit, so the
 // capture (last) stops before the IMU, recorder, data and ports it uses.
 std::unique_ptr<CoreGui::Models::RadarData> g_data;
@@ -197,6 +203,7 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine, bool printFram
                       << " frame(s) dropped unprocessed" << std::endl;
         };
 
+        capture->readerPriority = ReaderPriority;
         capture->beginConstantCapture(
             [printFrames, imu](const MMWave::Streaming::Frame& frame, MMWave::TimeSpan elapsed) {
                 // Nothing is caught here. A malformed frame goes to the callback below and the
@@ -219,11 +226,23 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine, bool printFram
                 g_data->skipFrame(elapsed);
             });
 
+        if (!capture->readerIsRealtime()) {
+            std::cerr << "[" << formatElapsed(capture->elapsed())
+                      << "] Note: the data-port reader runs at normal priority. To let it run "
+                         "real-time, allow it once with\n"
+                         "    echo \"$USER - rtprio "
+                      << ReaderPriority
+                      << "\" | sudo tee /etc/security/limits.d/sarwave.conf\n"
+                         "and log in again."
+                      << std::endl;
+        }
+
         if (imu) {
             // Stamped on the capture's own clock, which beginConstantCapture has just started,
             // so IMU samples and frames line up. If the IMU fails, from here on or later, the
             // radar carries on and its frames count as unknown motion.
             try {
+                imu->sampler().priority = ImuPriority;
                 imu->sampler().onCompleted = [capture](std::exception_ptr error) {
                     if (error) printError("IMU stopped", error, capture->elapsed());
                 };

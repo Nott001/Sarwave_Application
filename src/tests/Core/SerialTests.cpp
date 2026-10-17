@@ -19,6 +19,7 @@
 
 #include "FrameBuilder.hpp"
 #include "MMWave/Common/Exceptions.hpp"
+#include "MMWave/Common/ThreadPriority.hpp"
 #include "MMWave/Exceptions/FrameMalformedException.hpp"
 #include "MMWave/Porting/Context.hpp"
 #include "MMWave/Recording/FrameRecorder.hpp"
@@ -311,6 +312,38 @@ TEST_CASE("serial: a slow callback no longer starves the reader; overflow is rep
     CHECK_EQ(delivered + dropped, 30);
     CHECK(dropped > 0);
     CHECK_EQ(capture.droppedFrames(), dropped.load());
+}
+
+TEST_CASE("serial: the reader runs real-time when allowed, and captures the same either way") {
+    Pty cli;
+    Pty data;
+    FakeDevice device(cli, data, someFrames(10));
+    auto ctx = Porting::Context::openMmwavePorts(cli.path, data.path);
+
+    // Whether this process may use SCHED_FIFO at all (rtprio limit, CAP_SYS_NICE, cgroups).
+    std::atomic<bool> release{false};
+    std::thread probe([&] {
+        while (!release) std::this_thread::sleep_for(1ms);
+    });
+    const bool allowed = trySetRealtimePriority(probe, 1);
+    release = true;
+    probe.join();
+
+    std::atomic<int> delivered{0};
+    Streaming::ConstantCapture capture(*ctx);
+    capture.readerPriority = 1;
+    capture.beginConstantCapture([&](const Streaming::Frame&, TimeSpan) { delivered++; });
+    CHECK_EQ(capture.readerIsRealtime(), allowed);
+    ctx->sendCliCommand(Porting::Context::SensorStartCommand, 5s);
+
+    for (int i = 0; i < 400 && delivered < 10; ++i) std::this_thread::sleep_for(5ms);
+    capture.stopConstantCapture(1s);
+    CHECK_EQ(delivered.load(), 10);
+
+    Streaming::ConstantCapture normal(*ctx);
+    normal.beginConstantCapture([](const Streaming::Frame&, TimeSpan) {});
+    CHECK(!normal.readerIsRealtime());
+    normal.stopConstantCapture(1s);
 }
 
 TEST_CASE("serial: stopping from inside the callback and a callback that throws") {
