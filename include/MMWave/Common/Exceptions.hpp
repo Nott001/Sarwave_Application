@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include <string>
 
+#include "MMWave/Exceptions/FrameMalformedException.hpp"
+
 /// The exception types the C# code throws, so the port can fail in the same places with the
 /// same kind of error, and with the same messages wherever a message reaches the user (a window
 /// title, a dialog, the console).
@@ -120,6 +122,13 @@ class OperationCanceledException : public std::runtime_error {
 
 /// The .NET type name of the exception the C# code would have thrown at this point.
 inline std::string dotNetTypeName(const std::exception& e) {
+    using namespace MMWave::Exceptions;
+    if (dynamic_cast<const FrameReaderMalformedException*>(&e))
+        return "Sarwave.Core.MMWave.Exceptions.FrameReaderMalformedException";
+    if (dynamic_cast<const FrameEntryMalformedException*>(&e))
+        return "Sarwave.Core.MMWave.Exceptions.FrameEntryMalformedException";
+    if (dynamic_cast<const FrameMalformedException*>(&e))
+        return "Sarwave.Core.MMWave.Exceptions.FrameMalformedException";
     if (dynamic_cast<const ObjectDisposedException*>(&e)) return "System.ObjectDisposedException";
     if (dynamic_cast<const InvalidOperationException*>(&e))
         return "System.InvalidOperationException";

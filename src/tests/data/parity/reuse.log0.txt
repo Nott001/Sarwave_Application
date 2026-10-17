@@ -18,6 +18,13 @@ New Frame (#0) (00:00.000000)
       Targets (Count=2):
       |       id:1 x:1 y:2 z:0.8
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (24)
+      | 01 00 00 00 00 00 e0 3f 9a 99 19 3e 02 00 00 00 
+      | 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=2):
+      |       id:1 height:0.15~1.75
+      |       id:2 height:0.15~1.75
    - Tlv Type: TlvPointCloud (uint=1020)
       Bytes (44)
       | 0a d7 23 3c 0a d7 23 3c cd cc 4c 3d 6f 12 83 39 
@@ -36,6 +43,11 @@ New Frame (#1) (00:00.050000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 02 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
    - Tlv Type: TlvTargetIndex (uint=1011)
       Bytes (3)
       | 01 02 fe
@@ -67,6 +79,13 @@ New Frame (#2) (00:00.100000)
       Targets (Count=2):
       |       id:1 x:3 y:2 z:0.8
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (24)
+      | 01 00 00 00 00 00 e0 3f 9a 99 19 3e 02 00 00 00 
+      | 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=2):
+      |       id:1 height:0.15~1.75
+      |       id:2 height:0.15~1.75
    - Tlv Type: TlvTargetIndex (uint=1011)
       Bytes (3)
       | 02 02 01
@@ -111,6 +130,15 @@ New Frame (#4) (00:00.200000)
       |       id:5 x:1 y:2 z:0.8
       |       id:1 x:1 y:2 z:0.8
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (36)
+      | 05 00 00 00 00 00 e0 3f 9a 99 19 3e 01 00 00 00 
+      | 00 00 e0 3f 9a 99 19 3e 02 00 00 00 00 00 e0 3f 
+      | 9a 99 19 3e
+      Heights (Count=3):
+      |       id:5 height:0.15~1.75
+      |       id:1 height:0.15~1.75
+      |       id:2 height:0.15~1.75
    - Tlv Type: TlvPointCloud (uint=1020)
       Bytes (44)
       | 0a d7 23 3c 0a d7 23 3c cd cc 4c 3d 6f 12 83 39 
@@ -119,7 +147,7 @@ New Frame (#4) (00:00.200000)
       Points (Count=3):
    - Tlv Type: TlvPresenceIndication (uint=1021)
       Bytes (4)
-      | 07 00 00 00
+      | 01 00 00 00
       Presence: true
 New Frame (#5) (00:00.250000)
    - Tlv Type: TlvTargetList (uint=1010)
@@ -133,6 +161,11 @@ New Frame (#5) (00:00.250000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:5 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 05 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:5 height:0.15~1.75
    - Tlv Type: TlvTargetIndex (uint=1011)
       Bytes (3)
       | 05 05 05
@@ -156,6 +189,11 @@ New Frame (#6) (00:00.300000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 01 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#7) (00:00.350000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -168,6 +206,11 @@ New Frame (#7) (00:00.350000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 02 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#8) (00:00.400000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -180,6 +223,11 @@ New Frame (#8) (00:00.400000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 03 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#9) (00:00.450000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -192,6 +240,11 @@ New Frame (#9) (00:00.450000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 01 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#10) (00:00.500000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -204,6 +257,11 @@ New Frame (#10) (00:00.500000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 02 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#11) (00:00.550000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -216,6 +274,11 @@ New Frame (#11) (00:00.550000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 03 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#12) (00:00.600000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -228,6 +291,11 @@ New Frame (#12) (00:00.600000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 01 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#13) (00:00.650000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -240,6 +308,11 @@ New Frame (#13) (00:00.650000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 02 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#14) (00:00.700000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -252,6 +325,11 @@ New Frame (#14) (00:00.700000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 03 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#15) (00:00.750000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -264,6 +342,11 @@ New Frame (#15) (00:00.750000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 01 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#16) (00:00.800000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -276,6 +359,11 @@ New Frame (#16) (00:00.800000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 02 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#17) (00:00.850000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -288,6 +376,11 @@ New Frame (#17) (00:00.850000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 03 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#18) (00:00.900000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -300,6 +393,11 @@ New Frame (#18) (00:00.900000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 01 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#19) (00:00.950000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -312,6 +410,11 @@ New Frame (#19) (00:00.950000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 02 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#20) (00:01.000000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -324,6 +427,11 @@ New Frame (#20) (00:01.000000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 03 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#21) (00:01.050000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -336,6 +444,11 @@ New Frame (#21) (00:01.050000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 01 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#22) (00:01.100000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -348,6 +461,11 @@ New Frame (#22) (00:01.100000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 02 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#23) (00:01.150000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -360,6 +478,11 @@ New Frame (#23) (00:01.150000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 03 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#24) (00:01.200000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -372,6 +495,11 @@ New Frame (#24) (00:01.200000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 01 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#25) (00:01.250000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -384,6 +512,11 @@ New Frame (#25) (00:01.250000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 02 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#26) (00:01.300000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -396,6 +529,11 @@ New Frame (#26) (00:01.300000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 03 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#27) (00:01.350000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -408,6 +546,11 @@ New Frame (#27) (00:01.350000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 01 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#28) (00:01.400000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -420,6 +563,11 @@ New Frame (#28) (00:01.400000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 02 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#29) (00:01.450000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -432,6 +580,11 @@ New Frame (#29) (00:01.450000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 03 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#30) (00:01.500000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -444,6 +597,11 @@ New Frame (#30) (00:01.500000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 01 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#31) (00:01.550000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -456,6 +614,11 @@ New Frame (#31) (00:01.550000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 02 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#32) (00:01.600000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -468,6 +631,11 @@ New Frame (#32) (00:01.600000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 03 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#33) (00:01.650000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -480,6 +648,11 @@ New Frame (#33) (00:01.650000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 01 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#34) (00:01.700000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -492,6 +665,11 @@ New Frame (#34) (00:01.700000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 02 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#35) (00:01.750000)
    - Tlv Type: TlvTargetList (uint=1010)
       Bytes (112)
@@ -504,3 +682,8 @@ New Frame (#35) (00:01.750000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 03 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75

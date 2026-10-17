@@ -25,6 +25,7 @@
 #include "MMWave/Common/Exceptions.hpp"
 #include "MMWave/Configured/PeopleTracking/Association/CombinedManager.hpp"
 #include "MMWave/Configured/PeopleTracking/DebugLogger.hpp"
+#include "MMWave/Exceptions/FrameMalformedException.hpp"
 #include "MMWave/Prompting/Prompting.hpp"
 #include "MMWave/Recording/FramePlayback.hpp"
 #include "MMWave/Recording/FrameRecorder.hpp"
@@ -51,7 +52,16 @@ int cmdReader(const std::string& path, std::uint32_t seed) {
     int count = 0;
     while (true) {
         Streaming::Frame frame;
-        if (reader.tryExtractFrame(frame)) {
+        bool extracted = false;
+        try {
+            extracted = reader.tryExtractFrame(frame);
+        } catch (const Exceptions::FrameReaderMalformedException& m) {
+            std::cout << "malformed " << Exceptions::toString(m.cause()) << " "
+                      << (m.frameNumber() ? std::to_string(*m.frameNumber()) : "-") << ": "
+                      << m.detail() << " skipped=" << reader.skippedFrames() << "\n";
+            continue;
+        }
+        if (extracted) {
             std::uint32_t sum = 0;
             for (std::uint8_t x : frame.bytes()) sum = sum * 31 + x;
             std::cout << "frame " << count++ << " len=" << frame.bytes().size() << " sum=" << sum

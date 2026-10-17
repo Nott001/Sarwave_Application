@@ -60,6 +60,11 @@ int FrameRecorder::frameCount() const {
     return m_frameCount;
 }
 
+int FrameRecorder::malformedCount() const {
+    std::lock_guard lock(m_gate);
+    return m_malformedCount;
+}
+
 void FrameRecorder::record(const Streaming::Frame& frame, TimeSpan timestamp) {
     const auto bytes = frame.bytes();
     std::array<std::uint8_t, RecordingFormat::RecordHeaderSize> header{};
@@ -70,7 +75,31 @@ void FrameRecorder::record(const Streaming::Frame& frame, TimeSpan timestamp) {
 
     write(header);
     write(bytes);
+
+    // Handed to the operating system after every frame. Recordings are mostly wanted when
+    // something went wrong, which is exactly when dispose() may never be reached; with the frames
+    // only in this process's buffer, a crash or a kill would lose the last of them, including
+    // the frame that caused it.
+    m_stream->flush();
     m_frameCount++;
+}
+
+void FrameRecorder::recordMalformed(const Exceptions::FrameMalformedException& exception,
+                                    TimeSpan timestamp) {
+    const std::vector<std::uint8_t> payload = RecordingFormat::encodeMalformed(exception);
+    std::array<std::uint8_t, RecordingFormat::RecordHeaderSize> header{};
+    RecordingFormat::writeRecordHeader(
+        header, timestamp,
+        static_cast<std::int32_t>(static_cast<std::uint32_t>(payload.size()) |
+                                  RecordingFormat::MalformedFlag));
+
+    std::lock_guard lock(m_gate);
+    throwIfDisposed();
+
+    write(header);
+    write(payload);
+    m_stream->flush();
+    m_malformedCount++;
 }
 
 void FrameRecorder::flush() {

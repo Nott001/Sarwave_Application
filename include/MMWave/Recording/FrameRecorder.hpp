@@ -6,6 +6,7 @@
 #include <ostream>
 
 #include "MMWave/Common/TimeSpan.hpp"
+#include "MMWave/Exceptions/FrameMalformedException.hpp"
 #include "MMWave/Streaming/Frame.hpp"
 
 namespace Sarwave::Core::MMWave::Recording {
@@ -14,8 +15,10 @@ namespace Sarwave::Core::MMWave::Recording {
 /// only needs the Frame and a timestamp, so it hooks in wherever frames are already handled --
 /// typically one extra line inside a ConstantCapture callback.
 ///
-/// The frame is copied out during record(); nothing is retained afterwards. Safe to call from
-/// the capture thread while another thread disposes it.
+/// The frame is copied out during record(); nothing is retained afterwards. Each frame reaches
+/// the file as soon as it is recorded, so the recording is complete up to the last frame even if
+/// the process is killed before dispose() runs. Safe to call from the capture thread while
+/// another thread disposes it.
 class FrameRecorder {
    public:
     /// Creates the file, replacing any existing one. Throws IOException if it can't.
@@ -32,10 +35,20 @@ class FrameRecorder {
     /// Frames written so far.
     [[nodiscard]] int frameCount() const;
 
+    /// Malformed frames noted so far.
+    [[nodiscard]] int malformedCount() const;
+
     /// timestamp: when the frame arrived, on whatever clock the caller uses. Playback
     /// reproduces the gaps between these, so they should not go backwards.
     /// Throws ObjectDisposedException after dispose().
     void record(const Streaming::Frame& frame, TimeSpan timestamp);
+
+    /// Notes that a frame was malformed at this point in the recording. Meant for the malformed
+    /// callback of ConstantCapture. For a frame the reader skipped, this is the only trace of it;
+    /// for a frame that arrived and was then rejected, the frame itself is in the recording too
+    /// if it was passed to record() first.
+    /// timestamp: on the same clock as the timestamps given to record().
+    void recordMalformed(const Exceptions::FrameMalformedException& exception, TimeSpan timestamp);
 
     /// Pushes buffered frames to the underlying stream.
     void flush();
@@ -53,6 +66,7 @@ class FrameRecorder {
     bool m_leaveOpen = false;
     bool m_disposed = false;
     int m_frameCount = 0;
+    int m_malformedCount = 0;
 };
 
 }  // namespace Sarwave::Core::MMWave::Recording

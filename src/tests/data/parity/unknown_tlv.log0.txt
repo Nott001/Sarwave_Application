@@ -10,6 +10,11 @@ New Frame (#0) (00:00.000000)
       | 00 00 00 00 00 00 00 00 00 00 80 3f 00 00 00 3f
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Bytes (12)
+      | 01 00 00 00 00 00 e0 3f 9a 99 19 3e
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#1) (00:00.050000)
    - Tlv Type: TlvPointCloud (uint=1020)
       Bytes (44)

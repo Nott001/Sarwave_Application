@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string>
 
+#include "MMWave/Exceptions/FrameMalformedException.hpp"
 #include "MMWave/Recording/FrameRecording.hpp"
 #include "MMWave/Streaming/FrameReader.hpp"
 #include "Parity/ParityDump.hpp"
@@ -88,7 +89,16 @@ TEST_CASE("parity: FrameReader extracts the same frames as the C# FrameReader") 
     int count = 0;
     while (true) {
         Streaming::Frame frame;
-        if (reader.tryExtractFrame(frame)) {
+        bool extracted = false;
+        try {
+            extracted = reader.tryExtractFrame(frame);
+        } catch (const Exceptions::FrameReaderMalformedException& m) {
+            out << "malformed " << Exceptions::toString(m.cause()) << " "
+                << (m.frameNumber() ? std::to_string(*m.frameNumber()) : "-") << ": " << m.detail()
+                << " skipped=" << reader.skippedFrames() << "\n";
+            continue;
+        }
+        if (extracted) {
             std::uint32_t sum = 0;
             for (std::uint8_t x : frame.bytes()) sum = sum * 31 + x;
             out << "frame " << count++ << " len=" << frame.bytes().size() << " sum=" << sum << "\n";

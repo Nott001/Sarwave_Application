@@ -8,6 +8,7 @@
 #include <thread>
 
 #include "MMWave/Common/TimeSpan.hpp"
+#include "MMWave/Exceptions/FrameMalformedException.hpp"
 #include "MMWave/Recording/FrameRecording.hpp"
 #include "MMWave/Streaming/Frame.hpp"
 
@@ -24,6 +25,13 @@ class FramePlayback {
     /// timestamp: the frame's recorded timestamp. When looping, later passes continue
     /// counting up from the previous pass instead of jumping back.
     using FrameCallback = std::function<void(const Streaming::Frame& frame, TimeSpan timestamp)>;
+
+    /// Called in place of the frame callback's normal return when a frame is malformed, as with
+    /// ConstantCapture: either the frame callback threw a FrameMalformedException for the frame
+    /// it was given, or the recording holds a note that the reader skipped one.
+    /// timestamp: on the same clock as the frame callback's timestamps.
+    using MalformedCallback = std::function<void(
+        const Exceptions::FrameMalformedException& exception, TimeSpan timestamp)>;
 
     explicit FramePlayback(const FrameRecording& recording) : m_recording(recording) {
     }
@@ -49,7 +57,15 @@ class FramePlayback {
 
     /// Throws InvalidOperationException if already playing or `speed` is not a positive,
     /// finite number.
-    void begin(FrameCallback onFrame);
+    ///
+    /// onMalformed: without one, a FrameMalformedException from onFrame ends playback like any
+    /// other exception, and the recording's notes are not replayed.
+    void begin(FrameCallback onFrame, MalformedCallback onMalformed = {});
+
+    /// The timestamp in the recording that a delivered `timestamp` stands for: the same on the
+    /// first pass, with the looping offset taken off on later ones. Use it to look up anything
+    /// else recorded on the same clock, such as the session's IMU samples.
+    [[nodiscard]] TimeSpan recordedTimestamp(TimeSpan timestamp) const;
 
     /// Signals playback to stop and blocks until it has (only signals when called from inside
     /// the frame callback).
@@ -61,8 +77,14 @@ class FramePlayback {
     }
 
    private:
-    void playbackLoop(FrameCallback onFrame, double speed, bool loop);
-    bool waitUntil(std::chrono::steady_clock::time_point due);
+    void playbackLoop(FrameCallback onFrame, MalformedCallback onMalformed, double speed,
+                      bool loop);
+    void waitUntil(std::chrono::steady_clock::time_point start, TimeSpan due);
+    void notify(const std::function<void()>& callback);
+
+    /// One pass lasts the recording's duration plus one typical frame gap, so a loop's first
+    /// frame doesn't land on top of the previous pass's last one.
+    [[nodiscard]] TimeSpan passLength() const;
     void joinFinishedThread();
 
     const FrameRecording& m_recording;

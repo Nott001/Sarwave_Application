@@ -142,9 +142,11 @@ TEST_CASE(
 TEST_CASE("RadarGridViewModel snapshots targets, groups and fade from RadarData") {
     app();
     Models::RadarData data(MMWave::TimeSpans::fromSeconds(1));
-    data.update(FrameBuilder().targets({1}).cloud(3).frame(), MMWave::TimeSpan(0));
-    data.update(FrameBuilder().targets({1}).indexes({1, 253, 1}).cloud(2).frame(),
-                MMWave::TimeSpan(2'500'000));
+    data.update(FrameBuilder().targets({1}).heights({1}, 1.7f, 0.2f).cloud(3).frame(0),
+                MMWave::TimeSpan(0));
+    data.update(
+        FrameBuilder().targets({1}).heights({1}, 1.7f, 0.2f).indexes({1, 253, 1}).cloud(2).frame(1),
+        MMWave::TimeSpan(2'500'000));
 
     const auto snapshot = ViewModels::Radar::RadarGridViewModel::createSnapshot(data);
     REQUIRE(snapshot.targets().size() == 1);
@@ -168,13 +170,16 @@ TEST_CASE("Live view models follow RadarData across threads") {
     Models::RadarData data(MMWave::TimeSpans::fromSeconds(1));
     auto panel = std::make_unique<ViewModels::Object::ObjectsPanelViewModel>(data);
     std::thread worker([&] {
-        data.update(FrameBuilder().targets({5, 6}).presence(true).frame(), MMWave::TimeSpan(0));
+        data.update(
+            FrameBuilder().targets({5, 6}).heights({5, 6}, 1.7f, 0.2f).presence(true).frame(0),
+            MMWave::TimeSpan(0));
     });
     worker.join();
     processEvents();
     CHECK_EQ(panel->count(), 2);
     panel.reset();  // unsubscribes; later updates must not touch it
-    data.update(FrameBuilder().targets({5}).frame(), MMWave::TimeSpan(100));
+    data.update(FrameBuilder().targets({5}).heights({5}, 1.7f, 0.2f).frame(1),
+                MMWave::TimeSpan(100));
     processEvents();
 }
 
@@ -189,7 +194,9 @@ TEST_CASE("The dashboards load into a window and replace each other") {
 
     QQuickItem* first = Views::showMaximalGui(window, engine, data);
     REQUIRE(first != nullptr);
-    data.update(FrameBuilder().targets({1}).cloud(4).presence(true).frame(), MMWave::TimeSpan(0));
+    data.update(
+        FrameBuilder().targets({1}).heights({1}, 1.7f, 0.2f).cloud(4).presence(true).frame(),
+        MMWave::TimeSpan(0));
     processEvents();
     QQuickItem* second = Views::showMinimalGui(window, engine, data);
     REQUIRE(second != nullptr);

@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text;
 using Sarwave.Core.MMWave.Configured.PeopleTracking;
 using Sarwave.Core.MMWave.Configured.PeopleTracking.Association;
+using Sarwave.Core.MMWave.Exceptions;
 using Sarwave.Core.MMWave.Prompting;
 using Sarwave.Core.MMWave.Recording;
 using Sarwave.Core.MMWave.Streaming;
@@ -80,7 +81,14 @@ switch (cmd)
         while (true)
         {
             object[] a = { null };
-            if ((bool)tryExtract.Invoke(reader, a)!)
+            bool extracted;
+            try { extracted = (bool)tryExtract.Invoke(reader, a)!; }
+            catch (TargetInvocationException e) when (e.InnerException is FrameReaderMalformedException m)
+            {
+                Console.WriteLine($"malformed {m.Cause} {(m.FrameNumber is { } n ? n.ToString() : "-")}: {m.Detail} skipped={reader.SkippedFrames}");
+                continue;
+            }
+            if (extracted)
             {
                 Frame f = (Frame)a[0];
                 var b = f.Bytes;

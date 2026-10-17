@@ -1,6 +1,7 @@
 #pragma once
 
-// Builds raw People Tracking frames for tests.
+// Builds raw People Tracking frames for tests, laid out as the device sends them: padded to a
+// multiple of 32 bytes, with numDetectedObj matching the point cloud.
 
 #include <cstdint>
 #include <cstring>
@@ -55,6 +56,7 @@ class FrameBuilder {
 
     /// `n` identical points 2 m ahead.
     FrameBuilder& cloud(int n) {
+        m_points = static_cast<std::uint32_t>(n);
         std::vector<std::uint8_t> p;
         for (float unit : {0.01f, 0.01f, 0.05f, 0.00025f, 0.04f}) putF(p, unit);
         for (int i = 0; i < n; ++i) {
@@ -67,13 +69,28 @@ class FrameBuilder {
         return tlv(1020, p);
     }
 
+    /// Overrides the header's numDetectedObj (set by cloud() otherwise).
+    FrameBuilder& detectedObjects(std::uint32_t n) {
+        m_points = n;
+        return *this;
+    }
+
+    /// Leaves out the padding, as frames written before the reader checked alignment were.
+    FrameBuilder& unpadded() {
+        m_pad = false;
+        return *this;
+    }
+
     std::vector<std::uint8_t> bytes(std::uint32_t frameNumber = 0) const {
         std::vector<std::uint8_t> out(
             Sarwave::Core::MMWave::Streaming::StreamingConstants::MagicWord.begin(),
             Sarwave::Core::MMWave::Streaming::StreamingConstants::MagicWord.end());
-        const std::uint32_t total = static_cast<std::uint32_t>(40 + m_body.size());
-        for (std::uint32_t v : {1u, total, 2u, frameNumber, 0u, 0u, m_count, 0u}) put32(out, v);
+        std::uint32_t total = static_cast<std::uint32_t>(40 + m_body.size());
+        if (m_pad) total = (total + 31) / 32 * 32;
+        for (std::uint32_t v : {1u, total, 2u, frameNumber, 0u, m_points, m_count, 0u})
+            put32(out, v);
         out.insert(out.end(), m_body.begin(), m_body.end());
+        out.resize(total, 0x0F);  // the demo pads with 0x0F
         return out;
     }
 
@@ -98,6 +115,8 @@ class FrameBuilder {
 
     std::vector<std::uint8_t> m_body;
     std::uint32_t m_count = 0;
+    std::uint32_t m_points = 0;
+    bool m_pad = true;
 };
 
 }  // namespace SarwaveTest

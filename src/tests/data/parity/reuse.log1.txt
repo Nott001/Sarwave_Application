@@ -3,12 +3,19 @@ New Frame (#0) (00:00.000000)
       Targets (Count=2):
       |       id:1 x:1 y:2 z:0.8
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:1 height:0.15~1.75
+      |       id:2 height:0.15~1.75
    - Tlv Type: TlvPointCloud (uint=1020)
       Points (Count=3):
 New Frame (#1) (00:00.050000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
    - Tlv Type: TlvTargetIndex (uint=1011)
       Indexes (Count=3):
       |   1   2 254
@@ -19,6 +26,10 @@ New Frame (#2) (00:00.100000)
       Targets (Count=2):
       |       id:1 x:3 y:2 z:0.8
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=2):
+      |       id:1 height:0.15~1.75
+      |       id:2 height:0.15~1.75
    - Tlv Type: TlvTargetIndex (uint=1011)
       Indexes (Count=3):
       |   2   2   1
@@ -33,6 +44,11 @@ New Frame (#4) (00:00.200000)
       |       id:5 x:1 y:2 z:0.8
       |       id:1 x:1 y:2 z:0.8
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=3):
+      |       id:5 height:0.15~1.75
+      |       id:1 height:0.15~1.75
+      |       id:2 height:0.15~1.75
    - Tlv Type: TlvPointCloud (uint=1020)
       Points (Count=3):
    - Tlv Type: TlvPresenceIndication (uint=1021)
@@ -41,6 +57,9 @@ New Frame (#5) (00:00.250000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:5 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:5 height:0.15~1.75
    - Tlv Type: TlvTargetIndex (uint=1011)
       Indexes (Count=3):
       |   5   5   5
@@ -50,119 +69,209 @@ New Frame (#6) (00:00.300000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#7) (00:00.350000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#8) (00:00.400000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#9) (00:00.450000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#10) (00:00.500000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#11) (00:00.550000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#12) (00:00.600000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#13) (00:00.650000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#14) (00:00.700000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#15) (00:00.750000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#16) (00:00.800000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#17) (00:00.850000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#18) (00:00.900000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#19) (00:00.950000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#20) (00:01.000000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#21) (00:01.050000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#22) (00:01.100000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#23) (00:01.150000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#24) (00:01.200000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#25) (00:01.250000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#26) (00:01.300000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#27) (00:01.350000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#28) (00:01.400000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#29) (00:01.450000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#30) (00:01.500000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#31) (00:01.550000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#32) (00:01.600000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75
 New Frame (#33) (00:01.650000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:1 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:1 height:0.15~1.75
 New Frame (#34) (00:01.700000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:2 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:2 height:0.15~1.75
 New Frame (#35) (00:01.750000)
    - Tlv Type: TlvTargetList (uint=1010)
       Targets (Count=1):
       |       id:3 x:1 y:2 z:0.8
+   - Tlv Type: TlvTargetHeight (uint=1012)
+      Heights (Count=1):
+      |       id:3 height:0.15~1.75

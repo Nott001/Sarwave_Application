@@ -11,10 +11,18 @@ using Pointing::PointFigure;
 using Pointing::PointValue;
 
 PointEntry::PointEntry(const Tlv::TlvPointCloud& pointCloud, TimeSpan timestamp)
+    : PointEntry(pointCloud, timestamp, Quaternion::identity()) {
+}
+
+PointEntry::PointEntry(const Tlv::TlvPointCloud& pointCloud, TimeSpan timestamp,
+                       Quaternion leveling)
     : m_timestamp(timestamp) {
+    const bool rotate = !leveling.isIdentity();
     m_pointFigures.reserve(static_cast<std::size_t>(pointCloud.points.count()));
     for (const auto& point : pointCloud.points) {
-        m_pointFigures.push_back(PointValue::convert(point, pointCloud.unit).toFigure());
+        PointFigure figure = PointValue::convert(point, pointCloud.unit).toFigure();
+        if (rotate) figure.cartesian = transform(figure.cartesian, leveling);
+        m_pointFigures.push_back(figure);
     }
 }
 
@@ -96,8 +104,9 @@ void PointEntryRange::unusedTargetObjects(std::span<const int> objectIds,
     }
 }
 
-void PointEntryRange::add(const Tlv::TlvPointCloud& pointCloud, TimeSpan timestamp) {
-    auto entry = std::make_shared<PointEntry>(pointCloud, timestamp);
+void PointEntryRange::add(const Tlv::TlvPointCloud& pointCloud, TimeSpan timestamp,
+                          Quaternion leveling) {
+    auto entry = std::make_shared<PointEntry>(pointCloud, timestamp, leveling);
     m_pointsEntries.push_back(entry);
     m_last = std::move(entry);
 }

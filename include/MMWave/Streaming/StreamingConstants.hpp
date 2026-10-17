@@ -20,6 +20,10 @@ struct StreamingConstants {
     /// Sanity ceiling for TotalPacketLen so a corrupt header can't make the reader wait forever
     /// for a gigantic frame. Tune to the largest frame your device config can emit.
     static constexpr std::uint32_t MaxPacketLength = 1u << 20;
+
+    /// The device pads every packet after its last TLV so that TotalPacketLen is a multiple of
+    /// this, which also means the padding is always shorter than this.
+    static constexpr int PacketAlignment = 32;
 };
 
 }  // namespace Sarwave::Core::MMWave::Streaming

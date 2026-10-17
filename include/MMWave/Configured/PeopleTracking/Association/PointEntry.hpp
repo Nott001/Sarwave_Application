@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 
+#include "MMWave/Common/Numerics.hpp"
 #include "MMWave/Common/TimeSpan.hpp"
 #include "MMWave/Configured/PeopleTracking/Association/TargetObject.hpp"
 #include "MMWave/Configured/PeopleTracking/Pointing/Pointing.hpp"
@@ -20,6 +21,10 @@ namespace Sarwave::Core::MMWave::Configured::PeopleTracking::Association {
 class PointEntry {
    public:
     PointEntry(const Tlv::TlvPointCloud& pointCloud, TimeSpan timestamp);
+
+    /// leveling: rotates each point's Cartesian position (e.g. an IMU tilt correction); radial
+    /// stays as the sensor measured it.
+    PointEntry(const Tlv::TlvPointCloud& pointCloud, TimeSpan timestamp, Quaternion leveling);
     PointEntry(std::vector<Pointing::PointFigure> pointFigures, TimeSpan timestamp);
 
     [[nodiscard]] TimeSpan timestamp() const {
@@ -90,7 +95,7 @@ class PointEntryRange {
         m_last.reset();
     }
 
-    void add(const Tlv::TlvPointCloud& pointCloud, TimeSpan timestamp);
+    void add(const Tlv::TlvPointCloud& pointCloud, TimeSpan timestamp, Quaternion leveling);
 
     void dropOldEntries(TimeSpan timestamp, TimeSpan duration);
 

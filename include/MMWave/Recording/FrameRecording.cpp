@@ -46,13 +46,14 @@ FrameRecording FrameRecording::load(std::istream& stream) {
     }
 
     const std::int32_t version = RecordingFormat::readVersion(fileHeader);
-    if (version != RecordingFormat::Version) {
+    if (version < RecordingFormat::OldestVersion || version > RecordingFormat::Version) {
         throw InvalidDataException("Unsupported recording version " + std::to_string(version) +
                                    ".");
     }
 
     std::vector<Streaming::Frame> frames;
     std::vector<TimeSpan> timestamps;
+    std::vector<MalformedFrame> malformedFrames;
     bool isTruncated = false;
     std::vector<std::uint8_t> buffer(4096);
     std::array<std::uint8_t, RecordingFormat::RecordHeaderSize> recordHeader{};
@@ -68,6 +69,28 @@ FrameRecording FrameRecording::load(std::istream& stream) {
         TimeSpan timestamp{};
         std::int32_t length = 0;
         RecordingFormat::readRecordHeader(recordHeader, timestamp, length);
+
+        if ((static_cast<std::uint32_t>(length) & RecordingFormat::MalformedFlag) != 0) {
+            length = static_cast<std::int32_t>(static_cast<std::uint32_t>(length) &
+                                               ~RecordingFormat::MalformedFlag);
+            if (length > RecordingFormat::MaxMalformedLength) {
+                throw InvalidDataException("A malformed-frame record has an impossible length (" +
+                                           std::to_string(length) + ").");
+            }
+
+            if (buffer.size() < static_cast<std::size_t>(length))
+                buffer.resize(static_cast<std::size_t>(length));
+            const std::span<std::uint8_t> payload(buffer.data(), static_cast<std::size_t>(length));
+            if (!tryReadExactly(stream, payload)) {
+                isTruncated = true;
+                break;
+            }
+
+            malformedFrames.push_back({static_cast<int>(frames.size()), timestamp,
+                                       RecordingFormat::decodeMalformed(payload)});
+            continue;
+        }
+
         if (length < StreamingConstants::MinPacketLength ||
             static_cast<std::uint32_t>(length) > StreamingConstants::MaxPacketLength) {
             throw InvalidDataException("Frame " + std::to_string(frames.size()) +
@@ -93,7 +116,8 @@ FrameRecording FrameRecording::load(std::istream& stream) {
         timestamps.push_back(timestamp);
     }
 
-    return FrameRecording(std::move(frames), std::move(timestamps), isTruncated);
+    return FrameRecording(std::move(frames), std::move(timestamps), std::move(malformedFrames),
+                          isTruncated);
 }
 
 void FrameRecording::dispose() {

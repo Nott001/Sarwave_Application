@@ -45,7 +45,8 @@ def tlv(tlv_type, payload):
 
 def frame_bytes(frame_number, tlvs, num_points):
     body = b"".join(tlvs)
-    total = len(MAGIC) + 32 + len(body)
+    # The device pads every packet with 0x0F to a multiple of 32 bytes.
+    total = (len(MAGIC) + 32 + len(body) + 31) // 32 * 32
     header = struct.pack(
         "<8I",
         0x03060000,  # version
@@ -57,7 +58,7 @@ def frame_bytes(frame_number, tlvs, num_points):
         len(tlvs),
         0,
     )
-    return MAGIC + header + body
+    return MAGIC + header + body + b"\x0f" * (total - len(MAGIC) - 32 - len(body))
 
 
 class Person:
