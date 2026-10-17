@@ -32,10 +32,14 @@ Requirements: CMake 3.25+, a C++23 compiler (GCC 14+), Boost (Asio, headers only
 libraries, the terminal app and their tests (no Qt needed).
 
 ```bash
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+cmake -S . -B build -G Ninja             # Release by default; add -DCMAKE_BUILD_TYPE=Debug to debug
 cmake --build build
 QT_QPA_PLATFORM=offscreen ctest --test-dir build --output-on-failure
 ```
+
+Build the Pi's binaries in Release (the default). A Debug build does the per-frame work about
+five times slower. `-DSARWAVE_NATIVE_CPU=ON` also tunes the code for the CPU it is built on; the
+gain is small and those binaries may not run on another machine.
 
 ## Run
 
@@ -64,6 +68,38 @@ python3 tools/generate_imu_recording.py ~/.local/share/Sarwave/default_session.s
 
 The command-line options are the only additions to the C# behaviour; the C# apps set the same
 things in code (`ImuFrames.Mode` in `App.cs`, `RunStuff.OnOpened(window, save)`).
+
+### Speed on the Pi
+
+`SarwaveBench` times the live app's per-frame work on a recording, step by step. Run it on the
+Pi with a busy session (about 140 points and 8 people per frame, more than any real recording):
+
+```bash
+python3 tools/generate_recording.py busy.swrec --busy --frames 3000
+python3 tools/generate_imu_recording.py busy.swimu --seconds 170
+./build/bin/SarwaveBench busy.swrec --imu busy.swimu
+```
+
+On a desktop PC (Release) the reader takes about 2 µs per frame and the worker (record, IMU gate,
+tracking, dashboard snapshot) about 20 µs; drawing the points takes about 0.5 ms. A frame arrives
+every 55 ms. The Pi is a few times slower, which still leaves the budget almost untouched.
+
+What keeps it that way:
+
+- **Real-time reader.** `LiveRpiApp` asks Linux to run the data-port reader (and the IMU sampler)
+  ahead of every normal thread, so the GUI or other programs can't delay it. That needs
+  permission once, otherwise the app says so at start and runs them normally:
+
+  ```bash
+  echo "$USER - rtprio 30" | sudo tee /etc/security/limits.d/sarwave.conf   # then log in again
+  ```
+
+- **The dashboard skips stale frames.** If drawing ever falls behind, it draws the newest frame
+  and drops the ones it missed, instead of queueing them and lagging further and further behind.
+- **Cheap point drawing.** Each colour's dot is drawn once and copied, 3 to 4 times faster than
+  drawing thousands of small circles each frame, and it looks the same.
+- **On the Pi itself:** the official 27 W power supply and a cooler (under-voltage and heat both
+  slow the CPU; `vcgencmd get_throttled` shows either), and no `--print-frames`.
 
 ### Damaged frames
 

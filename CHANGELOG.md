@@ -37,6 +37,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `tools/generate_stream.py`, `tools/generate_imu_recording.py`).
 - Docs: `docs/pi_frame_corruption.md`, `docs/recorded_data.txt`, `docs/user_guide.txt`.
 
+### Changed — speed
+- Release is the default build type (Debug does the per-frame work about five times slower).
+  `-DSARWAVE_NATIVE_CPU=ON` tunes for the building CPU.
+- `ConstantCapture::readerPriority` / `ImuSampler::priority`: real-time (SCHED_FIFO) threads when
+  the system allows it; `LiveRpiApp` asks for them and says how to allow it when refused.
+- The view models hand the UI thread only the newest snapshot, target list and status
+  (`LatestOnUiThread`), so a slow GUI skips stale frames instead of queueing them.
+- `RadarDataOverlay` draws points from pre-drawn dot sprites at 1/8-pixel steps: 3 to 4 times
+  faster than drawing each circle, and it looks the same (checked by a GUI test).
+- `SarwaveBench` times the reader, the worker's steps and the drawing on a recording;
+  `tools/generate_recording.py --busy` makes a crowded one.
+
 ### Changed — the frame corruption plan, implemented
 - `ConstantCapture` reads on its own thread and runs callbacks on a worker thread, joined by a
   bounded queue. Frames are stamped on arrival, and errors travel in order with them. An overflow
