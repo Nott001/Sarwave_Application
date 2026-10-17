@@ -14,7 +14,11 @@ MinimalGuiViewModel::MinimalGuiViewModel(Models::RadarData& data, QObject* paren
       m_radar(new Radar::RadarGridViewModel(data, this)) {
     m_subscription = RadarDataSubscription(data, [this, &data] {
         const bool presence = data.presence();
-        onUiThread([this, presence] { m_status->setPresenceDetected(presence); });
+        const bool holdSteady = data.holdSteady();
+        onUiThread([this, presence, holdSteady] {
+            m_status->setPresenceDetected(presence);
+            m_status->setHoldSteady(holdSteady);
+        });
     });
 }
 

@@ -6,6 +6,7 @@
 #include <mutex>
 #include <vector>
 
+#include "MMWave/Common/Numerics.hpp"
 #include "MMWave/Common/TimeSpan.hpp"
 #include "MMWave/Configured/PeopleTracking/Association/CombinedManager.hpp"
 #include "MMWave/Streaming/Frame.hpp"
@@ -65,8 +66,27 @@ class RadarData {
         m_manager.duration = value;
     }
 
+    /// The operator should hold the device steady: motion gating is refusing frames. Set by
+    /// whoever gates the frames, before the update() or skipFrame() it applies to; reported with
+    /// that frame's Updated.
+    [[nodiscard]] bool holdSteady() const {
+        return m_holdSteady;
+    }
+
+    void setHoldSteady(bool value) {
+        m_holdSteady = value;
+    }
+
     /// Applies the frame, then raises Updated synchronously on the calling thread (any thread).
     void update(const MMWave::Streaming::Frame& frame, MMWave::TimeSpan timestamp);
+
+    /// leveling: rotation applied to the frame's points, e.g. an IMU tilt correction.
+    void update(const MMWave::Streaming::Frame& frame, MMWave::TimeSpan timestamp,
+                MMWave::Quaternion leveling);
+
+    /// For a frame that arrived but could not be used; see CombinedManager::skipFrame. Raises
+    /// Updated like any other frame.
+    void skipFrame(MMWave::TimeSpan timestamp);
 
    private:
     struct Subscriber {
@@ -76,9 +96,11 @@ class RadarData {
     };
 
     void raiseUpdated();
+    void onUpdated(MMWave::TimeSpan timestamp);
 
     MMWave::Configured::PeopleTracking::Association::CombinedManager m_manager;
     MMWave::TimeSpan m_lastUpdate{};
+    bool m_holdSteady = false;
 
     std::mutex m_subscribersMutex;  // guards m_subscribers and m_nextToken
     std::vector<std::shared_ptr<Subscriber>> m_subscribers;

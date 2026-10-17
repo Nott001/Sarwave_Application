@@ -8,6 +8,8 @@ Rectangle {
 
     required property StatusViewModel viewModel
     readonly property bool detected: viewModel.presenceDetected
+    // Detection is suspended while the device moves; this wins over `detected`.
+    readonly property bool holdSteady: viewModel.holdSteady
 
     color: Tokens.surface
     border.color: Tokens.border
@@ -57,9 +59,9 @@ Rectangle {
 
         Text {
             text: root.viewModel.statusText
-            color: root.detected ? Tokens.accent : Tokens.muted
+            color: root.holdSteady ? Tokens.danger : root.detected ? Tokens.accent : Tokens.muted
             font.pixelSize: 10
-            font.weight: Font.DemiBold
+            font.weight: root.holdSteady ? Font.Bold : Font.DemiBold
             font.letterSpacing: 0.5
         }
 

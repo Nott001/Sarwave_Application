@@ -4,19 +4,24 @@
 #include <QPointer>
 #include <QQuickWindow>
 #include <chrono>
+#include <cstdio>
 #include <cstdlib>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <thread>
 
 #include "DevEnv/ConfigMemory.hpp"
 #include "DevEnv/Gui/CfgDialogue.hpp"
+#include "DevEnv/Gui/ImuFrames.hpp"
 #include "DevEnv/Gui/PortDialogue.hpp"
 #include "DevEnv/Gui/Run.hpp"
 #include "Gui/Models/RadarData.hpp"
 #include "Gui/Views/GuiHost.hpp"
 #include "MMWave/Common/Exceptions.hpp"
 #include "MMWave/Common/TimeSpan.hpp"
+#include "MMWave/Configured/PeopleTracking/DebugLogger.hpp"
+#include "MMWave/Exceptions/FrameMalformedException.hpp"
 #include "MMWave/Porting/Context.hpp"
 #include "MMWave/Recording/FrameRecorder.hpp"
 #include "MMWave/Streaming/ConstantCapture.hpp"
@@ -26,6 +31,10 @@ namespace {
 
 using namespace Sarwave::Core;
 namespace CoreGui = Sarwave::Core::Gui;
+using MMWave::Configured::PeopleTracking::DebugLogger;
+using MMWave::Exceptions::FrameEntryMalformedException;
+using MMWave::Exceptions::FrameMalformedException;
+using MMWave::Exceptions::FrameReaderMalformedException;
 using MMWave::Porting::Context;
 using MMWave::Recording::FrameRecorder;
 using MMWave::Streaming::ConstantCapture;
@@ -34,10 +43,12 @@ using MMWave::Streaming::ConstantCapture;
 const MMWave::TimeSpan PointRetention = MMWave::TimeSpans::fromSeconds(1);
 
 // Process-lifetime state, as the C# static fields; destroyed in reverse order at exit, so the
-// capture (last) stops before the recorder, data and ports it uses.
+// capture (last) stops before the IMU, recorder, data and ports it uses.
 std::unique_ptr<CoreGui::Models::RadarData> g_data;
 std::unique_ptr<Context> g_ctx;
 std::unique_ptr<FrameRecorder> g_recorder;
+std::unique_ptr<Imu::ImuSession> g_imu;
+DebugLogger g_debugLogger(DebugLogger::Config{.hideBytes = true});
 std::unique_ptr<ConstantCapture> g_capture;
 
 /// `await Task.Run(work)`: runs blocking work on another thread while the GUI keeps processing
@@ -69,6 +80,49 @@ auto runInBackground(Work work) -> decltype(work()) {
     std::abort();
 }
 
+/// TimeSpan's hh\:mm\:ss\.fff.
+std::string formatElapsed(MMWave::TimeSpan elapsed) {
+    const std::int64_t ms = elapsed.count() / MMWave::TimeSpans::TicksPerMillisecond;
+    char text[32];
+    std::snprintf(text, sizeof text, "%02lld:%02lld:%02lld.%03lld",
+                  static_cast<long long>(ms / 3'600'000 % 24),
+                  static_cast<long long>(ms / 60'000 % 60), static_cast<long long>(ms / 1000 % 60),
+                  static_cast<long long>(ms % 1000));
+    return text;
+}
+
+/// Writes the error to the terminal (standard error). A malformed frame gets one line: its type,
+/// cause and message say everything. Anything else is written with its type and message.
+void printError(const std::string& what, const std::exception& exception,
+                MMWave::TimeSpan elapsed) {
+    std::string text;
+    if (const auto* reader = dynamic_cast<const FrameReaderMalformedException*>(&exception)) {
+        text = ": FrameReaderMalformedException (" + MMWave::Exceptions::toString(reader->cause()) +
+               "): " + reader->what();
+    } else if (const auto* entry = dynamic_cast<const FrameEntryMalformedException*>(&exception)) {
+        text = ": FrameEntryMalformedException (" + MMWave::Exceptions::toString(entry->cause()) +
+               "): " + entry->what();
+    } else if (dynamic_cast<const FrameMalformedException*>(&exception)) {
+        text = std::string(": FrameMalformedException: ") + exception.what();
+    } else {
+        text = ": " + dotNetTypeName(exception) + ": " + exception.what();
+    }
+
+    std::cerr << "[" << formatElapsed(elapsed) << "] " << what << text << std::endl;
+}
+
+void printError(const std::string& what, const std::exception_ptr& error,
+                MMWave::TimeSpan elapsed) {
+    try {
+        std::rethrow_exception(error);
+    } catch (const std::exception& ex) {
+        printError(what, ex, elapsed);
+    } catch (...) {
+        std::cerr << "[" << formatElapsed(elapsed) << "] " << what << ": unknown exception"
+                  << std::endl;
+    }
+}
+
 std::string trim(const std::string& text) {
     const auto first = text.find_first_not_of(" \t\n\v\f\r");
     if (first == std::string::npos) return {};
@@ -78,7 +132,7 @@ std::string trim(const std::string& text) {
 
 }  // namespace
 
-void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine) {
+void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine, bool printFrames) {
     try {
         // The dashboard gets its own view model up front.
         g_data = std::make_unique<CoreGui::Models::RadarData>(PointRetention);
@@ -94,34 +148,90 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine) {
         ConfigMemory::saveConfigLocation(*cfgPath);
 
         // Frame recording
-        g_recorder =
-            std::make_unique<FrameRecorder>(std::filesystem::path(RunRecorded::SessionFile));
+        g_recorder = std::make_unique<FrameRecorder>(RunRecorded::sessionFile());
 
-        // Frames arrive on the capture's worker thread, stamped when they were read. RadarData is
-        // only ever touched from there; the view models copy what they need and hand it to the
-        // GUI thread themselves.
+        // Opened before the capture so the frame callback below can ask it about every frame.
+        g_imu = ImuFrames::tryOpen();
+        Imu::ImuSession* imu = g_imu.get();
+        const std::filesystem::path imuRecordingPath =
+            Imu::Recording::ImuRecording::sidecarPath(RunRecorded::sessionFile());
+        if (!imu) {
+            // A previous session's IMU data must not be replayed against this session's frames.
+            std::error_code ignored;
+            std::filesystem::remove(imuRecordingPath, ignored);
+        }
+
+        // Frames arrive on the capture's worker thread. RadarData is only ever touched from
+        // there; the view models copy what they need and hand it to the GUI thread themselves.
         QPointer<QQuickWindow> windowRef(&window);
         g_capture = std::make_unique<ConstantCapture>(*g_ctx);
-        g_capture->beginConstantCapture(
-            [windowRef](const MMWave::Streaming::Frame& frame, MMWave::TimeSpan elapsed) {
-                try {
-                    // g_debugLogger.printFrameDataVerbose(frame, elapsed);
-                    g_recorder->record(frame, elapsed);
-                    g_data->update(frame, elapsed);
-                } catch (const std::exception& ex) {
-                    // Rethrown so ConstantCapture stops and records it; shown so it isn't silent.
-                    const QString title =
-                        QStringLiteral("Capture stopped: ") + QString::fromStdString(ex.what());
-                    QMetaObject::invokeMethod(
-                        windowRef.data(),
-                        [windowRef, title] {
-                            if (windowRef) windowRef->setTitle(title);
-                        },
-                        Qt::QueuedConnection);
-                    qDebug().noquote() << ex.what();
-                    throw;
-                }
+        ConstantCapture* capture = g_capture.get();
+
+        // Covers every way the capture can end by failing, not only an exception from the
+        // callbacks below: a read error on the data port ends it without touching either.
+        capture->onCompleted = [capture, windowRef](std::exception_ptr error) {
+            if (!error) return;
+
+            printError("Capture stopped", error, capture->elapsed());
+            QString message;
+            try {
+                std::rethrow_exception(error);
+            } catch (const std::exception& ex) {
+                message = QString::fromStdString(ex.what());
+            } catch (...) {
+            }
+            const QString title = QStringLiteral("Capture stopped: ") + message;
+            QMetaObject::invokeMethod(
+                windowRef.data(),
+                [windowRef, title] {
+                    if (windowRef) windowRef->setTitle(title);
+                },
+                Qt::QueuedConnection);
+        };
+
+        // The reader thread queues frames while the worker runs the callbacks; if the worker
+        // ever falls so far behind that the queue overflows, say so -- that is "processing too
+        // slow", not a corrupted link.
+        capture->onDropped = [](int count, MMWave::TimeSpan elapsed) {
+            std::cerr << "[" << formatElapsed(elapsed) << "] Processing too slow: " << count
+                      << " frame(s) dropped unprocessed" << std::endl;
+        };
+
+        capture->beginConstantCapture(
+            [printFrames, imu](const MMWave::Streaming::Frame& frame, MMWave::TimeSpan elapsed) {
+                // Nothing is caught here. A malformed frame goes to the callback below and the
+                // capture carries on; anything else ends the capture and is reported when it
+                // completes.
+                if (printFrames) g_debugLogger.printFrameDataVerbose(frame, elapsed);
+                g_recorder->record(frame, elapsed);
+
+                // Motion gating and tilt compensation: a frame taken while the device moved is
+                // skipped, the others are levelled.
+                std::optional<Imu::Gating::ImuFrameState> state;
+                if (imu) state = imu->evaluate(elapsed);
+                ImuFrames::apply(*g_data, frame, elapsed, state);
+            },
+            [](const FrameMalformedException& exception, MMWave::TimeSpan elapsed) {
+                printError("Malformed frame", exception, elapsed);
+                g_recorder->recordMalformed(exception, elapsed);
+
+                // The frame after this one carries indexes for a cloud that was never added.
+                g_data->skipFrame(elapsed);
             });
+
+        if (imu) {
+            // Stamped on the capture's own clock, which beginConstantCapture has just started,
+            // so IMU samples and frames line up. If the IMU fails, from here on or later, the
+            // radar carries on and its frames count as unknown motion.
+            try {
+                imu->sampler().onCompleted = [capture](std::exception_ptr error) {
+                    if (error) printError("IMU stopped", error, capture->elapsed());
+                };
+                imu->start([capture] { return capture->elapsed(); }, imuRecordingPath);
+            } catch (const IOException& ex) {
+                printError("IMU failed to start", ex, capture->elapsed());
+            }
+        }
 
         // CfgDialogue sends the cfg without its sensorStart line, so the capture above is
         // already listening when the first frame goes out.
@@ -133,6 +243,8 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine) {
             throw InvalidOperationException("sensorStart failed or timed out: " + trim(response));
         }
     } catch (const std::exception& ex) {
+        printError("Startup failed", ex,
+                   g_capture ? g_capture->elapsed() : MMWave::TimeSpan::zero());
         failFast(ex.what());
     }
 }
@@ -147,6 +259,9 @@ void RunStuff::onClosed() {
         } catch (const OperationCanceledException&) {
             // The pending read ignored cancellation; closing the port below ends it.
         }
+
+        // After the capture: its callback asks the IMU about every frame.
+        if (g_imu) g_imu->dispose();
 
         try {
             g_ctx->sendCliCommand(Context::SensorStopCommand);

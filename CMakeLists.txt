@@ -9,6 +9,8 @@ project(SarwaveApp VERSION 0.2 LANGUAGES CXX)
 #   Sarwave.DevEnv              -> include/DevEnv   (SarwaveDevEnv)
 #   Sarwave.Source.Terminal     -> src/Terminal     (SarwaveTerminal)
 #   Sarwave.Source.TestRpiApp   -> src/TestRpiApp   (TestRpiApp)
+#   Sarwave.Source.LiveRpiApp   -> src/LiveRpiApp   (LiveRpiApp)
+#   Sarwave.Source.RecordedRpiApp -> src/RecordedRpiApp (RecordedRpiApp)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -51,6 +53,10 @@ if(SARWAVE_BUILD_GUI)
     if(BUILD_TEST_RPI_APP)
         add_subdirectory(src/TestRpiApp)
     endif()
+
+    # The two apps the Raspberry Pi runs: live from the sensor (recording), and the replay.
+    add_subdirectory(src/LiveRpiApp)
+    add_subdirectory(src/RecordedRpiApp)
 endif()
 
 add_subdirectory(src/tests)

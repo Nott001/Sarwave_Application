@@ -14,6 +14,7 @@ class StatusViewModel : public ViewModelBase {
 
     Q_PROPERTY(bool presenceDetected READ presenceDetected WRITE setPresenceDetected NOTIFY
                    presenceDetectedChanged)
+    Q_PROPERTY(bool holdSteady READ holdSteady WRITE setHoldSteady NOTIFY holdSteadyChanged)
     Q_PROPERTY(QString lastUpdated READ lastUpdated WRITE setLastUpdated NOTIFY lastUpdatedChanged)
     Q_PROPERTY(QString deviceDescription READ deviceDescription WRITE setDeviceDescription NOTIFY
                    deviceDescriptionChanged)
@@ -27,6 +28,12 @@ class StatusViewModel : public ViewModelBase {
         return m_presenceDetected;
     }
     void setPresenceDetected(bool value);
+
+    /// Motion gating is suspending detection until the device is held steady.
+    [[nodiscard]] bool holdSteady() const {
+        return m_holdSteady;
+    }
+    void setHoldSteady(bool value);
 
     [[nodiscard]] QString lastUpdated() const {
         return m_lastUpdated;
@@ -43,6 +50,7 @@ class StatusViewModel : public ViewModelBase {
 
    signals:
     void presenceDetectedChanged();
+    void holdSteadyChanged();
     void lastUpdatedChanged();
     void deviceDescriptionChanged();
     void statusTextChanged();
@@ -50,6 +58,7 @@ class StatusViewModel : public ViewModelBase {
 
    private:
     bool m_presenceDetected = false;
+    bool m_holdSteady = false;
     QString m_lastUpdated;
     QString m_deviceDescription = QStringLiteral("IWR6843AOP · mmWave Radar");
 };

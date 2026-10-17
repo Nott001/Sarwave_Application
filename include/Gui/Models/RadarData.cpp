@@ -28,7 +28,21 @@ void RadarData::unsubscribe(int token) {
 }
 
 void RadarData::update(const MMWave::Streaming::Frame& frame, MMWave::TimeSpan timestamp) {
-    m_manager.update(frame, timestamp);
+    update(frame, timestamp, MMWave::Quaternion::identity());
+}
+
+void RadarData::update(const MMWave::Streaming::Frame& frame, MMWave::TimeSpan timestamp,
+                       MMWave::Quaternion leveling) {
+    m_manager.update(frame, timestamp, leveling);
+    onUpdated(timestamp);
+}
+
+void RadarData::skipFrame(MMWave::TimeSpan timestamp) {
+    m_manager.skipFrame(timestamp);
+    onUpdated(timestamp);
+}
+
+void RadarData::onUpdated(MMWave::TimeSpan timestamp) {
     m_lastUpdate = timestamp;
     raiseUpdated();
 }

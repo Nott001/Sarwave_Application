@@ -18,6 +18,7 @@ qt_add_qml_module(SarwaveDevEnv
         Gui/DialogSupport.hpp Gui/DialogSupport.cpp
         Gui/PortDialogue.hpp Gui/PortDialogue.cpp
         Gui/CfgDialogue.hpp Gui/CfgDialogue.cpp
+        Gui/ImuFrames.hpp Gui/ImuFrames.cpp
         Gui/Run.hpp Gui/RunRecorded.cpp Gui/RunStuff.cpp
     QML_FILES
         Gui/PortDialogueWindow.qml
@@ -30,7 +31,7 @@ target_include_directories(SarwaveDevEnv
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Gui)
 
 target_link_libraries(SarwaveDevEnv
-    PUBLIC SarwaveCoreGui SarwaveCoreMMWave Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick
+    PUBLIC SarwaveCoreGui SarwaveCoreMMWave SarwaveCoreImu Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick
     PRIVATE Qt6::QuickControls2)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")

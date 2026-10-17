@@ -11,15 +11,20 @@
 #include "DevEnv/ConfigMemory.hpp"
 #include "DevEnv/DevEnv.hpp"
 #include "DevEnv/Gui/CfgDialogue.hpp"
+#include "DevEnv/Gui/ImuFrames.hpp"
 #include "DevEnv/Gui/PortDialogue.hpp"
+#include "DevEnv/Gui/Run.hpp"
 #include "Gui/Common/DotNetRandom.hpp"
 #include "Gui/Models/RadarData.hpp"
+#include "Gui/ViewModels/MinimalGuiViewModel.hpp"
 #include "Gui/ViewModels/Object/ObjectsPanelViewModel.hpp"
 #include "Gui/ViewModels/Radar/RadarGridViewModel.hpp"
+#include "Gui/ViewModels/StatusViewModel.hpp"
 #include "Gui/Views/GuiHost.hpp"
 #include "Gui/Views/Radar/ColourManager.hpp"
 #include "Gui/Views/Radar/RadarGeometry.hpp"
 #include "Gui/Views/StringFormat.hpp"
+#include "MMWave/Exceptions/FrameMalformedException.hpp"
 #include "TestFramework.hpp"
 
 using namespace Sarwave::Core;
@@ -247,4 +252,66 @@ TEST_CASE("ConfigMemory writes config.json the way System.Text.Json does") {
     CHECK_EQ(ConfigMemory::serialize("a\"b\\c+<é>"),
              "{\n  \"CfgPath\": \"a\\u0022b\\\\c\\u002B\\u003C\\u00E9\\u003E\"\n}");
 #endif
+}
+
+TEST_CASE("Status shows HOLD STEADY over everything else while gating refuses frames") {
+    app();
+    ViewModels::StatusViewModel status;
+    CHECK(status.statusText() == QStringLiteral("SCANNING…"));
+    status.setPresenceDetected(true);
+    CHECK(status.statusText() == QStringLiteral("TARGET ACQUIRED"));
+    status.setHoldSteady(true);
+    CHECK(status.statusText() == QStringLiteral("HOLD STEADY"));
+    CHECK(status.badgeText() == QStringLiteral("DETECTED"));
+    status.setHoldSteady(false);
+    CHECK(status.statusText() == QStringLiteral("TARGET ACQUIRED"));
+}
+
+TEST_CASE("ImuFrames.Apply levels accepted frames, skips refused ones, and still reports damage") {
+    app();
+    using Sarwave::DevEnv::Gui::ImuFrames;
+    namespace Gating = Sarwave::Core::Imu::Gating;
+    Models::RadarData data(MMWave::TimeSpans::fromSeconds(1));
+    ViewModels::MinimalGuiViewModel viewModel(data);
+    int updates = 0;
+    const int token = data.subscribe([&] { updates++; });
+
+    // No IMU: applied as it is.
+    ImuFrames::apply(data, FrameBuilder().cloud(2).frame(0), MMWave::TimeSpan(0), std::nullopt);
+    CHECK_EQ(data.pointClouds().size(), std::size_t{1});
+    CHECK(!data.holdSteady());
+
+    // Refused (moving): skipped, with HOLD STEADY, but time still moves on.
+    Gating::ImuFrameState moving{.state = Gating::MotionGateState::Moving, .accepted = false};
+    ImuFrames::apply(data, FrameBuilder().cloud(2).frame(1), MMWave::TimeSpan(10), moving);
+    CHECK_EQ(data.pointClouds().size(), std::size_t{1});
+    CHECK(data.holdSteady());
+    CHECK(data.lastUpdate() == MMWave::TimeSpan(10));
+    processEvents();
+    CHECK(viewModel.status()->holdSteady());
+    CHECK(viewModel.status()->statusText() == QStringLiteral("HOLD STEADY"));
+
+    // A damaged frame is reported even while refused.
+    CHECK_THROWS_AS(ImuFrames::apply(data, FrameBuilder().cloud(2).detectedObjects(5).frame(2),
+                                     MMWave::TimeSpan(20), moving),
+                    MMWave::Exceptions::FrameEntryMalformedException);
+
+    // Accepted with a tilt: levelled.
+    Gating::ImuFrameState steady{.state = Gating::MotionGateState::Steady, .accepted = true};
+    ImuFrames::apply(data, FrameBuilder().cloud(1).frame(3), MMWave::TimeSpan(30), steady);
+    CHECK(!data.holdSteady());
+    CHECK_EQ(data.pointClouds().size(), std::size_t{2});
+    CHECK_EQ(updates, 3);
+    data.unsubscribe(token);
+}
+
+TEST_CASE("The session file lives in the user's local application data") {
+    const auto& path = Sarwave::DevEnv::Gui::RunRecorded::sessionFile();
+    CHECK(path.is_absolute());
+    CHECK_EQ(path.filename().string(), "default_session.swrec");
+    CHECK_EQ(path.parent_path().filename().string(), "Sarwave");
+    CHECK(std::filesystem::is_directory(path.parent_path()));
+    CHECK(Sarwave::DevEnv::Gui::parseImuMode("Required") ==
+          Sarwave::DevEnv::Gui::ImuMode::Required);
+    CHECK(!Sarwave::DevEnv::Gui::parseImuMode("maybe"));
 }

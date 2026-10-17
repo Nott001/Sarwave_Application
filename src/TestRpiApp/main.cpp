@@ -1,11 +1,11 @@
 // Sarwave.Source.TestRpiApp: opens MainWindow and, once it is shown, hands it to the dev
-// environment's run -- RunRecorded (replay default_session.swrec into the MaximalGui dashboard
+// environment's run -- RunRecorded (replay the recorded session into the MaximalGui dashboard
 // while logging every frame), exactly as the C# MainWindow.OnOpened does.
 //
 //   TestRpiApp          replay the recorded session (the C# app's behaviour)
 //   TestRpiApp --live   the live sensor run instead (RunStuff: port + cfg dialogues, MinimalGui,
-//                       recording to default_session.swrec). In the C# app this is the
-//                       commented-out alternative in MainWindow.axaml.cs.
+//                       recording to RunRecorded::sessionFile()). LiveRpiApp is the app made
+//                       for that; this flag predates it.
 
 #include <QGuiApplication>
 #include <QIcon>

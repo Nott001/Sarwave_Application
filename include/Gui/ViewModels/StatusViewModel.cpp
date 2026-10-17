@@ -10,6 +10,13 @@ void StatusViewModel::setPresenceDetected(bool value) {
     emit badgeTextChanged();
 }
 
+void StatusViewModel::setHoldSteady(bool value) {
+    if (m_holdSteady == value) return;
+    m_holdSteady = value;
+    emit holdSteadyChanged();
+    emit statusTextChanged();
+}
+
 void StatusViewModel::setLastUpdated(const QString& value) {
     if (m_lastUpdated == value) return;
     m_lastUpdated = value;
@@ -23,6 +30,7 @@ void StatusViewModel::setDeviceDescription(const QString& value) {
 }
 
 QString StatusViewModel::statusText() const {
+    if (m_holdSteady) return QStringLiteral("HOLD STEADY");
     return m_presenceDetected ? QStringLiteral("TARGET ACQUIRED") : QStringLiteral("SCANNING…");
 }
 
