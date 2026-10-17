@@ -11,6 +11,44 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 > Changes staged locally that have not yet been tagged as a release.
 
+### Added — C# changes of 2026-10-12 to 2026-10-16 ported
+- **IMU** (`include/Imu`, `SarwaveCoreImu`): the C# `Sarwave.Core.Imu` -- ICM-42688-P driver on
+  Linux spidev (detect, reset, configure, read back, FIFO drain), `ImuSampler` thread with
+  `FifoClock` clock recovery, `ImuProcessor` gyro-bias learning and complementary filter,
+  `TiltCorrection`, `ImuTimeline`, `MotionGate` (average-motion gating with jolt limits,
+  hysteresis and settling), `.swimu` recorder/loader, `ImuSession`. Unit tests ported one to one.
+- **Malformed frames**: `FrameMalformedException`, `FrameReaderMalformedException`,
+  `FrameEntryMalformedException`. `FrameReader` rejects implausible headers, unaligned lengths,
+  broken TLV chains and interrupted packets, and keeps a borrowed partial magic word for the next
+  packet. `EntryPackage::unpack` validates every frame against what the device can send.
+  `ConstantCapture` and `FramePlayback` report them through a malformed callback and carry on.
+- `.swrec` **version 2**: malformed-frame notes (`FrameRecorder::recordMalformed`,
+  `FrameRecording::malformedFrames`), replayed by `FramePlayback`. Version 1 is still read.
+  Every frame is flushed to the OS as it is recorded.
+- `CombinedManager`: point leveling (`Quaternion`), `skipFrame`, and no stale index association
+  after a missed frame. `RadarData::holdSteady`/`skipFrame`; **HOLD STEADY** status.
+- `ImuFrames` (DevEnv). `RunStuff` gates and levels each frame, records the `.swimu` sidecar,
+  prints malformed frames, failures and IMU errors to stderr. `RunRecorded` replays with the
+  recorded gate (`FramePlayback::recordedTimestamp`).
+- `LiveRpiApp` and `RecordedRpiApp`. The session file moved to
+  `~/.local/share/Sarwave/default_session.swrec`, shared with the C# apps.
+- Parity: the reader harness reports skipped packets; new IMU harness and C# twin
+  (`src/tests/Parity/csharp-imu`); regenerated fixtures (`tools/fixup_recording.py`,
+  `tools/generate_stream.py`, `tools/generate_imu_recording.py`).
+- Docs: `docs/pi_frame_corruption.md`, `docs/recorded_data.txt`, `docs/user_guide.txt`.
+
+### Changed — the frame corruption plan, implemented
+- `ConstantCapture` reads on its own thread and runs callbacks on a worker thread, joined by a
+  bounded queue. Frames are stamped on arrival, and errors travel in order with them. An overflow
+  drops the oldest frame and is reported through `onDropped`, apart from malformed frames.
+  `elapsed()`, `skippedFrames()`, `droppedFrames()`, `onCompleted`, `waitForCompletion()`.
+- Frame callbacks take the arrival timestamp: `(const Frame&, TimeSpan)`.
+- `RunStuff::onOpened(..., printFrames)`: verbose frame printing is separate from recording and
+  off by default (`LiveRpiApp --print-frames`).
+- `-ffp-contract=off`, and `Numerics.hpp` computes quaternions the way .NET 10 does, so the
+  Pi build, the PC build and the C# app agree to the last bit.
+- `tools/generate_recording.py` pads frames to 32 bytes like the device.
+
 ### Changed — C++ port of the C# SarwaveApplication
 - The whole C++ code base is replaced by a port of the C# solution (`SarwaveApplication/`), one
   CMake target per C# project: `SarwaveCoreMMWave`, `SarwaveCoreMMWaveConfig`, `SarwaveCoreGui`,
