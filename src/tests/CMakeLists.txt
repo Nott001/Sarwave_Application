@@ -17,6 +17,7 @@ endfunction()
 
 sarwave_add_test_suite(CoreTests Core SarwaveCoreMMWave)
 sarwave_add_test_suite(ConfigTests Config SarwaveCoreMMWaveConfig)
+sarwave_add_test_suite(ImuTests Imu SarwaveCoreImu)
 if(SARWAVE_BUILD_GUI)
     sarwave_add_test_suite(GuiTests Gui SarwaveCoreGui SarwaveDevEnv Qt6::Test)
 endif()
@@ -25,6 +26,15 @@ endif()
 # (see src/tests/Parity/README.md), and the two outputs are diffed to prove the port matches.
 add_executable(CoreParityHarness ${CMAKE_CURRENT_SOURCE_DIR}/Parity/CoreParityHarness.cpp)
 target_link_libraries(CoreParityHarness PRIVATE SarwaveCoreMMWave)
+
+# The IMU library's parity harness: fusion, gating and .swimu I/O (see Parity/README.md).
+add_executable(ImuParityHarness ${CMAKE_CURRENT_SOURCE_DIR}/Parity/ImuParityHarness.cpp)
+target_link_libraries(ImuParityHarness PRIVATE SarwaveCoreImu SarwaveCoreMMWave)
+if(TARGET ImuTests)
+    add_dependencies(ImuTests ImuParityHarness)
+    target_compile_definitions(ImuTests PRIVATE
+        SARWAVE_IMU_HARNESS="$<TARGET_FILE:ImuParityHarness>")
+endif()
 
 # The .cfg model's parity harness (see Parity/README.md).
 add_executable(ConfigParityHarness ${CMAKE_CURRENT_SOURCE_DIR}/Parity/ConfigParityHarness.cpp)

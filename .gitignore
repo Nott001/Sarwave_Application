@@ -27,3 +27,8 @@ src/tests/Parity/csharp/bin/
 src/tests/Parity/csharp/obj/
 src/tests/Parity/csharp-config/bin/
 src/tests/Parity/csharp-config/obj/
+src/tests/Parity/csharp-imu/bin/
+src/tests/Parity/csharp-imu/obj/
+
+# Python bytecode
+__pycache__/

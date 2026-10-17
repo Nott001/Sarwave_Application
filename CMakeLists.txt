@@ -4,6 +4,7 @@ project(SarwaveApp VERSION 0.2 LANGUAGES CXX)
 # C++ port of the SarwaveApplication C# solution. Each C# project has a counterpart here:
 #
 #   Sarwave.Core.MMWave         -> include/MMWave   (SarwaveCoreMMWave, SarwaveCoreMMWaveConfig)
+#   Sarwave.Core.Imu            -> include/Imu      (SarwaveCoreImu)
 #   Sarwave.Core.Gui            -> include/Gui      (SarwaveCoreGui)
 #   Sarwave.DevEnv              -> include/DevEnv   (SarwaveDevEnv)
 #   Sarwave.Source.Terminal     -> src/Terminal     (SarwaveTerminal)
@@ -12,6 +13,13 @@ project(SarwaveApp VERSION 0.2 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+# No fused multiply-add contraction: .NET never contracts a * b + c, and GCC does by default on
+# aarch64 (the Raspberry Pi), which would make the float results differ from the C# app's in the
+# last bit there but not on x86.
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(-ffp-contract=off)
+endif()
 
 # Enable compile_commands.json for IDEs
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -32,6 +40,7 @@ endif()
 enable_testing()
 
 add_subdirectory(include/MMWave)
+add_subdirectory(include/Imu)
 add_subdirectory(src/Terminal)
 
 if(SARWAVE_BUILD_GUI)

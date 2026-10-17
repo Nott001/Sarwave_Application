@@ -1,0 +1,216 @@
+000 EXCEPTION System.ArgumentException: (PositiveX, PositiveX, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+001 EXCEPTION System.ArgumentException: (PositiveX, PositiveX, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+002 EXCEPTION System.ArgumentException: (PositiveX, PositiveX, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+003 EXCEPTION System.ArgumentException: (PositiveX, PositiveX, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+004 EXCEPTION System.ArgumentException: (PositiveX, PositiveX, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+005 EXCEPTION System.ArgumentException: (PositiveX, PositiveX, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+010 EXCEPTION System.ArgumentException: (PositiveX, NegativeX, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+011 EXCEPTION System.ArgumentException: (PositiveX, NegativeX, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+012 EXCEPTION System.ArgumentException: (PositiveX, NegativeX, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+013 EXCEPTION System.ArgumentException: (PositiveX, NegativeX, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+014 EXCEPTION System.ArgumentException: (PositiveX, NegativeX, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+015 EXCEPTION System.ArgumentException: (PositiveX, NegativeX, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+020 EXCEPTION System.ArgumentException: (PositiveX, PositiveY, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+021 EXCEPTION System.ArgumentException: (PositiveX, PositiveY, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+022 EXCEPTION System.ArgumentException: (PositiveX, PositiveY, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+023 EXCEPTION System.ArgumentException: (PositiveX, PositiveY, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+024 0,0,0,1 x=1,0,0 t=-0.024968198,-0.014980918,0,0.99957603
+025 EXCEPTION System.ArgumentException: (PositiveX, PositiveY, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+030 EXCEPTION System.ArgumentException: (PositiveX, NegativeY, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+031 EXCEPTION System.ArgumentException: (PositiveX, NegativeY, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+032 EXCEPTION System.ArgumentException: (PositiveX, NegativeY, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+033 EXCEPTION System.ArgumentException: (PositiveX, NegativeY, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+034 EXCEPTION System.ArgumentException: (PositiveX, NegativeY, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+035 1,0,0,0 x=1,0,0 t=0.99957603,0,0.014980918,0.024968198
+040 EXCEPTION System.ArgumentException: (PositiveX, PositiveZ, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+041 EXCEPTION System.ArgumentException: (PositiveX, PositiveZ, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+042 EXCEPTION System.ArgumentException: (PositiveX, PositiveZ, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+043 -0.7071068,0,0,0.7071068 x=1.0000001,0,0 t=-0.7244622,-0.010593109,-0.010593109,0.6891518
+044 EXCEPTION System.ArgumentException: (PositiveX, PositiveZ, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+045 EXCEPTION System.ArgumentException: (PositiveX, PositiveZ, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+050 EXCEPTION System.ArgumentException: (PositiveX, NegativeZ, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+051 EXCEPTION System.ArgumentException: (PositiveX, NegativeZ, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+052 0.7071068,0,0,0.7071068 x=1.0000001,0,0 t=0.6891518,-0.010593109,0.010593109,0.7244622
+053 EXCEPTION System.ArgumentException: (PositiveX, NegativeZ, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+054 EXCEPTION System.ArgumentException: (PositiveX, NegativeZ, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+055 EXCEPTION System.ArgumentException: (PositiveX, NegativeZ, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+100 EXCEPTION System.ArgumentException: (NegativeX, PositiveX, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+101 EXCEPTION System.ArgumentException: (NegativeX, PositiveX, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+102 EXCEPTION System.ArgumentException: (NegativeX, PositiveX, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+103 EXCEPTION System.ArgumentException: (NegativeX, PositiveX, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+104 EXCEPTION System.ArgumentException: (NegativeX, PositiveX, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+105 EXCEPTION System.ArgumentException: (NegativeX, PositiveX, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+110 EXCEPTION System.ArgumentException: (NegativeX, NegativeX, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+111 EXCEPTION System.ArgumentException: (NegativeX, NegativeX, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+112 EXCEPTION System.ArgumentException: (NegativeX, NegativeX, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+113 EXCEPTION System.ArgumentException: (NegativeX, NegativeX, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+114 EXCEPTION System.ArgumentException: (NegativeX, NegativeX, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+115 EXCEPTION System.ArgumentException: (NegativeX, NegativeX, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+120 EXCEPTION System.ArgumentException: (NegativeX, PositiveY, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+121 EXCEPTION System.ArgumentException: (NegativeX, PositiveY, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+122 EXCEPTION System.ArgumentException: (NegativeX, PositiveY, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+123 EXCEPTION System.ArgumentException: (NegativeX, PositiveY, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+124 EXCEPTION System.ArgumentException: (NegativeX, PositiveY, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+125 0,1,0,0 x=-1,0,0 t=0,0.99957603,-0.024968198,0.014980918
+130 EXCEPTION System.ArgumentException: (NegativeX, NegativeY, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+131 EXCEPTION System.ArgumentException: (NegativeX, NegativeY, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+132 EXCEPTION System.ArgumentException: (NegativeX, NegativeY, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+133 EXCEPTION System.ArgumentException: (NegativeX, NegativeY, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+134 0,0,1,0 x=-1,0,0 t=-0.014980918,0.024968198,0.99957603,0
+135 EXCEPTION System.ArgumentException: (NegativeX, NegativeY, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+140 EXCEPTION System.ArgumentException: (NegativeX, PositiveZ, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+141 EXCEPTION System.ArgumentException: (NegativeX, PositiveZ, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+142 0,0.7071068,0.7071068,0 x=-1.0000001,0,0 t=-0.010593109,0.7244622,0.6891518,0.010593109
+143 EXCEPTION System.ArgumentException: (NegativeX, PositiveZ, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+144 EXCEPTION System.ArgumentException: (NegativeX, PositiveZ, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+145 EXCEPTION System.ArgumentException: (NegativeX, PositiveZ, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+150 EXCEPTION System.ArgumentException: (NegativeX, NegativeZ, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+151 EXCEPTION System.ArgumentException: (NegativeX, NegativeZ, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+152 EXCEPTION System.ArgumentException: (NegativeX, NegativeZ, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+153 0,-0.7071068,0.7071068,0 x=-1.0000001,0,0 t=-0.010593109,-0.6891518,0.7244622,-0.010593109
+154 EXCEPTION System.ArgumentException: (NegativeX, NegativeZ, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+155 EXCEPTION System.ArgumentException: (NegativeX, NegativeZ, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+200 EXCEPTION System.ArgumentException: (PositiveY, PositiveX, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+201 EXCEPTION System.ArgumentException: (PositiveY, PositiveX, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+202 EXCEPTION System.ArgumentException: (PositiveY, PositiveX, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+203 EXCEPTION System.ArgumentException: (PositiveY, PositiveX, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+204 EXCEPTION System.ArgumentException: (PositiveY, PositiveX, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+205 0.7071068,0.7071068,0,0 x=0,1.0000001,0 t=0.706807,0.706807,-0.007062074,0.028248291
+210 EXCEPTION System.ArgumentException: (PositiveY, NegativeX, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+211 EXCEPTION System.ArgumentException: (PositiveY, NegativeX, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+212 EXCEPTION System.ArgumentException: (PositiveY, NegativeX, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+213 EXCEPTION System.ArgumentException: (PositiveY, NegativeX, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+214 0,0,-0.7071068,0.7071068 x=0,-1.0000001,0 t=-0.007062074,-0.028248291,-0.706807,0.706807
+215 EXCEPTION System.ArgumentException: (PositiveY, NegativeX, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+220 EXCEPTION System.ArgumentException: (PositiveY, PositiveY, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+221 EXCEPTION System.ArgumentException: (PositiveY, PositiveY, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+222 EXCEPTION System.ArgumentException: (PositiveY, PositiveY, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+223 EXCEPTION System.ArgumentException: (PositiveY, PositiveY, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+224 EXCEPTION System.ArgumentException: (PositiveY, PositiveY, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+225 EXCEPTION System.ArgumentException: (PositiveY, PositiveY, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+230 EXCEPTION System.ArgumentException: (PositiveY, NegativeY, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+231 EXCEPTION System.ArgumentException: (PositiveY, NegativeY, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+232 EXCEPTION System.ArgumentException: (PositiveY, NegativeY, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+233 EXCEPTION System.ArgumentException: (PositiveY, NegativeY, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+234 EXCEPTION System.ArgumentException: (PositiveY, NegativeY, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+235 EXCEPTION System.ArgumentException: (PositiveY, NegativeY, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+240 0.5,0.5,0.5,-0.5 x=0,0,1 t=0.50478166,0.5197626,0.49479437,-0.47981346
+241 EXCEPTION System.ArgumentException: (PositiveY, PositiveZ, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+242 EXCEPTION System.ArgumentException: (PositiveY, PositiveZ, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+243 EXCEPTION System.ArgumentException: (PositiveY, PositiveZ, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+244 EXCEPTION System.ArgumentException: (PositiveY, PositiveZ, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+245 EXCEPTION System.ArgumentException: (PositiveY, PositiveZ, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+250 EXCEPTION System.ArgumentException: (PositiveY, NegativeZ, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+251 0.5,0.5,-0.5,0.5 x=0,0,-1 t=0.49479437,0.47981346,-0.50478166,0.5197626
+252 EXCEPTION System.ArgumentException: (PositiveY, NegativeZ, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+253 EXCEPTION System.ArgumentException: (PositiveY, NegativeZ, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+254 EXCEPTION System.ArgumentException: (PositiveY, NegativeZ, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+255 EXCEPTION System.ArgumentException: (PositiveY, NegativeZ, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+300 EXCEPTION System.ArgumentException: (NegativeY, PositiveX, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+301 EXCEPTION System.ArgumentException: (NegativeY, PositiveX, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+302 EXCEPTION System.ArgumentException: (NegativeY, PositiveX, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+303 EXCEPTION System.ArgumentException: (NegativeY, PositiveX, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+304 0,0,0.7071068,0.7071068 x=0,1.0000001,0 t=-0.028248291,0.007062074,0.706807,0.706807
+305 EXCEPTION System.ArgumentException: (NegativeY, PositiveX, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+310 EXCEPTION System.ArgumentException: (NegativeY, NegativeX, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+311 EXCEPTION System.ArgumentException: (NegativeY, NegativeX, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+312 EXCEPTION System.ArgumentException: (NegativeY, NegativeX, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+313 EXCEPTION System.ArgumentException: (NegativeY, NegativeX, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+314 EXCEPTION System.ArgumentException: (NegativeY, NegativeX, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+315 0.7071068,-0.7071068,0,0 x=0,-1.0000001,0 t=0.706807,-0.706807,0.028248291,0.007062074
+320 EXCEPTION System.ArgumentException: (NegativeY, PositiveY, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+321 EXCEPTION System.ArgumentException: (NegativeY, PositiveY, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+322 EXCEPTION System.ArgumentException: (NegativeY, PositiveY, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+323 EXCEPTION System.ArgumentException: (NegativeY, PositiveY, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+324 EXCEPTION System.ArgumentException: (NegativeY, PositiveY, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+325 EXCEPTION System.ArgumentException: (NegativeY, PositiveY, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+330 EXCEPTION System.ArgumentException: (NegativeY, NegativeY, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+331 EXCEPTION System.ArgumentException: (NegativeY, NegativeY, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+332 EXCEPTION System.ArgumentException: (NegativeY, NegativeY, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+333 EXCEPTION System.ArgumentException: (NegativeY, NegativeY, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+334 EXCEPTION System.ArgumentException: (NegativeY, NegativeY, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+335 EXCEPTION System.ArgumentException: (NegativeY, NegativeY, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+340 EXCEPTION System.ArgumentException: (NegativeY, PositiveZ, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+341 0.5,-0.5,-0.5,-0.5 x=0,0,-1 t=0.5197626,-0.50478166,-0.47981346,-0.49479437
+342 EXCEPTION System.ArgumentException: (NegativeY, PositiveZ, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+343 EXCEPTION System.ArgumentException: (NegativeY, PositiveZ, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+344 EXCEPTION System.ArgumentException: (NegativeY, PositiveZ, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+345 EXCEPTION System.ArgumentException: (NegativeY, PositiveZ, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+350 0.5,-0.5,0.5,0.5 x=0,0,1 t=0.47981346,-0.49479437,0.5197626,0.50478166
+351 EXCEPTION System.ArgumentException: (NegativeY, NegativeZ, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+352 EXCEPTION System.ArgumentException: (NegativeY, NegativeZ, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+353 EXCEPTION System.ArgumentException: (NegativeY, NegativeZ, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+354 EXCEPTION System.ArgumentException: (NegativeY, NegativeZ, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+355 EXCEPTION System.ArgumentException: (NegativeY, NegativeZ, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+400 EXCEPTION System.ArgumentException: (PositiveZ, PositiveX, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+401 EXCEPTION System.ArgumentException: (PositiveZ, PositiveX, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+402 0.5,0.5,0.5,0.5 x=0,1,0 t=0.47981346,0.50478166,0.49479437,0.5197626
+403 EXCEPTION System.ArgumentException: (PositiveZ, PositiveX, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+404 EXCEPTION System.ArgumentException: (PositiveZ, PositiveX, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+405 EXCEPTION System.ArgumentException: (PositiveZ, PositiveX, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+410 EXCEPTION System.ArgumentException: (PositiveZ, NegativeX, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+411 EXCEPTION System.ArgumentException: (PositiveZ, NegativeX, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+412 EXCEPTION System.ArgumentException: (PositiveZ, NegativeX, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+413 0.5,-0.5,0.5,-0.5 x=0,-1,0 t=0.50478166,-0.47981346,0.5197626,-0.49479437
+414 EXCEPTION System.ArgumentException: (PositiveZ, NegativeX, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+415 EXCEPTION System.ArgumentException: (PositiveZ, NegativeX, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+420 EXCEPTION System.ArgumentException: (PositiveZ, PositiveY, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+421 0,0.7071068,0,0.7071068 x=0,0,-1.0000001 t=-0.01765518,0.69621384,-0.01765518,0.7174001
+422 EXCEPTION System.ArgumentException: (PositiveZ, PositiveY, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+423 EXCEPTION System.ArgumentException: (PositiveZ, PositiveY, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+424 EXCEPTION System.ArgumentException: (PositiveZ, PositiveY, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+425 EXCEPTION System.ArgumentException: (PositiveZ, PositiveY, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+430 0.7071068,0,0.7071068,0 x=0,0,1.0000001 t=0.69621384,0.01765518,0.7174001,0.01765518
+431 EXCEPTION System.ArgumentException: (PositiveZ, NegativeY, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+432 EXCEPTION System.ArgumentException: (PositiveZ, NegativeY, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+433 EXCEPTION System.ArgumentException: (PositiveZ, NegativeY, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+434 EXCEPTION System.ArgumentException: (PositiveZ, NegativeY, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+435 EXCEPTION System.ArgumentException: (PositiveZ, NegativeY, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+440 EXCEPTION System.ArgumentException: (PositiveZ, PositiveZ, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+441 EXCEPTION System.ArgumentException: (PositiveZ, PositiveZ, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+442 EXCEPTION System.ArgumentException: (PositiveZ, PositiveZ, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+443 EXCEPTION System.ArgumentException: (PositiveZ, PositiveZ, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+444 EXCEPTION System.ArgumentException: (PositiveZ, PositiveZ, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+445 EXCEPTION System.ArgumentException: (PositiveZ, PositiveZ, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+450 EXCEPTION System.ArgumentException: (PositiveZ, NegativeZ, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+451 EXCEPTION System.ArgumentException: (PositiveZ, NegativeZ, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+452 EXCEPTION System.ArgumentException: (PositiveZ, NegativeZ, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+453 EXCEPTION System.ArgumentException: (PositiveZ, NegativeZ, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+454 EXCEPTION System.ArgumentException: (PositiveZ, NegativeZ, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+455 EXCEPTION System.ArgumentException: (PositiveZ, NegativeZ, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+500 EXCEPTION System.ArgumentException: (NegativeZ, PositiveX, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+501 EXCEPTION System.ArgumentException: (NegativeZ, PositiveX, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+502 EXCEPTION System.ArgumentException: (NegativeZ, PositiveX, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+503 0.5,0.5,-0.5,-0.5 x=0,1,0 t=0.5197626,0.49479437,-0.50478166,-0.47981346
+504 EXCEPTION System.ArgumentException: (NegativeZ, PositiveX, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+505 EXCEPTION System.ArgumentException: (NegativeZ, PositiveX, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+510 EXCEPTION System.ArgumentException: (NegativeZ, NegativeX, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+511 EXCEPTION System.ArgumentException: (NegativeZ, NegativeX, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+512 0.5,-0.5,-0.5,0.5 x=0,-1,0 t=0.49479437,-0.5197626,-0.47981346,0.50478166
+513 EXCEPTION System.ArgumentException: (NegativeZ, NegativeX, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+514 EXCEPTION System.ArgumentException: (NegativeZ, NegativeX, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+515 EXCEPTION System.ArgumentException: (NegativeZ, NegativeX, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+520 0,-0.7071068,0,0.7071068 x=0,0,1.0000001 t=-0.01765518,-0.7174001,0.01765518,0.69621384
+521 EXCEPTION System.ArgumentException: (NegativeZ, PositiveY, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+522 EXCEPTION System.ArgumentException: (NegativeZ, PositiveY, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+523 EXCEPTION System.ArgumentException: (NegativeZ, PositiveY, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+524 EXCEPTION System.ArgumentException: (NegativeZ, PositiveY, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+525 EXCEPTION System.ArgumentException: (NegativeZ, PositiveY, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+530 EXCEPTION System.ArgumentException: (NegativeZ, NegativeY, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+531 0.7071068,0,-0.7071068,0 x=0,0,-1.0000001 t=0.7174001,-0.01765518,-0.69621384,0.01765518
+532 EXCEPTION System.ArgumentException: (NegativeZ, NegativeY, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+533 EXCEPTION System.ArgumentException: (NegativeZ, NegativeY, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+534 EXCEPTION System.ArgumentException: (NegativeZ, NegativeY, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+535 EXCEPTION System.ArgumentException: (NegativeZ, NegativeY, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+540 EXCEPTION System.ArgumentException: (NegativeZ, PositiveZ, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+541 EXCEPTION System.ArgumentException: (NegativeZ, PositiveZ, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+542 EXCEPTION System.ArgumentException: (NegativeZ, PositiveZ, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+543 EXCEPTION System.ArgumentException: (NegativeZ, PositiveZ, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+544 EXCEPTION System.ArgumentException: (NegativeZ, PositiveZ, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+545 EXCEPTION System.ArgumentException: (NegativeZ, PositiveZ, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+550 EXCEPTION System.ArgumentException: (NegativeZ, NegativeZ, PositiveX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+551 EXCEPTION System.ArgumentException: (NegativeZ, NegativeZ, NegativeX) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+552 EXCEPTION System.ArgumentException: (NegativeZ, NegativeZ, PositiveY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+553 EXCEPTION System.ArgumentException: (NegativeZ, NegativeZ, NegativeY) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+554 EXCEPTION System.ArgumentException: (NegativeZ, NegativeZ, PositiveZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
+555 EXCEPTION System.ArgumentException: (NegativeZ, NegativeZ, NegativeZ) is not a rotation: the axes must be distinct and right-handed (right × forward = up).
