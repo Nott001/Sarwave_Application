@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Writes a synthetic 3D People Tracking session in the .swrec recording format.
 
-TestRpiApp (like the C# Sarwave.Source.TestRpiApp) replays `default_session.swrec` from its
-working directory; the live app (RunStuff) records one from the sensor. Without a sensor at hand,
-this script produces a believable stand-in:
+RecordedRpiApp and TestRpiApp (like their C# counterparts) replay `default_session.swrec` from
+the `Sarwave` folder of the user's local application data (~/.local/share/Sarwave on Linux); the
+live app (RunStuff) records one there from the sensor. Without a sensor at hand, this script
+produces a believable stand-in:
 
-    python3 tools/generate_recording.py default_session.swrec
+    python3 tools/generate_recording.py ~/.local/share/Sarwave/default_session.swrec
     python3 tools/generate_recording.py out.swrec --frames 400 --seed 7
 
 Every frame carries the TLVs the IWR6843 people tracking demo sends: target list (1010), target

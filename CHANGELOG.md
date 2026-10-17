@@ -35,7 +35,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Parity: the reader harness reports skipped packets; new IMU harness and C# twin
   (`src/tests/Parity/csharp-imu`); regenerated fixtures (`tools/fixup_recording.py`,
   `tools/generate_stream.py`, `tools/generate_imu_recording.py`).
-- Docs: `docs/pi_frame_corruption.md`, `docs/recorded_data.txt`, `docs/user_guide.txt`.
+- Docs: `docs/pi_frame_corruption.md`, `docs/recorded_data.txt`, `docs/user_guide.txt`, and
+  TI's mmWave SDK user guide and people tracking tuning guides (PDF).
 
 ### Changed — speed
 - Release is the default build type (Debug does the per-frame work about five times slower).
