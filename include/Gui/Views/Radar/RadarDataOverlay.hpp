@@ -3,8 +3,11 @@
 #include <QtQml/qqmlregistration.h>
 
 #include <QColor>
+#include <QImage>
 #include <QPointer>
 #include <QQuickPaintedItem>
+#include <array>
+#include <vector>
 
 #include "Gui/ViewModels/Radar/RadarSnapshot.hpp"
 #include "Gui/Views/Radar/ColourManager.hpp"
@@ -45,6 +48,22 @@ class RadarDataOverlay : public QQuickPaintedItem {
     void changed();
 
    private:
+    /// Sub-pixel positions each dot is pre-drawn at, per axis.
+    static constexpr int DotPhases = 8;
+
+    /// One colour's point dot, pre-drawn (antialiased, as drawEllipse would) at every sub-pixel
+    /// phase. Copying these is several times faster than rasterising thousands of small
+    /// ellipses each frame, and looks the same: positions are kept to 1/DotPhases of a pixel.
+    struct DotSprites {
+        QRgb colour;
+        double offset;  // from a sprite's top-left corner to the dot's centre at phase 0
+        std::array<QImage, DotPhases * DotPhases> phases;
+    };
+
+    const DotSprites& dotSprites(const QColor& colour, double deviceRadius);
+    void paintPoints(QPainter* painter);
+    void paintPointsSlow(QPainter* painter);
+
     RadarGeometry m_geometry;
     ViewModels::Radar::RadarSnapshotPtr m_snapshot;
     QColor m_droppedTarget{QStringLiteral("#91a4c2")};
@@ -54,6 +73,9 @@ class RadarDataOverlay : public QQuickPaintedItem {
     double m_labelFontSize = 9;
     QPointer<ColourManager> m_colours;
     QMetaObject::Connection m_coloursConnection;
+
+    std::vector<DotSprites> m_dotSprites;  // a dozen colours at most: searched in order
+    double m_dotSpriteRadius = 0;          // the device radius m_dotSprites were drawn for
 };
 
 }  // namespace Sarwave::Core::Gui::Views::Radar

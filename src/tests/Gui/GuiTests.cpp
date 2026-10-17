@@ -1,9 +1,12 @@
 #include <QCoreApplication>
 #include <QElapsedTimer>
 #include <QGuiApplication>
+#include <QImage>
+#include <QPainter>
 #include <QQmlEngine>
 #include <QQuickWindow>
 #include <QTimer>
+#include <algorithm>
 #include <cmath>
 #include <memory>
 
@@ -22,6 +25,7 @@
 #include "Gui/ViewModels/StatusViewModel.hpp"
 #include "Gui/Views/GuiHost.hpp"
 #include "Gui/Views/Radar/ColourManager.hpp"
+#include "Gui/Views/Radar/RadarDataOverlay.hpp"
 #include "Gui/Views/Radar/RadarGeometry.hpp"
 #include "Gui/Views/StringFormat.hpp"
 #include "MMWave/Exceptions/FrameMalformedException.hpp"
@@ -186,6 +190,71 @@ TEST_CASE("Live view models follow RadarData across threads") {
     data.update(FrameBuilder().targets({5}).heights({5}, 1.7f, 0.2f).frame(1),
                 MMWave::TimeSpan(100));
     processEvents();
+}
+
+TEST_CASE("RadarDataOverlay's point sprites look like the ellipses they replace") {
+    app();
+    using namespace ViewModels::Radar;
+
+    // A busy frame's worth of clouds: 18 clouds fading out, 8 targets and some rejected points.
+    Common::DotNetRandom random(3);
+    std::vector<PointCloudSnapshot> clouds;
+    for (int c = 0; c < 18; c++) {
+        std::vector<PointGroupSnapshot> groups;
+        for (int id = -3; id < 8; id++) {
+            const MMWave::Vector3 centre{(random.nextSingle() - 0.5f) * 8,
+                                         random.nextSingle() * 10 + 0.5f, 0};
+            std::vector<MMWave::Vector3> points;
+            for (int k = 0; k < 14; k++) {
+                points.push_back(centre + MMWave::Vector3{(random.nextSingle() - 0.5f) * 0.6f,
+                                                          (random.nextSingle() - 0.5f) * 0.6f, 0});
+            }
+            groups.push_back({id, std::move(points)});
+        }
+        clouds.push_back({1.0f - static_cast<float>(c + 1) / 18, std::move(groups)});
+    }
+    const auto snapshot =
+        std::make_shared<const RadarSnapshot>(std::vector<TargetSnapshot>{}, std::move(clouds));
+
+    Views::Radar::RadarDataOverlay overlay;
+    Views::Radar::RadarGeometry geometry;
+    geometry.maxRange = 12;
+    geometry.origin = QPointF(400, 470);
+    geometry.scale = 38;
+    overlay.setProperty("geometry", QVariant::fromValue(geometry));
+    overlay.setProperty("snapshot", QVariant::fromValue(snapshot));
+
+    const auto render = [&](const QTransform& transform) {
+        QImage image(800, 480, QImage::Format_ARGB32_Premultiplied);
+        image.fill(Qt::transparent);
+        QPainter painter(&image);
+        painter.setWorldTransform(transform);
+        overlay.paint(&painter);
+        return image;
+    };
+    const QImage sprites = render(QTransform());
+    // A not quite even scale takes the ellipse path, at what is the same size to the eye.
+    const QImage ellipses = render(QTransform::fromScale(1 + 1e-9, 1));
+
+    int worst = 0;
+    double total = 0;
+    int drawn = 0;
+    for (int y = 0; y < sprites.height(); y++) {
+        const auto* a = reinterpret_cast<const QRgb*>(sprites.constScanLine(y));
+        const auto* b = reinterpret_cast<const QRgb*>(ellipses.constScanLine(y));
+        for (int x = 0; x < sprites.width(); x++) {
+            const int d = std::max(
+                {std::abs(qRed(a[x]) - qRed(b[x])), std::abs(qGreen(a[x]) - qGreen(b[x])),
+                 std::abs(qBlue(a[x]) - qBlue(b[x])), std::abs(qAlpha(a[x]) - qAlpha(b[x]))});
+            worst = std::max(worst, d);
+            total += d;
+            if (qAlpha(b[x]) != 0) drawn++;
+        }
+    }
+
+    REQUIRE(drawn > 5000);
+    CHECK(worst <= 40);          // of 255, at the edge of a dot moved by 1/16 pixel
+    CHECK(total / drawn < 4.0);  // on average, invisible
 }
 
 TEST_CASE("The dashboards load into a window and replace each other") {
