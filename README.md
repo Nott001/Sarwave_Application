@@ -39,7 +39,8 @@ QT_QPA_PLATFORM=offscreen ctest --test-dir build --output-on-failure
 
 Build the Pi's binaries in Release (the default). A Debug build does the per-frame work about
 five times slower. `-DSARWAVE_NATIVE_CPU=ON` also tunes the code for the CPU it is built on; the
-gain is small and those binaries may not run on another machine.
+gain is small and those binaries may not run on another machine. `-DSARWAVE_LTO=ON` turns on
+link-time optimisation; it measured no faster here and makes rebuilds much slower, so it is off.
 
 ## Run
 

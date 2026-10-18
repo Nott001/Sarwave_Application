@@ -40,7 +40,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed — speed
 - Release is the default build type (Debug does the per-frame work about five times slower).
-  `-DSARWAVE_NATIVE_CPU=ON` tunes for the building CPU.
+  `-DSARWAVE_NATIVE_CPU=ON` tunes for the building CPU; `-DSARWAVE_LTO=ON` turns on link-time
+  optimisation (off by default: no measurable gain, much slower rebuilds).
 - `ConstantCapture::readerPriority` / `ImuSampler::priority`: real-time (SCHED_FIFO) threads when
   the system allows it; `LiveRpiApp` asks for them and says how to allow it when refused.
 - The view models hand the UI thread only the newest snapshot, target list and status

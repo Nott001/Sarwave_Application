@@ -42,6 +42,24 @@ if(SARWAVE_NATIVE_CPU AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     endif()
 endif()
 
+# Link-time optimisation: the compiler sees the whole program at once, so it can inline across
+# libraries (the MMWave and IMU code into the apps). Non-Debug builds only. Measured with
+# SarwaveBench it made no difference beyond noise (worker ~19 us per frame either way; the paint
+# time is spent inside Qt, which it doesn't touch), while a one-file rebuild went from ~3 s to
+# ~40 s. So it is off by default; turn on with -DSARWAVE_LTO=ON.
+option(SARWAVE_LTO "Link-time optimisation in non-Debug builds" OFF)
+if(SARWAVE_LTO)
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT sarwave_ipo_supported OUTPUT sarwave_ipo_error LANGUAGES CXX)
+    if(sarwave_ipo_supported)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
+    else()
+        message(STATUS "Link-time optimisation not supported here: ${sarwave_ipo_error}")
+    endif()
+endif()
+
 # Enable compile_commands.json for IDEs
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
