@@ -35,6 +35,11 @@ struct RunStuff {
     static void onOpened(QQuickWindow& window, QQmlEngine& engine, bool printFrames = false);
 
     static void onClosed();
+
+    /// Every 10 seconds, print how long the worker took per frame, how long frames waited for it,
+    /// and how long drawing the radar view took (LiveRpiApp --timing). Set before onOpened. The
+    /// measuring costs well under a microsecond per frame and never touches the reader thread.
+    static bool timingReport;
 };
 
 }  // namespace Sarwave::DevEnv::Gui

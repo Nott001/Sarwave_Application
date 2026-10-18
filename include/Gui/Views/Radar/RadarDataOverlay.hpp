@@ -12,6 +12,7 @@
 #include "Gui/ViewModels/Radar/RadarSnapshot.hpp"
 #include "Gui/Views/Radar/ColourManager.hpp"
 #include "Gui/Views/Radar/RadarGeometry.hpp"
+#include "MMWave/Common/DurationStats.hpp"
 
 namespace Sarwave::Core::Gui::Views::Radar {
 
@@ -44,6 +45,10 @@ class RadarDataOverlay : public QQuickPaintedItem {
 
     void paint(QPainter* painter) override;
 
+    /// How long paint() takes, over every overlay, for the live app's timing report
+    /// (LiveRpiApp --timing). Always collected: it costs a couple of clock reads per paint.
+    static MMWave::DurationStats& paintTimes();
+
    signals:
     void changed();
 
@@ -60,6 +65,7 @@ class RadarDataOverlay : public QQuickPaintedItem {
         std::array<QImage, DotPhases * DotPhases> phases;
     };
 
+    void paintData(QPainter* painter);
     const DotSprites& dotSprites(const QColor& colour, double deviceRadius);
     void paintPoints(QPainter* painter);
     void paintPointsSlow(QPainter* painter);

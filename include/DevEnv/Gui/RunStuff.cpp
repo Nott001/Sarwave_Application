@@ -3,6 +3,7 @@
 #include <QMetaObject>
 #include <QPointer>
 #include <QQuickWindow>
+#include <QTimer>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -18,6 +19,8 @@
 #include "DevEnv/Gui/Run.hpp"
 #include "Gui/Models/RadarData.hpp"
 #include "Gui/Views/GuiHost.hpp"
+#include "Gui/Views/Radar/RadarDataOverlay.hpp"
+#include "MMWave/Common/DurationStats.hpp"
 #include "MMWave/Common/Exceptions.hpp"
 #include "MMWave/Common/TimeSpan.hpp"
 #include "MMWave/Configured/PeopleTracking/DebugLogger.hpp"
@@ -48,6 +51,9 @@ const MMWave::TimeSpan PointRetention = MMWave::TimeSpans::fromSeconds(1);
 constexpr int ReaderPriority = 30;
 constexpr int ImuPriority = 20;
 
+/// How often RunStuff::timingReport prints.
+constexpr std::chrono::seconds TimingInterval{10};
+
 // Process-lifetime state, as the C# static fields; destroyed in reverse order at exit, so the
 // capture (last) stops before the IMU, recorder, data and ports it uses.
 std::unique_ptr<CoreGui::Models::RadarData> g_data;
@@ -56,6 +62,10 @@ std::unique_ptr<FrameRecorder> g_recorder;
 std::unique_ptr<Imu::ImuSession> g_imu;
 DebugLogger g_debugLogger(DebugLogger::Config{.hideBytes = true});
 std::unique_ptr<ConstantCapture> g_capture;
+
+// RunStuff::timingReport's figures, added on the worker thread, taken on the GUI thread.
+MMWave::DurationStats g_processTimes;  // the frame callback, start to end
+MMWave::DurationStats g_waitTimes;     // from a frame's arrival to its callback starting
 
 /// `await Task.Run(work)`: runs blocking work on another thread while the GUI keeps processing
 /// events, then returns its result (or rethrows its exception).
@@ -129,6 +139,32 @@ void printError(const std::string& what, const std::exception_ptr& error,
     }
 }
 
+/// "19 us" below a millisecond, "0.62 ms" above.
+std::string formatDuration(MMWave::DurationStats::Duration duration) {
+    char text[32];
+    const double us = std::chrono::duration<double, std::micro>(duration).count();
+    if (us < 1000) {
+        std::snprintf(text, sizeof text, "%.0f us", us);
+    } else {
+        std::snprintf(text, sizeof text, "%.2f ms", us / 1000);
+    }
+    return text;
+}
+
+/// One line of RunStuff::timingReport, covering the time since the last.
+void printTimings(MMWave::TimeSpan elapsed) {
+    const auto process = g_processTimes.take();
+    const auto wait = g_waitTimes.take();
+    const auto paint = CoreGui::Views::Radar::RadarDataOverlay::paintTimes().take();
+    std::cerr << "[" << formatElapsed(elapsed) << "] Timing, last " << TimingInterval.count()
+              << " s: " << process.count << " frames, processing avg "
+              << formatDuration(process.average()) << " / max " << formatDuration(process.longest)
+              << ", waiting avg " << formatDuration(wait.average()) << " / max "
+              << formatDuration(wait.longest) << "; drawn " << paint.count << " times, avg "
+              << formatDuration(paint.average()) << " / max " << formatDuration(paint.longest)
+              << std::endl;
+}
+
 std::string trim(const std::string& text) {
     const auto first = text.find_first_not_of(" \t\n\v\f\r");
     if (first == std::string::npos) return {};
@@ -137,6 +173,8 @@ std::string trim(const std::string& text) {
 }
 
 }  // namespace
+
+bool RunStuff::timingReport = false;
 
 void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine, bool printFrames) {
     try {
@@ -204,8 +242,17 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine, bool printFram
         };
 
         capture->readerPriority = ReaderPriority;
+        const bool timing = timingReport;
         capture->beginConstantCapture(
-            [printFrames, imu](const MMWave::Streaming::Frame& frame, MMWave::TimeSpan elapsed) {
+            [printFrames, imu, timing, capture](const MMWave::Streaming::Frame& frame,
+                                                MMWave::TimeSpan elapsed) {
+                // `elapsed` is when the frame arrived, so the time since is how long it queued.
+                std::chrono::steady_clock::time_point start;
+                if (timing) {
+                    start = std::chrono::steady_clock::now();
+                    g_waitTimes.add(capture->elapsed() - elapsed);
+                }
+
                 // Nothing is caught here. A malformed frame goes to the callback below and the
                 // capture carries on; anything else ends the capture and is reported when it
                 // completes.
@@ -217,6 +264,8 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine, bool printFram
                 std::optional<Imu::Gating::ImuFrameState> state;
                 if (imu) state = imu->evaluate(elapsed);
                 ImuFrames::apply(*g_data, frame, elapsed, state);
+
+                if (timing) g_processTimes.add(std::chrono::steady_clock::now() - start);
             },
             [](const FrameMalformedException& exception, MMWave::TimeSpan elapsed) {
                 printError("Malformed frame", exception, elapsed);
@@ -235,6 +284,15 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine, bool printFram
                       << "\" | sudo tee /etc/security/limits.d/sarwave.conf\n"
                          "and log in again."
                       << std::endl;
+        }
+
+        if (timing) {
+            // On the GUI thread, so printing never holds up the reader or the worker.
+            CoreGui::Views::Radar::RadarDataOverlay::paintTimes().take();  // drop startup paints
+            auto* timer = new QTimer(&window);
+            QObject::connect(timer, &QTimer::timeout, timer,
+                             [capture] { printTimings(capture->elapsed()); });
+            timer->start(TimingInterval);
         }
 
         if (imu) {

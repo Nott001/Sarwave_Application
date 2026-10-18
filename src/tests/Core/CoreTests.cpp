@@ -5,10 +5,12 @@
 #include <sstream>
 #include <string>
 #include <thread>
+#include <vector>
 
 #include "FrameBuilder.hpp"
 #include "MMWave/Common/DotNetCollections.hpp"
 #include "MMWave/Common/DotNetFormat.hpp"
+#include "MMWave/Common/DurationStats.hpp"
 #include "MMWave/Common/Exceptions.hpp"
 #include "MMWave/Configured/PeopleTracking/Association/CombinedManager.hpp"
 #include "MMWave/Exceptions/FrameMalformedException.hpp"
@@ -522,4 +524,29 @@ TEST_CASE("FramePlayback paces frames by timestamp and loops forward in time") {
     CHECK((std::vector<std::int64_t>(seen.begin(), seen.begin() + 7) == expected));
     CHECK(elapsed >=
           std::chrono::milliseconds(29));  // the 7th frame is due 60 ms / 2 after the first
+}
+
+TEST_CASE("DurationStats counts, totals and keeps the longest across threads, then starts over") {
+    using namespace std::chrono_literals;
+    MMWave::DurationStats stats;
+    CHECK(stats.take().average() == MMWave::DurationStats::Duration{});
+
+    std::vector<std::thread> threads;
+    for (int t = 0; t < 4; t++) {
+        threads.emplace_back([&stats, t] {
+            for (int i = 1; i <= 1000; i++) stats.add(std::chrono::microseconds(i + t * 1000));
+        });
+    }
+    for (auto& thread : threads) thread.join();
+
+    const auto figures = stats.take();
+    CHECK_EQ(figures.count, 4000);
+    CHECK(figures.total == std::chrono::microseconds(4000LL * 4001 / 2));
+    CHECK(figures.longest == 4000us);
+    CHECK(figures.average() == 2000500ns);
+
+    const auto next = stats.take();
+    CHECK_EQ(next.count, 0);
+    CHECK(next.total == 0ns);
+    CHECK(next.longest == 0ns);
 }

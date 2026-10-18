@@ -59,6 +59,9 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Frame callbacks take the arrival timestamp: `(const Frame&, TimeSpan)`.
 - `RunStuff::onOpened(..., printFrames)`: verbose frame printing is separate from recording and
   off by default (`LiveRpiApp --print-frames`).
+- `LiveRpiApp --timing` (`RunStuff::timingReport`): every 10 s, prints the worker's processing
+  time per frame, how long frames queued, and the radar view's paint time (`DurationStats`,
+  `RadarDataOverlay::paintTimes()`). The reader thread is not touched.
 - `-ffp-contract=off`, and `Numerics.hpp` computes quaternions the way .NET 10 does, so the
   Pi build, the PC build and the C# app agree to the last bit.
 - `tools/generate_recording.py` pads frames to 32 bytes like the device.

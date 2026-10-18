@@ -3,10 +3,11 @@
 // RunRecorded::sessionFile(). Deliberately bare, as the C# app is: one empty window, which
 // RunStuff fills once it is shown and cleans up after when it closes.
 //
-//   LiveRpiApp [--imu=auto|off|required] [--print-frames]
+//   LiveRpiApp [--imu=auto|off|required] [--print-frames] [--timing]
 //
-// The options are what the C# app sets in code: ImuFrames.Mode (App.cs) and RunStuff's `save`
-// argument (print every frame to the terminal; off, as the C# app passes false).
+// The first two are what the C# app sets in code: ImuFrames.Mode (App.cs) and RunStuff's `save`
+// argument (print every frame to the terminal; off, as the C# app passes false). --timing prints
+// how long processing and drawing take every 10 seconds (RunStuff::timingReport).
 
 #include <QGuiApplication>
 #include <QMetaObject>
@@ -32,6 +33,8 @@ int main(int argc, char* argv[]) {
     for (const QString& arg : QGuiApplication::arguments().mid(1)) {
         if (arg == QStringLiteral("--print-frames")) {
             printFrames = true;
+        } else if (arg == QStringLiteral("--timing")) {
+            RunStuff::timingReport = true;
         } else if (arg.startsWith(QStringLiteral("--imu="))) {
             const auto mode = parseImuMode(arg.mid(6).toStdString());
             if (!mode) {
@@ -40,7 +43,7 @@ int main(int argc, char* argv[]) {
             }
             ImuFrames::mode = *mode;
         } else {
-            std::cerr << "Usage: LiveRpiApp [--imu=auto|off|required] [--print-frames]"
+            std::cerr << "Usage: LiveRpiApp [--imu=auto|off|required] [--print-frames] [--timing]"
                       << std::endl;
             return 2;
         }

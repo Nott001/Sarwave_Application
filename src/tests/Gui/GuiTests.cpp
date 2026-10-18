@@ -414,3 +414,20 @@ TEST_CASE("The session file lives in the user's local application data") {
           Sarwave::DevEnv::Gui::ImuMode::Required);
     CHECK(!Sarwave::DevEnv::Gui::parseImuMode("maybe"));
 }
+
+TEST_CASE("RadarDataOverlay times its paints for the live timing report") {
+    app();
+    Views::Radar::RadarDataOverlay overlay;
+    Views::Radar::RadarDataOverlay::paintTimes().take();
+
+    QImage image(100, 100, QImage::Format_ARGB32_Premultiplied);
+    for (int i = 0; i < 3; i++) {
+        QPainter painter(&image);
+        overlay.paint(&painter);
+    }
+
+    const auto figures = Views::Radar::RadarDataOverlay::paintTimes().take();
+    CHECK_EQ(figures.count, 3);
+    CHECK(figures.longest >= figures.average());
+    CHECK_EQ(Views::Radar::RadarDataOverlay::paintTimes().take().count, 0);
+}

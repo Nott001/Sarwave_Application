@@ -54,6 +54,7 @@ Windows), the same place the C# apps use, with its IMU recording beside it as
 ./build/bin/LiveRpiApp --imu=required   # data collection: refuse to start without the IMU
 ./build/bin/LiveRpiApp --imu=off        # never touch SPI
 ./build/bin/LiveRpiApp --print-frames   # also print every frame (slow on a Pi)
+./build/bin/LiveRpiApp --timing         # print processing and drawing times every 10 s
 
 # Replay the session on the MaximalGui dashboard, gated exactly as it was live. No sensor?
 python3 tools/generate_recording.py ~/.local/share/Sarwave/default_session.swrec
@@ -84,6 +85,18 @@ python3 tools/generate_imu_recording.py busy.swimu --seconds 170
 On a desktop PC (Release) the reader takes about 2 µs per frame and the worker (record, IMU gate,
 tracking, dashboard snapshot) about 20 µs; drawing the points takes about 0.5 ms. A frame arrives
 every 55 ms. The Pi is a few times slower, which still leaves the budget almost untouched.
+
+To see the real figures with the radar attached, run `LiveRpiApp --timing`. Every 10 seconds it
+prints one line:
+
+```
+[00:00:20.004] Timing, last 10 s: 182 frames, processing avg 19 us / max 85 us, waiting avg 4 us / max 40 us; drawn 181 times, avg 0.62 ms / max 2.10 ms
+```
+
+*Processing* is the worker's time per frame, *waiting* is how long a frame queued before the
+worker took it, and *drawn* is the radar view's paints. Measuring costs well under a microsecond
+per frame, on the worker and GUI threads only; the data-port reader is not touched, so it can't
+cause damaged frames.
 
 What keeps it that way:
 

@@ -2,6 +2,7 @@
 
 #include <QFontMetricsF>
 #include <QPainter>
+#include <chrono>
 #include <cmath>
 
 namespace Sarwave::Core::Gui::Views::Radar {
@@ -22,7 +23,18 @@ void RadarDataOverlay::setColours(ColourManager* colours) {
     update();
 }
 
+MMWave::DurationStats& RadarDataOverlay::paintTimes() {
+    static MMWave::DurationStats times;
+    return times;
+}
+
 void RadarDataOverlay::paint(QPainter* painter) {
+    const auto start = std::chrono::steady_clock::now();
+    paintData(painter);
+    paintTimes().add(std::chrono::steady_clock::now() - start);
+}
+
+void RadarDataOverlay::paintData(QPainter* painter) {
     const RadarGeometry& g = m_geometry;
     if (g.isEmpty() || !m_snapshot || !m_colours) return;
 
