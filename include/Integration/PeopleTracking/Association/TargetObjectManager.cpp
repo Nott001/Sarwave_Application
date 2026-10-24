@@ -1,12 +1,15 @@
-#include "MMWave/Configured/PeopleTracking/Association/TargetObjectManager.hpp"
+#include "Integration/PeopleTracking/Association/TargetObjectManager.hpp"
 
 #include <array>
 
 #include "MMWave/Common/Exceptions.hpp"
 
-namespace Sarwave::Core::MMWave::Configured::PeopleTracking::Association {
+using Sarwave::Core::InvalidOperationException;
+using Sarwave::Core::KeyNotFoundException;
 
-using Pointing::PointNotAssociated;
+namespace Sarwave::Integration::PeopleTracking::Association {
+
+using Core::MMWave::Configured::PeopleTracking::Pointing::PointNotAssociated;
 
 std::vector<const TargetObject*> TargetObjectManager::allTargetObjects() const {
     std::vector<const TargetObject*> objects;
@@ -107,6 +110,15 @@ void TargetObjectManager::declareWireIds(std::span<const TlvTargetIndex> newIds)
     for (TlvTargetIndex newId : newIds) declareNewTargetObject(newId);
 }
 
+void TargetObjectManager::transformUnwired(const RigidMotion& motion) {
+    m_unwiredTargetObjects.forEach([&](TargetObject* obj) { obj->transform(motion); });
+}
+
+void TargetObjectManager::transformAll(const RigidMotion& motion) {
+    m_targetObjects.forEach(
+        [&](int, const std::unique_ptr<TargetObject>& obj) { obj->transform(motion); });
+}
+
 void TargetObjectManager::declareNewTargetObject(TlvTargetIndex wireId) {
     if (m_wireId2ObjectId.contains(wireId)) {
         throw InvalidOperationException("Wire id already exists. Risks overwriting.");
@@ -118,4 +130,4 @@ void TargetObjectManager::declareNewTargetObject(TlvTargetIndex wireId) {
     m_idIncrement++;
 }
 
-}  // namespace Sarwave::Core::MMWave::Configured::PeopleTracking::Association
+}  // namespace Sarwave::Integration::PeopleTracking::Association

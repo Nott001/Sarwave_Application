@@ -4,14 +4,18 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <vector>
 
+#include "Imu/Gating/MotionGate.hpp"
+#include "Integration/PeopleTracking/Association/CombinedManager.hpp"
 #include "MMWave/Common/Numerics.hpp"
 #include "MMWave/Common/TimeSpan.hpp"
-#include "MMWave/Configured/PeopleTracking/Association/CombinedManager.hpp"
 #include "MMWave/Streaming/Frame.hpp"
 
 namespace Sarwave::Core::Gui::Models {
+
+namespace Association = Integration::PeopleTracking::Association;
 
 /// The radar state a dashboard shows: a CombinedManager fed one frame at a time, plus the
 /// `Updated` notification the view models listen to. Not a QObject and not tied to any thread:
@@ -44,17 +48,15 @@ class RadarData {
         return m_manager.presence();
     }
 
-    [[nodiscard]] std::vector<const MMWave::Configured::PeopleTracking::Association::TargetObject*>
-    allTargetObjects() const {
+    [[nodiscard]] std::vector<const Association::TargetObject*> allTargetObjects() const {
         return m_manager.allTargetObjects();
     }
 
-    [[nodiscard]] const MMWave::Configured::PeopleTracking::Association::PointEntryRange::Entries&
-    pointClouds() const {
+    [[nodiscard]] const Association::PointEntryRange::Entries& pointClouds() const {
         return m_manager.pointClouds();
     }
 
-    MMWave::Configured::PeopleTracking::Association::CombinedManager& innerManager() {
+    Association::CombinedManager& innerManager() {
         return m_manager;
     }
 
@@ -66,23 +68,32 @@ class RadarData {
         m_manager.duration = value;
     }
 
-    /// The operator should hold the device steady: motion gating is refusing frames. Set by
-    /// whoever gates the frames, before the update() or skipFrame() it applies to; reported with
-    /// that frame's Updated.
+    /// See CombinedManager::holdSteady(); reported with each frame's Updated.
     [[nodiscard]] bool holdSteady() const {
-        return m_holdSteady;
+        return m_manager.holdSteady();
     }
 
-    void setHoldSteady(bool value) {
-        m_holdSteady = value;
+    /// The IMU's verdict on the latest frame; nullopt when the app runs without the IMU.
+    [[nodiscard]] const std::optional<Imu::Gating::ImuFrameState>& imu() const {
+        return m_imu;
+    }
+
+    /// See CombinedManager::trackerFrame.
+    [[nodiscard]] const Association::TrackerFrame& trackerFrame() const {
+        return m_manager.trackerFrame;
+    }
+
+    void setTrackerFrame(const Association::TrackerFrame& value) {
+        m_manager.trackerFrame = value;
     }
 
     /// Applies the frame, then raises Updated synchronously on the calling thread (any thread).
     void update(const MMWave::Streaming::Frame& frame, MMWave::TimeSpan timestamp);
 
-    /// leveling: rotation applied to the frame's points, e.g. an IMU tilt correction.
+    /// See CombinedManager::update(const Frame&, TimeSpan, const std::optional<ImuFrameState>&).
+    /// Raises Updated unless the frame is malformed.
     void update(const MMWave::Streaming::Frame& frame, MMWave::TimeSpan timestamp,
-                MMWave::Quaternion leveling);
+                const std::optional<Imu::Gating::ImuFrameState>& imu);
 
     /// For a frame that arrived but could not be used; see CombinedManager::skipFrame. Raises
     /// Updated like any other frame.
@@ -98,9 +109,9 @@ class RadarData {
     void raiseUpdated();
     void onUpdated(MMWave::TimeSpan timestamp);
 
-    MMWave::Configured::PeopleTracking::Association::CombinedManager m_manager;
+    Association::CombinedManager m_manager;
     MMWave::TimeSpan m_lastUpdate{};
-    bool m_holdSteady = false;
+    std::optional<Imu::Gating::ImuFrameState> m_imu;
 
     std::mutex m_subscribersMutex;  // guards m_subscribers and m_nextToken
     std::vector<std::shared_ptr<Subscriber>> m_subscribers;

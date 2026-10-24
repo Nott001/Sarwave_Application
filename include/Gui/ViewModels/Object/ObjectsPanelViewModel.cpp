@@ -5,7 +5,7 @@
 
 namespace Sarwave::Core::Gui::ViewModels::Object {
 
-using MMWave::Configured::PeopleTracking::Association::TargetObject;
+using Integration::PeopleTracking::Association::TargetObject;
 
 ObjectsPanelViewModel::ObjectsPanelViewModel(QObject* parent) : QAbstractListModel(parent) {
 }

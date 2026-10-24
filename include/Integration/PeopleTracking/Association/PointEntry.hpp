@@ -8,13 +8,19 @@
 #include <utility>
 #include <vector>
 
+#include "Imu/Fusion/RigidMotion.hpp"
+#include "Integration/PeopleTracking/Association/TargetObject.hpp"
 #include "MMWave/Common/Numerics.hpp"
 #include "MMWave/Common/TimeSpan.hpp"
-#include "MMWave/Configured/PeopleTracking/Association/TargetObject.hpp"
 #include "MMWave/Configured/PeopleTracking/Pointing/Pointing.hpp"
 #include "MMWave/Configured/PeopleTracking/Tlv/TlvTypes.hpp"
 
-namespace Sarwave::Core::MMWave::Configured::PeopleTracking::Association {
+namespace Sarwave::Integration::PeopleTracking::Association {
+using Core::Imu::Fusion::RigidMotion;
+using Core::MMWave::Quaternion;
+using Core::MMWave::TimeSpan;
+namespace Pointing = Core::MMWave::Configured::PeopleTracking::Pointing;
+namespace Tlv = Core::MMWave::Configured::PeopleTracking::Tlv;
 
 /// The points of one frame's Point Cloud TLV. Once the next frame's Target Index TLV arrives
 /// they are "associated": sorted by owning object id, so each owner's points are one slice.
@@ -57,6 +63,9 @@ class PointEntry {
     /// mismatch. Note: reorders `associatedObjectIds` as well, as the C# version does.
     void associatePoints(std::span<int> associatedObjectIds);
 
+    /// Moves every point's Cartesian position; radial stays as the sensor measured it.
+    void transform(const RigidMotion& motion);
+
    private:
     struct ArraySector {
         int index;
@@ -97,6 +106,8 @@ class PointEntryRange {
 
     void add(const Tlv::TlvPointCloud& pointCloud, TimeSpan timestamp, Quaternion leveling);
 
+    void transform(const RigidMotion& motion);
+
     void dropOldEntries(TimeSpan timestamp, TimeSpan duration);
 
    private:
@@ -105,4 +116,4 @@ class PointEntryRange {
     std::shared_ptr<PointEntry> m_last;
 };
 
-}  // namespace Sarwave::Core::MMWave::Configured::PeopleTracking::Association
+}  // namespace Sarwave::Integration::PeopleTracking::Association

@@ -26,7 +26,8 @@ struct RunRecorded {
 
 /// The live run: MinimalGui dashboard, port dialogue, cfg dialogue (sent without sensorStart),
 /// then captures frames -- recording them, and the IMU beside them, to RunRecorded::sessionFile()
-/// -- and starts the sensor. Each frame is gated and levelled by the IMU (see ImuFrames).
+/// -- and starts the sensor. Each frame is gated and levelled by the IMU (see ImuFrames), and what
+/// is held from earlier frames is moved with the device.
 struct RunStuff {
     /// Call once the window is shown. Fails the process (like Environment.FailFast) on error.
     ///

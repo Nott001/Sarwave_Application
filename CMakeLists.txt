@@ -5,6 +5,7 @@ project(SarwaveApp VERSION 0.2 LANGUAGES CXX)
 #
 #   Sarwave.Core.MMWave         -> include/MMWave   (SarwaveCoreMMWave, SarwaveCoreMMWaveConfig)
 #   Sarwave.Core.Imu            -> include/Imu      (SarwaveCoreImu)
+#   Sarwave.Integration.PeopleTracking -> include/Integration (SarwaveIntegrationPeopleTracking)
 #   Sarwave.Core.Gui            -> include/Gui      (SarwaveCoreGui)
 #   Sarwave.DevEnv              -> include/DevEnv   (SarwaveDevEnv)
 #   Sarwave.Source.Terminal     -> src/Terminal     (SarwaveTerminal)
@@ -80,6 +81,7 @@ enable_testing()
 
 add_subdirectory(include/MMWave)
 add_subdirectory(include/Imu)
+add_subdirectory(include/Integration)
 add_subdirectory(src/Terminal)
 
 if(SARWAVE_BUILD_GUI)

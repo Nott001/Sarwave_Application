@@ -2,10 +2,15 @@
 
 #include <climits>
 
+#include "Imu/Fusion/RigidMotion.hpp"
 #include "MMWave/Common/Numerics.hpp"
 #include "MMWave/Configured/PeopleTracking/Tlv/TlvTypes.hpp"
 
-namespace Sarwave::Core::MMWave::Configured::PeopleTracking::Association {
+namespace Sarwave::Integration::PeopleTracking::Association {
+using Core::Imu::Fusion::RigidMotion;
+using Core::MMWave::Matrix4x4;
+using Core::MMWave::Vector3;
+namespace Tlv = Core::MMWave::Configured::PeopleTracking::Tlv;
 
 /// Object ids that are not targets. Serves as an equivalent for Pointing::PointNotAssociated.
 enum class NonObjectPoint : int {
@@ -76,9 +81,25 @@ class TargetObject {
         minZ = height.minZ;
     }
 
+    /// Moves a target the device no longer reports, or one whose latest report was not used, as
+    /// the room moved relative to the device, so it stays where it was last seen. `ec` and `g`
+    /// are left as they were.
+    void transform(const RigidMotion& motion) {
+        const Vector3 moved = motion.apply(pos);
+
+        // The height bounds are heights in the same coordinates, so they move with the position.
+        const float rise = moved.z - pos.z;
+        maxZ += rise;
+        minZ += rise;
+
+        pos = moved;
+        vel = motion.applyToDirection(vel);
+        acc = motion.applyToDirection(acc);
+    }
+
    private:
     TargetState m_state = TargetState::Active;
     int m_objectId;
 };
 
-}  // namespace Sarwave::Core::MMWave::Configured::PeopleTracking::Association
+}  // namespace Sarwave::Integration::PeopleTracking::Association

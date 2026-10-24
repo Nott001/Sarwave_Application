@@ -3,9 +3,9 @@
 // two proves the port fuses, gates and records identically.
 //
 //   ImuParityHarness process <file.swimu> <every>         processed state of every n-th sample
-//   ImuParityHarness track <file.swimu> <every>           pose of every n-th sample, handheld
-//   mounting ImuParityHarness gate <file.swimu> <framePeriodMs>    the gate's verdict on a frame
-//   stream ImuParityHarness rewrite <in.swimu> <out.swimu>       ImuRecorder round trip
+//   ImuParityHarness track <file.swimu> <every>           pose of every n-th sample (handheld)
+//   ImuParityHarness gate <file.swimu> <framePeriodMs>    the gate's verdict on a frame stream
+//   ImuParityHarness rewrite <in.swimu> <out.swimu>       ImuRecorder round trip
 //   ImuParityHarness mount                                ImuMounting.FromAxes for every triple
 
 #include <iostream>

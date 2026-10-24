@@ -1,7 +1,8 @@
 # C# ↔ C++ parity
 
 `CoreParityHarness` (C++) and `csharp/` (C#, built against the original
-`Sarwave.Core.MMWave` sources of the C# solution) print the same text for the same input.
+`Sarwave.Core.MMWave`, `Sarwave.Core.Imu` and `Sarwave.Integration.PeopleTracking` sources of the
+C# solution) print the same text for the same input.
 The C# projects expect the C# solution next to this repository (`../SarwaveApplication`);
 pass `-p:SarwaveCSharpRoot=<path>` to `dotnet build` if it is elsewhere. Diffing the two
 is how the port was verified to decode, track, log, record and replay exactly like the C# code.
@@ -18,12 +19,21 @@ python3 tools/generate_recording.py /tmp/s.swrec --frames 600
 for cmd in "log /tmp/s.swrec 0" "log /tmp/s.swrec 1" "manager /tmp/s.swrec 1000" "manager /tmp/s.swrec 120"; do
     diff <($C $cmd) <($H $cmd) && echo "same: $cmd"
 done
+
+# The manager driven by the IMU, as a replay is: the frame at t is gated by the IMU recording at
+# offset + t, and targets are moved in the cfg's tracker frame.
+python3 tools/generate_imu_recording.py /tmp/a.swimu --seconds 60 --seed 7
+for off in 0 5000 12000 15000 19000; do
+    cmd="imumanager /tmp/s.swrec /tmp/a.swimu 1000 $off configs/Sarwave_12m.cfg"
+    diff <($C $cmd 2>/dev/null) <($H $cmd 2>/dev/null) && echo "same: $cmd"
+done
 ```
 
 `reader` prints a `malformed <Cause> <frame>: <detail> skipped=<n>` line for every packet the
 reader skips. Damaged streams come from `tools/generate_stream.py`.
 
-Commands: `log <rec> <hideBytes>`, `manager <rec> <retentionMs>`, `reader <raw> <seed>`,
+Commands: `log <rec> <hideBytes>`, `manager <rec> <retentionMs>`,
+`imumanager <rec> <swimu> <retentionMs> <offsetMs> <cfg>`, `reader <raw> <seed>`,
 `load <rec>`, `rewrite <in> <out>`, `playback <rec> <speed> <n>`, `prompt`, `timespan`, `fixed`.
 
 Point order inside one target's group is not compared: the C# code sorts with an unstable

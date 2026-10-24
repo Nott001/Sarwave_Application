@@ -69,7 +69,7 @@ target_include_directories(SarwaveCoreGui
             ${GUI_DIR}/Views ${GUI_DIR}/Views/Radar ${GUI_DIR}/Views/Object)
 
 target_link_libraries(SarwaveCoreGui
-    PUBLIC SarwaveCoreMMWave Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick
+    PUBLIC SarwaveCoreMMWave SarwaveIntegrationPeopleTracking Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick
     PRIVATE Qt6::QuickControls2)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")

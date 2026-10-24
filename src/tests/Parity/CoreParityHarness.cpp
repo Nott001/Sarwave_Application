@@ -4,6 +4,8 @@
 //
 //   CoreParityHarness log <file.swrec> <hideBytes 0|1>     DebugLogger output for every frame
 //   CoreParityHarness manager <file.swrec> <durationMs>    CombinedManager state after every frame
+//   CoreParityHarness imumanager <file.swrec> <file.swimu> <durationMs> <offsetMs> <file.cfg>
+//                                                          the same, gated and moved by the IMU
 //   CoreParityHarness reader <raw.bin> <seed>              FrameReader over a chunked byte stream
 //   CoreParityHarness load <file.swrec>                    FrameRecording.Load summary / error
 //   CoreParityHarness rewrite <in.swrec> <out.swrec>       FrameRecorder round trip
@@ -21,9 +23,9 @@
 #include <string>
 #include <vector>
 
+#include "Integration/PeopleTracking/Association/CombinedManager.hpp"
 #include "MMWave/Common/DotNetFormat.hpp"
 #include "MMWave/Common/Exceptions.hpp"
-#include "MMWave/Configured/PeopleTracking/Association/CombinedManager.hpp"
 #include "MMWave/Configured/PeopleTracking/DebugLogger.hpp"
 #include "MMWave/Exceptions/FrameMalformedException.hpp"
 #include "MMWave/Prompting/Prompting.hpp"
@@ -35,6 +37,8 @@
 using namespace Sarwave::Core;
 using namespace Sarwave::Core::MMWave;
 using namespace Sarwave::Core::MMWave::Configured::PeopleTracking;
+namespace Association = Sarwave::Integration::PeopleTracking::Association;
+using Sarwave::Integration::PeopleTracking::EntryPackage;
 
 #include "ParityDump.hpp"
 
@@ -183,6 +187,11 @@ int main(int argc, char** argv) {
     }
     if (cmd == "manager") {
         dumpManager(std::cout, Recording::FrameRecording::load(args[1]), std::stod(args[2]));
+        return 0;
+    }
+    if (cmd == "imumanager") {
+        dumpImuManager(std::cout, Recording::FrameRecording::load(args[1]), args[2],
+                       std::stod(args[3]), std::stod(args[4]), args[5]);
         return 0;
     }
     if (cmd == "reader") return cmdReader(args[1], static_cast<std::uint32_t>(std::stoul(args[2])));

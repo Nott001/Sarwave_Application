@@ -7,9 +7,9 @@
 namespace Sarwave::Core::Gui::ViewModels::Radar {
 namespace {
 
+using Integration::PeopleTracking::Association::NonObjectPoint;
+using Integration::PeopleTracking::Association::TargetObject;
 using MMWave::Vector3;
-using MMWave::Configured::PeopleTracking::Association::NonObjectPoint;
-using MMWave::Configured::PeopleTracking::Association::TargetObject;
 
 std::vector<Vector3> toVectors(
     std::span<const MMWave::Configured::PeopleTracking::Pointing::PointFigure> values) {

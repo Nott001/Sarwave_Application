@@ -1,11 +1,11 @@
 #include "Gui/Views/Radar/ColourManager.hpp"
 
-#include "MMWave/Configured/PeopleTracking/Association/TargetObject.hpp"
+#include "Integration/PeopleTracking/Association/TargetObject.hpp"
 
 namespace Sarwave::Core::Gui::Views::Radar {
 
-using MMWave::Configured::PeopleTracking::Association::isNonObjectPoint;
-using MMWave::Configured::PeopleTracking::Association::NonObjectPoint;
+using Integration::PeopleTracking::Association::isNonObjectPoint;
+using Integration::PeopleTracking::Association::NonObjectPoint;
 
 ColourManager::ColourManager(QObject* parent) : QObject(parent) {
     for (const char* hex :

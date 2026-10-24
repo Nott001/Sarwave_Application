@@ -28,12 +28,13 @@ void RadarData::unsubscribe(int token) {
 }
 
 void RadarData::update(const MMWave::Streaming::Frame& frame, MMWave::TimeSpan timestamp) {
-    update(frame, timestamp, MMWave::Quaternion::identity());
+    update(frame, timestamp, std::nullopt);
 }
 
 void RadarData::update(const MMWave::Streaming::Frame& frame, MMWave::TimeSpan timestamp,
-                       MMWave::Quaternion leveling) {
-    m_manager.update(frame, timestamp, leveling);
+                       const std::optional<Imu::Gating::ImuFrameState>& imu) {
+    m_manager.update(frame, timestamp, imu);
+    m_imu = imu;
     onUpdated(timestamp);
 }
 

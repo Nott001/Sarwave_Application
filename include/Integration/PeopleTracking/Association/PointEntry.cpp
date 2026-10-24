@@ -1,11 +1,14 @@
-#include "MMWave/Configured/PeopleTracking/Association/PointEntry.hpp"
+#include "Integration/PeopleTracking/Association/PointEntry.hpp"
 
 #include <algorithm>
 #include <numeric>
 
 #include "MMWave/Common/Exceptions.hpp"
 
-namespace Sarwave::Core::MMWave::Configured::PeopleTracking::Association {
+using Sarwave::Core::ArgumentException;
+using Sarwave::Core::InvalidOperationException;
+
+namespace Sarwave::Integration::PeopleTracking::Association {
 
 using Pointing::PointFigure;
 using Pointing::PointValue;
@@ -21,7 +24,7 @@ PointEntry::PointEntry(const Tlv::TlvPointCloud& pointCloud, TimeSpan timestamp,
     m_pointFigures.reserve(static_cast<std::size_t>(pointCloud.points.count()));
     for (const auto& point : pointCloud.points) {
         PointFigure figure = PointValue::convert(point, pointCloud.unit).toFigure();
-        if (rotate) figure.cartesian = transform(figure.cartesian, leveling);
+        if (rotate) figure.cartesian = Core::MMWave::transform(figure.cartesian, leveling);
         m_pointFigures.push_back(figure);
     }
 }
@@ -90,6 +93,10 @@ void PointEntry::associatePoints(std::span<int> associatedObjectIds) {
     m_relatedObject = std::move(related);
 }
 
+void PointEntry::transform(const RigidMotion& motion) {
+    for (PointFigure& point : m_pointFigures) point.cartesian = motion.apply(point.cartesian);
+}
+
 void PointEntryRange::unusedTargetObjects(std::span<const int> objectIds,
                                           std::vector<int>& unused) {
     m_usedScratch.clear();
@@ -111,6 +118,10 @@ void PointEntryRange::add(const Tlv::TlvPointCloud& pointCloud, TimeSpan timesta
     m_last = std::move(entry);
 }
 
+void PointEntryRange::transform(const RigidMotion& motion) {
+    for (const auto& entry : m_pointsEntries) entry->transform(motion);
+}
+
 void PointEntryRange::dropOldEntries(TimeSpan timestamp, TimeSpan duration) {
     const TimeSpan cutoff = timestamp - duration;
 
@@ -122,4 +133,4 @@ void PointEntryRange::dropOldEntries(TimeSpan timestamp, TimeSpan duration) {
     if (m_pointsEntries.empty()) m_last.reset();
 }
 
-}  // namespace Sarwave::Core::MMWave::Configured::PeopleTracking::Association
+}  // namespace Sarwave::Integration::PeopleTracking::Association

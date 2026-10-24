@@ -20,14 +20,15 @@
 #include <memory>
 
 #include "DevEnv/DevEnv.hpp"
-#include "DevEnv/Gui/ImuFrames.hpp"
 #include "DevEnv/Gui/Run.hpp"
 #include "Gui/Views/GuiHost.hpp"
+#include "Integration/PeopleTracking/ImuFrames.hpp"
 #include "MMWave/Common/Exceptions.hpp"
 
 int main(int argc, char* argv[]) {
     QGuiApplication app(argc, argv);
     using namespace Sarwave::DevEnv::Gui;
+    using namespace Sarwave::Integration::PeopleTracking;
 
     bool printFrames = false;
     for (const QString& arg : QGuiApplication::arguments().mid(1)) {

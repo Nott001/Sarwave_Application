@@ -15,7 +15,6 @@
 #include "DevEnv/ConfigMemory.hpp"
 #include "DevEnv/DevEnv.hpp"
 #include "DevEnv/Gui/CfgDialogue.hpp"
-#include "DevEnv/Gui/ImuFrames.hpp"
 #include "DevEnv/Gui/PortDialogue.hpp"
 #include "DevEnv/Gui/Run.hpp"
 #include "Gui/Common/DotNetRandom.hpp"
@@ -29,6 +28,7 @@
 #include "Gui/Views/Radar/RadarDataOverlay.hpp"
 #include "Gui/Views/Radar/RadarGeometry.hpp"
 #include "Gui/Views/StringFormat.hpp"
+#include "Integration/PeopleTracking/ImuFrames.hpp"
 #include "MMWave/Exceptions/FrameMalformedException.hpp"
 #include "TestFramework.hpp"
 
@@ -366,41 +366,46 @@ TEST_CASE("Status shows HOLD STEADY over everything else while gating refuses fr
     CHECK(status.statusText() == QStringLiteral("TARGET ACQUIRED"));
 }
 
-TEST_CASE("ImuFrames.Apply levels accepted frames, skips refused ones, and still reports damage") {
+TEST_CASE("RadarData uses accepted frames, leaves refused ones out, and still reports damage") {
     app();
-    using Sarwave::DevEnv::Gui::ImuFrames;
     namespace Gating = Sarwave::Core::Imu::Gating;
-    Models::RadarData data(MMWave::TimeSpans::fromSeconds(1));
+    using MMWave::TimeSpans::fromSeconds;
+    Models::RadarData data(fromSeconds(10));
     ViewModels::MinimalGuiViewModel viewModel(data);
     int updates = 0;
     const int token = data.subscribe([&] { updates++; });
 
     // No IMU: applied as it is.
-    ImuFrames::apply(data, FrameBuilder().cloud(2).frame(0), MMWave::TimeSpan(0), std::nullopt);
+    data.update(FrameBuilder().cloud(2).frame(0), fromSeconds(0), std::nullopt);
     CHECK_EQ(data.pointClouds().size(), std::size_t{1});
     CHECK(!data.holdSteady());
+    CHECK(!data.imu().has_value());
 
-    // Refused (moving): skipped, with HOLD STEADY, but time still moves on.
+    // Refused (moving): left out, but time still moves on. HOLD STEADY only once the gate has
+    // refused frames for longer than a knock would keep it refusing.
     Gating::ImuFrameState moving{.state = Gating::MotionGateState::Moving, .accepted = false};
-    ImuFrames::apply(data, FrameBuilder().cloud(2).frame(1), MMWave::TimeSpan(10), moving);
+    data.update(FrameBuilder().cloud(2).frame(1), fromSeconds(1), moving);
     CHECK_EQ(data.pointClouds().size(), std::size_t{1});
+    CHECK(!data.holdSteady());
+    CHECK(data.lastUpdate() == fromSeconds(1));
+    CHECK(data.imu().has_value());
+    data.update(FrameBuilder().cloud(2).frame(2), fromSeconds(1.7), moving);
     CHECK(data.holdSteady());
-    CHECK(data.lastUpdate() == MMWave::TimeSpan(10));
     processEvents();
     CHECK(viewModel.status()->holdSteady());
     CHECK(viewModel.status()->statusText() == QStringLiteral("HOLD STEADY"));
 
     // A damaged frame is reported even while refused.
-    CHECK_THROWS_AS(ImuFrames::apply(data, FrameBuilder().cloud(2).detectedObjects(5).frame(2),
-                                     MMWave::TimeSpan(20), moving),
-                    MMWave::Exceptions::FrameEntryMalformedException);
+    CHECK_THROWS_AS(
+        data.update(FrameBuilder().cloud(2).detectedObjects(5).frame(3), fromSeconds(1.8), moving),
+        MMWave::Exceptions::FrameEntryMalformedException);
 
-    // Accepted with a tilt: levelled.
+    // Accepted: used again, and the warning clears.
     Gating::ImuFrameState steady{.state = Gating::MotionGateState::Steady, .accepted = true};
-    ImuFrames::apply(data, FrameBuilder().cloud(1).frame(3), MMWave::TimeSpan(30), steady);
+    data.update(FrameBuilder().cloud(1).frame(4), fromSeconds(2), steady);
     CHECK(!data.holdSteady());
     CHECK_EQ(data.pointClouds().size(), std::size_t{2});
-    CHECK_EQ(updates, 3);
+    CHECK_EQ(updates, 4);
     data.unsubscribe(token);
 }
 
@@ -410,9 +415,9 @@ TEST_CASE("The session file lives in the user's local application data") {
     CHECK_EQ(path.filename().string(), "default_session.swrec");
     CHECK_EQ(path.parent_path().filename().string(), "Sarwave");
     CHECK(std::filesystem::is_directory(path.parent_path()));
-    CHECK(Sarwave::DevEnv::Gui::parseImuMode("Required") ==
-          Sarwave::DevEnv::Gui::ImuMode::Required);
-    CHECK(!Sarwave::DevEnv::Gui::parseImuMode("maybe"));
+    CHECK(Sarwave::Integration::PeopleTracking::parseImuMode("Required") ==
+          Sarwave::Integration::PeopleTracking::ImuMode::Required);
+    CHECK(!Sarwave::Integration::PeopleTracking::parseImuMode("maybe"));
 }
 
 TEST_CASE("RadarDataOverlay times its paints for the live timing report") {

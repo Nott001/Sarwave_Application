@@ -1,12 +1,15 @@
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using Sarwave.Core.Imu.Gating;
+using Sarwave.Core.Imu.Recording;
 using Sarwave.Core.MMWave.Configured.PeopleTracking;
-using Sarwave.Core.MMWave.Configured.PeopleTracking.Association;
 using Sarwave.Core.MMWave.Exceptions;
 using Sarwave.Core.MMWave.Prompting;
 using Sarwave.Core.MMWave.Recording;
 using Sarwave.Core.MMWave.Streaming;
+using Sarwave.Integration.PeopleTracking;
+using Sarwave.Integration.PeopleTracking.Association;
 
 CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
@@ -14,6 +17,38 @@ CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 static string F(float v) => v.ToString();
 static string V(System.Numerics.Vector3 v) => $"{F(v.X)},{F(v.Y)},{F(v.Z)}";
 static string Ex(Exception e) => $"EXCEPTION {e.GetType().FullName}: {e.Message}";
+
+// The manager's targets and point clouds, as "manager" prints them after a frame.
+static void DumpState(StringBuilder sb, CombinedManager manager)
+{
+    foreach (TargetObject t in manager.AllTargetObjects)
+    {
+        sb.Append($" T {t.ObjectId} {t.State} pos={V(t.Pos)} vel={V(t.Vel)} acc={V(t.Acc)} z={F(t.MinZ)}~{F(t.MaxZ)} g={F(t.G)} c={F(t.ConfidenceLevel)} ec={F(t.Ec.M11)},{F(t.Ec.M23)},{F(t.Ec.M44)}\n");
+    }
+    foreach (PointEntry e in manager.PointClouds)
+    {
+        sb.Append($" C {e.Timestamp.Ticks} assoc={e.IsAssociated} n={e.PointValues.Length}\n");
+        if (e.IsAssociated)
+        {
+            foreach (int id in e.ObjectIdsUsed(false))
+            {
+                var pts = e.GetPointsOf(id);
+                // Order within a group is unspecified (introsort); print a sorted multiset.
+                var items = new List<string>();
+                foreach (var p in pts) items.Add($"{F(p.Cartesian.X)},{F(p.Cartesian.Y)},{F(p.Cartesian.Z)},{F(p.Doppler)},{F(p.Snr)},{F(p.Radial.Rannge)}");
+                items.Sort(StringComparer.Ordinal);
+                sb.Append($"  G {id} {pts.Length}: {string.Join(";", items)}\n");
+            }
+            sb.Append($"  X {string.Join(",", e.ObjectIdsUsed(true))}\n");
+        }
+        else
+        {
+            var items = new List<string>();
+            foreach (var p in e.PointValues) items.Add($"{F(p.Cartesian.X)},{F(p.Cartesian.Y)},{F(p.Cartesian.Z)},{F(p.Doppler)},{F(p.Snr)}");
+            sb.Append($"  U {string.Join(";", items)}\n");
+        }
+    }
+}
 
 string cmd = args[0];
 switch (cmd)
@@ -39,33 +74,31 @@ switch (cmd)
             try { manager.Update(in rec.Frames[i], rec.Timestamps[i]); }
             catch (Exception e) { sb.Append(Ex(e)).Append('\n'); break; }
             sb.Append($"F {i} presence={manager.Presence}\n");
-            foreach (TargetObject t in manager.AllTargetObjects)
-            {
-                sb.Append($" T {t.ObjectId} {t.State} pos={V(t.Pos)} vel={V(t.Vel)} acc={V(t.Acc)} z={F(t.MinZ)}~{F(t.MaxZ)} g={F(t.G)} c={F(t.ConfidenceLevel)} ec={F(t.Ec.M11)},{F(t.Ec.M23)},{F(t.Ec.M44)}\n");
-            }
-            foreach (PointEntry e in manager.PointClouds)
-            {
-                sb.Append($" C {e.Timestamp.Ticks} assoc={e.IsAssociated} n={e.PointValues.Length}\n");
-                if (e.IsAssociated)
-                {
-                    foreach (int id in e.ObjectIdsUsed(false))
-                    {
-                        var pts = e.GetPointsOf(id);
-                        // Order within a group is unspecified (introsort); print a sorted multiset.
-                        var items = new List<string>();
-                        foreach (var p in pts) items.Add($"{F(p.Cartesian.X)},{F(p.Cartesian.Y)},{F(p.Cartesian.Z)},{F(p.Doppler)},{F(p.Snr)},{F(p.Radial.Rannge)}");
-                        items.Sort(StringComparer.Ordinal);
-                        sb.Append($"  G {id} {pts.Length}: {string.Join(";", items)}\n");
-                    }
-                    sb.Append($"  X {string.Join(",", e.ObjectIdsUsed(true))}\n");
-                }
-                else
-                {
-                    var items = new List<string>();
-                    foreach (var p in e.PointValues) items.Add($"{F(p.Cartesian.X)},{F(p.Cartesian.Y)},{F(p.Cartesian.Z)},{F(p.Doppler)},{F(p.Snr)}");
-                    sb.Append($"  U {string.Join(";", items)}\n");
-                }
-            }
+            DumpState(sb, manager);
+        }
+        Console.Write(sb.ToString());
+        break;
+    }
+    case "imumanager":
+    {
+        // As "manager", with every frame gated by an IMU recording as RunRecorded does: the frame
+        // at t is paired with the IMU data at offsetMs + t.
+        using var rec = FrameRecording.Load(args[1]);
+        var imu = ImuRecording.Load(args[2]);
+        var gate = new MotionGate(imu.ToTimeline(ImuFrames.Options.Mounting, ImuFrames.Options.Processing), ImuFrames.Options.Gate);
+        var manager = new CombinedManager(TimeSpan.FromMilliseconds(double.Parse(args[3])))
+        {
+            TrackerFrame = ImuFrames.LoadTrackerFrame(args[5]),
+        };
+        TimeSpan offset = TimeSpan.FromMilliseconds(double.Parse(args[4]));
+        var sb = new StringBuilder();
+        for (int i = 0; i < rec.Count; i++)
+        {
+            ImuFrameState state = gate.Evaluate(offset + rec.Timestamps[i]);
+            try { manager.Update(in rec.Frames[i], rec.Timestamps[i], state); }
+            catch (Exception e) { sb.Append(Ex(e)).Append('\n'); break; }
+            sb.Append($"F {i} presence={manager.Presence} accepted={state.Accepted} hold={manager.HoldSteady}\n");
+            DumpState(sb, manager);
         }
         Console.Write(sb.ToString());
         break;

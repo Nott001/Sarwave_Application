@@ -4,8 +4,8 @@
 #include <memory>
 #include <vector>
 
+#include "Integration/PeopleTracking/Association/TargetObject.hpp"
 #include "MMWave/Common/Numerics.hpp"
-#include "MMWave/Configured/PeopleTracking/Association/TargetObject.hpp"
 
 namespace Sarwave::Core::Gui::ViewModels::Radar {
 
@@ -27,8 +27,9 @@ struct PointGroupSnapshot {
     std::vector<MMWave::Vector3> points;
 
     [[nodiscard]] bool isUnassigned() const {
-        return objectId == static_cast<int>(MMWave::Configured::PeopleTracking::Association::
-                                                NonObjectPoint::PointNotYetAssigned);
+        return objectId ==
+               static_cast<int>(
+                   Integration::PeopleTracking::Association::NonObjectPoint::PointNotYetAssigned);
     }
 };
 

@@ -3,10 +3,11 @@
 #include <memory>
 #include <optional>
 
-#include "DevEnv/Gui/ImuFrames.hpp"
+#include "DevEnv/ConfigMemory.hpp"
 #include "DevEnv/Gui/Run.hpp"
 #include "Gui/Models/RadarData.hpp"
 #include "Gui/Views/GuiHost.hpp"
+#include "Integration/PeopleTracking/ImuFrames.hpp"
 #include "MMWave/Common/TimeSpan.hpp"
 #include "MMWave/Configured/PeopleTracking/DebugLogger.hpp"
 #include "MMWave/Recording/FramePlayback.hpp"
@@ -17,6 +18,8 @@ namespace {
 
 using namespace Sarwave::Core;
 namespace CoreGui = Sarwave::Core::Gui;
+using Integration::PeopleTracking::ImuFrames;
+using Integration::PeopleTracking::RecordedGate;
 using MMWave::Configured::PeopleTracking::DebugLogger;
 using MMWave::Recording::FramePlayback;
 using MMWave::Recording::FrameRecording;
@@ -52,6 +55,11 @@ void RunRecorded::onOpened(QQuickWindow& window, QQmlEngine& engine) {
     g_data = std::make_unique<CoreGui::Models::RadarData>(PointRetention);
     CoreGui::Views::showMaximalGui(window, engine, *g_data);
 
+    // A recording does not keep its cfg; the last one the live app used is the best guess.
+    const std::optional<std::string> cfgPath = ConfigMemory::getConfig();
+    g_data->setTrackerFrame(ImuFrames::loadTrackerFrame(
+        cfgPath ? std::optional<std::filesystem::path>(*cfgPath) : std::nullopt));
+
     g_recording = std::make_unique<FrameRecording>(FrameRecording::load(sessionFile()));
     g_gate = ImuFrames::loadRecordedGate(sessionFile());
     g_playback = std::make_unique<FramePlayback>(*g_recording);
@@ -68,7 +76,7 @@ void RunRecorded::onOpened(QQuickWindow& window, QQmlEngine& engine) {
             // on from.
             std::optional<Imu::Gating::ImuFrameState> imu;
             if (gate) imu = gate->evaluate(playback->recordedTimestamp(timestamp));
-            ImuFrames::apply(*data, frame, timestamp, imu);
+            data->update(frame, timestamp, imu);
         },
         [data = g_data.get()](const MMWave::Exceptions::FrameMalformedException&,
                               MMWave::TimeSpan timestamp) { data->skipFrame(timestamp); });

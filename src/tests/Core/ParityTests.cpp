@@ -64,6 +64,16 @@ void checkManager(const std::string& name, int durationMs) {
                   name + " CombinedManager " + std::to_string(durationMs) + " ms");
 }
 
+void checkImuManager(int offsetMs) {
+    const auto rec = Recording::FrameRecording::load(Dir + "session.swrec");
+    std::ostringstream out;
+    SarwaveParity::dumpImuManager(out, rec, SARWAVE_TEST_DATA_DIR "/imu/session.swimu", 120,
+                                  offsetMs,
+                                  SARWAVE_TEST_DATA_DIR "/../../../configs/Sarwave_12m.cfg");
+    checkSameText(out.str(), readText("session.imu" + std::to_string(offsetMs) + ".txt"),
+                  "IMU-gated CombinedManager at " + std::to_string(offsetMs) + " ms");
+}
+
 }  // namespace
 
 TEST_CASE("parity: DebugLogger output equals the C# DebugLogger's") {
@@ -78,6 +88,12 @@ TEST_CASE("parity: CombinedManager state equals the C# CombinedManager's") {
     checkManager("reuse", 1000);
     checkManager("reuse", 120);
     checkManager("unknown_tlv", 1000);
+}
+
+TEST_CASE("parity: the IMU-gated CombinedManager equals the C# one") {
+    // From a pitch-up with settling, and from a flick, a knock and walking.
+    checkImuManager(5000);
+    checkImuManager(15000);
 }
 
 TEST_CASE("parity: FrameReader extracts the same frames as the C# FrameReader") {

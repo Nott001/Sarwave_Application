@@ -2,17 +2,18 @@
 #include <cmath>
 #include <limits>
 #include <mutex>
+#include <numbers>
 #include <sstream>
 #include <string>
 #include <thread>
 #include <vector>
 
 #include "FrameBuilder.hpp"
+#include "Integration/PeopleTracking/Association/CombinedManager.hpp"
 #include "MMWave/Common/DotNetCollections.hpp"
 #include "MMWave/Common/DotNetFormat.hpp"
 #include "MMWave/Common/DurationStats.hpp"
 #include "MMWave/Common/Exceptions.hpp"
-#include "MMWave/Configured/PeopleTracking/Association/CombinedManager.hpp"
 #include "MMWave/Exceptions/FrameMalformedException.hpp"
 #include "MMWave/Prompting/Prompting.hpp"
 #include "MMWave/Recording/FramePlayback.hpp"
@@ -25,6 +26,8 @@
 using namespace Sarwave::Core;
 using namespace Sarwave::Core::MMWave;
 using namespace Sarwave::Core::MMWave::Configured::PeopleTracking;
+namespace Association = Sarwave::Integration::PeopleTracking::Association;
+using Sarwave::Integration::PeopleTracking::EntryPackage;
 using SarwaveTest::FrameBuilder;
 using namespace std::string_literals;
 
@@ -267,7 +270,7 @@ namespace {
 /// The cause and message unpack() gives for a frame, or "ok".
 std::string unpackError(const Streaming::Frame& frame) {
     try {
-        (void)Association::EntryPackage::unpack(frame);
+        (void)EntryPackage::unpack(frame);
         return "ok";
     } catch (const FrameEntryMalformedException& e) {
         return Exceptions::toString(e.cause()) + ": " + e.what();
@@ -351,7 +354,7 @@ TEST_CASE("CombinedManager levels point positions but leaves radial values") {
     plain.update(frame, TimeSpan(0));
     // 90° about X: forward (+Y) becomes up (+Z).
     const float h = std::sqrt(0.5f);
-    levelled.update(frame, TimeSpan(0), Quaternion{h, 0, 0, h});
+    levelled.update(EntryPackage::unpack(frame), TimeSpan(0), Quaternion{h, 0, 0, h});
 
     const auto& p = plain.pointClouds().front()->pointValues()[0];
     const auto& q = levelled.pointClouds().front()->pointValues()[0];
@@ -359,6 +362,85 @@ TEST_CASE("CombinedManager levels point positions but leaves radial values") {
     CHECK(std::abs(q.cartesian.z - p.cartesian.y) < 1e-5f);
     CHECK(std::abs(q.cartesian.y + p.cartesian.z) < 1e-5f);
     CHECK_EQ(q.radial.range, p.radial.range);
+}
+
+namespace {
+
+/// A gate verdict with a pose: the device turned `degrees` to the left from where it started.
+Imu::Gating::ImuFrameState turnedLeft(TimeSpan t, float degrees, bool accepted = true) {
+    Imu::Gating::ImuFrameState state;
+    state.state =
+        accepted ? Imu::Gating::MotionGateState::Steady : Imu::Gating::MotionGateState::Moving;
+    state.accepted = accepted;
+    state.pose = Imu::ImuPose{
+        t, Quaternion::fromAxisAngle(Vector3::unitZ(), degrees * std::numbers::pi_v<float> / 180),
+        Vector3::zero()};
+    return state;
+}
+
+bool near(Vector3 a, Vector3 b) {
+    return distance(a, b) < 1e-4f;
+}
+
+}  // namespace
+
+TEST_CASE("CombinedManager keeps held points where they were in the room as the device turns") {
+    Association::CombinedManager m(TimeSpans::fromSeconds(1));
+    m.update(FrameBuilder().cloud(1).frame(0), TimeSpan(0), turnedLeft(TimeSpan(0), 0));
+    const Vector3 before = m.pointClouds().front()->pointValues()[0].cartesian;
+
+    // Turned 90° to the left: what was straight ahead is now to the right.
+    m.update(FrameBuilder().cloud(1).frame(1), TimeSpan(10), turnedLeft(TimeSpan(10), 90));
+    const Vector3 after = m.pointClouds().front()->pointValues()[0].cartesian;
+    CHECK(near(after, {before.y, -before.x, before.z}));
+
+    // The new frame's own points are taken as they come.
+    CHECK(near(m.pointClouds().back()->pointValues()[0].cartesian, before));
+}
+
+TEST_CASE("CombinedManager leaves refused frames out but still moves what it holds") {
+    Association::CombinedManager m(TimeSpans::fromSeconds(1));
+    m.update(FrameBuilder().cloud(1).presence(false).frame(0), TimeSpan(0),
+             turnedLeft(TimeSpan(0), 0));
+    const Vector3 before = m.pointClouds().front()->pointValues()[0].cartesian;
+
+    m.update(FrameBuilder().cloud(2).presence(true).frame(1), TimeSpan(10),
+             turnedLeft(TimeSpan(10), -90, false));
+    CHECK_EQ(m.pointClouds().size(), std::size_t{1});  // the refused frame's cloud is not kept
+    CHECK(!m.presence());                              // nor its presence
+    CHECK(
+        near(m.pointClouds().front()->pointValues()[0].cartesian, {-before.y, before.x, before.z}));
+}
+
+TEST_CASE("CombinedManager moves dropped targets in the tracker's coordinates") {
+    Association::CombinedManager m(TimeSpans::fromSeconds(1));
+    // The sensor 1.2 m up, level, as the handheld cfgs say: targets are 1.2 m higher than in
+    // sensor axes, and turning about the sensor must not swing them about the floor's origin.
+    m.trackerFrame = {Quaternion::identity(), {0, 0, 1.2f}};
+    m.update(FrameBuilder().targets({1}, 0, 2).heights({1}, 1.7f, 0.2f).cloud(1).frame(0),
+             TimeSpan(0), turnedLeft(TimeSpan(0), 0));
+
+    // The track ends, its points keep it, and the device turns 90° left.
+    m.update(FrameBuilder().indexes({1}).cloud(1).frame(1), TimeSpan(10),
+             turnedLeft(TimeSpan(10), 90));
+    const auto targets = m.allTargetObjects();
+    REQUIRE(targets.size() == 1);
+    CHECK(targets[0]->state() == Association::TargetObject::TargetState::Dropped);
+    CHECK(near(targets[0]->pos, {2, 0, 0.5f}));
+    CHECK(std::abs(targets[0]->maxZ - 1.7f) < 1e-5f);
+}
+
+TEST_CASE("CombinedManager raises HOLD STEADY only after the warning's delay") {
+    Association::CombinedManager m(TimeSpans::fromSeconds(1));
+    m.update(FrameBuilder().frame(0), TimeSpans::fromSeconds(1),
+             turnedLeft(TimeSpans::fromSeconds(1), 0, false));
+    CHECK(!m.holdSteady());
+    m.update(FrameBuilder().frame(1), TimeSpans::fromSeconds(1.7),
+             turnedLeft(TimeSpans::fromSeconds(1.7), 0, false));
+    CHECK(m.holdSteady());
+    m.update(FrameBuilder().frame(2), TimeSpans::fromSeconds(1.8),
+             turnedLeft(TimeSpans::fromSeconds(1.8), 0));
+    CHECK(!m.holdSteady());
 }
 
 // ---- recording --------------------------------------------------------------------------------
@@ -466,7 +548,7 @@ TEST_CASE("FramePlayback replays the reader's notes in order and maps looped tim
     playback.speed = 10;
     playback.begin(
         [&](const Streaming::Frame& frame, TimeSpan ts) {
-            (void)Association::EntryPackage::unpack(frame);  // throws for frame 2
+            (void)EntryPackage::unpack(frame);  // throws for frame 2
             std::lock_guard lock(gate);
             events.push_back("frame " + std::to_string(frame.header().frameNumber) + " @" +
                              std::to_string(ts.count()));

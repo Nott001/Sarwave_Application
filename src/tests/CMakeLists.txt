@@ -15,7 +15,7 @@ function(sarwave_add_test_suite name dir)
     add_test(NAME ${name} COMMAND ${name})
 endfunction()
 
-sarwave_add_test_suite(CoreTests Core SarwaveCoreMMWave)
+sarwave_add_test_suite(CoreTests Core SarwaveCoreMMWave SarwaveIntegrationPeopleTracking)
 sarwave_add_test_suite(ConfigTests Config SarwaveCoreMMWaveConfig)
 sarwave_add_test_suite(ImuTests Imu SarwaveCoreImu)
 if(SARWAVE_BUILD_GUI)
@@ -25,7 +25,7 @@ endif()
 # Prints the decoded state of recordings in a fixed text form; the same program exists in C#
 # (see src/tests/Parity/README.md), and the two outputs are diffed to prove the port matches.
 add_executable(CoreParityHarness ${CMAKE_CURRENT_SOURCE_DIR}/Parity/CoreParityHarness.cpp)
-target_link_libraries(CoreParityHarness PRIVATE SarwaveCoreMMWave)
+target_link_libraries(CoreParityHarness PRIVATE SarwaveCoreMMWave SarwaveIntegrationPeopleTracking)
 
 # The IMU library's parity harness: fusion, gating and .swimu I/O (see Parity/README.md).
 add_executable(ImuParityHarness ${CMAKE_CURRENT_SOURCE_DIR}/Parity/ImuParityHarness.cpp)

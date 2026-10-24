@@ -14,12 +14,12 @@
 
 #include "DevEnv/ConfigMemory.hpp"
 #include "DevEnv/Gui/CfgDialogue.hpp"
-#include "DevEnv/Gui/ImuFrames.hpp"
 #include "DevEnv/Gui/PortDialogue.hpp"
 #include "DevEnv/Gui/Run.hpp"
 #include "Gui/Models/RadarData.hpp"
 #include "Gui/Views/GuiHost.hpp"
 #include "Gui/Views/Radar/RadarDataOverlay.hpp"
+#include "Integration/PeopleTracking/ImuFrames.hpp"
 #include "MMWave/Common/DurationStats.hpp"
 #include "MMWave/Common/Exceptions.hpp"
 #include "MMWave/Common/TimeSpan.hpp"
@@ -34,6 +34,7 @@ namespace {
 
 using namespace Sarwave::Core;
 namespace CoreGui = Sarwave::Core::Gui;
+using Integration::PeopleTracking::ImuFrames;
 using MMWave::Configured::PeopleTracking::DebugLogger;
 using MMWave::Exceptions::FrameEntryMalformedException;
 using MMWave::Exceptions::FrameMalformedException;
@@ -190,6 +191,7 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine, bool printFram
         cfgPath = CfgDialogue::showAsync(&window, engine, g_ctx.get(), cfgPath);
         if (!cfgPath) return;
         ConfigMemory::saveConfigLocation(*cfgPath);
+        g_data->setTrackerFrame(ImuFrames::loadTrackerFrame(*cfgPath));
 
         // Frame recording
         g_recorder = std::make_unique<FrameRecorder>(RunRecorded::sessionFile());
@@ -259,11 +261,11 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine, bool printFram
                 if (printFrames) g_debugLogger.printFrameDataVerbose(frame, elapsed);
                 g_recorder->record(frame, elapsed);
 
-                // Motion gating and tilt compensation: a frame taken while the device moved is
-                // skipped, the others are levelled.
+                // Frames the gate refuses (device moving or settling) are left out, but what is
+                // kept from earlier ones is still moved with the device.
                 std::optional<Imu::Gating::ImuFrameState> state;
                 if (imu) state = imu->evaluate(elapsed);
-                ImuFrames::apply(*g_data, frame, elapsed, state);
+                g_data->update(frame, elapsed, state);
 
                 if (timing) g_processTimes.add(std::chrono::steady_clock::now() - start);
             },

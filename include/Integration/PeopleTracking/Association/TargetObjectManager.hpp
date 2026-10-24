@@ -4,11 +4,15 @@
 #include <span>
 #include <vector>
 
+#include "Imu/Fusion/RigidMotion.hpp"
+#include "Integration/PeopleTracking/Association/TargetObject.hpp"
 #include "MMWave/Common/DotNetCollections.hpp"
-#include "MMWave/Configured/PeopleTracking/Association/TargetObject.hpp"
 #include "MMWave/Configured/PeopleTracking/Tlv/TlvTypes.hpp"
 
-namespace Sarwave::Core::MMWave::Configured::PeopleTracking::Association {
+namespace Sarwave::Integration::PeopleTracking::Association {
+using Core::MMWave::DotNetDictionary;
+using Core::MMWave::DotNetHashSet;
+namespace Tlv = Core::MMWave::Configured::PeopleTracking::Tlv;
 
 /// Maps the tracker's wire ids (reused by the device as soon as a track ends) to stable object
 /// ids (handed out once, counting up), and keeps the TargetObject for each object id. A target
@@ -59,6 +63,12 @@ class TargetObjectManager {
 
     void declareWireIds(std::span<const TlvTargetIndex> newIds);
 
+    /// Moves every target the device no longer reports; see TargetObject::transform().
+    void transformUnwired(const RigidMotion& motion);
+
+    /// Moves every target, reported or not; see TargetObject::transform().
+    void transformAll(const RigidMotion& motion);
+
    private:
     void declareNewTargetObject(TlvTargetIndex wireId);
 
@@ -69,4 +79,4 @@ class TargetObjectManager {
     DotNetDictionary<TlvTargetIndex, int> m_wireId2ObjectId;
 };
 
-}  // namespace Sarwave::Core::MMWave::Configured::PeopleTracking::Association
+}  // namespace Sarwave::Integration::PeopleTracking::Association

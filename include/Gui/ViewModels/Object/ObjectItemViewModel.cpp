@@ -3,8 +3,8 @@
 #include <cmath>
 #include <numbers>
 
+#include "Integration/PeopleTracking/Association/TargetObject.hpp"
 #include "MMWave/Common/DotNetFormat.hpp"
-#include "MMWave/Configured/PeopleTracking/Association/TargetObject.hpp"
 
 namespace Sarwave::Core::Gui::ViewModels::Object {
 namespace {
@@ -20,7 +20,7 @@ constexpr float RadToDeg = 180.0f / std::numbers::pi_v<float>;
 ObjectItemViewModel::ObjectItemViewModel(QObject* parent)
     : ObjectItemViewModel(
           static_cast<int>(
-              MMWave::Configured::PeopleTracking::Association::NonObjectPoint::PointNotYetAssigned),
+              Integration::PeopleTracking::Association::NonObjectPoint::PointNotYetAssigned),
           parent) {
 }
 

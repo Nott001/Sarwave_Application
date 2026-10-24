@@ -26,12 +26,12 @@
 #include <string>
 #include <vector>
 
-#include "DevEnv/Gui/ImuFrames.hpp"
 #include "Gui/Models/RadarData.hpp"
 #include "Gui/ViewModels/Radar/RadarGridViewModel.hpp"
 #include "Gui/Views/Radar/RadarDataOverlay.hpp"
 #include "Imu/Gating/MotionGate.hpp"
 #include "Imu/Recording/ImuRecording.hpp"
+#include "Integration/PeopleTracking/ImuFrames.hpp"
 #include "MMWave/Exceptions/FrameMalformedException.hpp"
 #include "MMWave/Recording/FrameRecorder.hpp"
 #include "MMWave/Recording/FrameRecording.hpp"
@@ -41,7 +41,7 @@ namespace {
 
 using namespace Sarwave::Core;
 using Clock = std::chrono::steady_clock;
-using Sarwave::DevEnv::Gui::ImuFrames;
+using Sarwave::Integration::PeopleTracking::ImuFrames;
 
 /// How long point clouds stay on the radar grid in the live app (RunStuff's PointRetention).
 const MMWave::TimeSpan PointRetention = MMWave::TimeSpans::fromSeconds(1);
@@ -182,7 +182,7 @@ int main(int argc, char** argv) {
             if (gate) state = gate->evaluate(timestamp);
             const auto t2 = Clock::now();
             try {
-                ImuFrames::apply(data, frames[i], timestamp, state);
+                data.update(frames[i], timestamp, state);
             } catch (const MMWave::Exceptions::FrameMalformedException&) {
                 malformed++;
                 data.skipFrame(timestamp);
