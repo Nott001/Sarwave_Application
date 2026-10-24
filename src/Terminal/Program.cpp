@@ -5,6 +5,7 @@
 // unused, and args[2] is read both as the data port and as the cfg path):
 //   SarwaveTerminal                          prompts for port numbers and the cfg path
 //   SarwaveTerminal <x> <cliPort> <dataPort> uses those port paths, cfg path = <dataPort>
+//   SarwaveTerminal imu [recording.swimu]    the live IMU monitor, without the radar
 
 #include <chrono>
 #include <iostream>
@@ -13,6 +14,7 @@
 #include <thread>
 #include <vector>
 
+#include "ImuMonitor.hpp"
 #include "MMWave/Common/Exceptions.hpp"
 #include "MMWave/Common/TimeSpan.hpp"
 #include "MMWave/Porting/Context.hpp"
@@ -157,6 +159,10 @@ int main(int argc, char* argv[]) {
     // C#'s Main(string[] args) does not include the program name.
     const std::vector<std::string> args(argv + 1, argv + argc);
     try {
+        // "imu [recording.swimu]": the live IMU monitor, without the radar.
+        if (!args.empty() && args[0] == "imu")
+            return ImuMonitor::run(args.size() > 1 ? std::optional(args[1]) : std::nullopt);
+
         return run(args);
     } catch (...) {
         Sarwave::Core::failUnhandled(std::current_exception());

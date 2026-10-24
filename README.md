@@ -23,6 +23,7 @@ Every C# project has a counterpart:
 | `Sarwave.Source.LiveRpiApp` | `src/LiveRpiApp/` | `LiveRpiApp` |
 | `Sarwave.Source.RecordedRpiApp` | `src/RecordedRpiApp/` | `RecordedRpiApp` |
 | `Sarwave.Source.WirelessRpiApp` | `src/WirelessRpiApp/` | `WirelessRpiApp` |
+| `tools/imu_check.cs`, `tools/pilot_check.cs` | `src/tools/` | `SarwaveImuCheck`, `SarwavePilotCheck` |
 | `Sarwave.Core.Imu.Tests` | `src/tests/Imu/` | `ImuTests` |
 
 Namespaces mirror the C# ones (`Sarwave::Core::MMWave::Streaming`, `Sarwave::Core::Gui::Views`, ...).
@@ -73,6 +74,16 @@ python3 tools/generate_imu_recording.py ~/.local/share/Sarwave/default_session.s
 
 # Terminal: prompts for port numbers and the cfg path, sends the cfg, starts the sensor.
 ./build/src/Terminal/SarwaveTerminal
+
+# Terminal IMU monitor: pitch, roll, turning rate, the axis pointing up and the gate's verdict,
+# live, without the radar; with a file it also records the raw samples (.swimu).
+./build/src/Terminal/SarwaveTerminal imu [file.swimu]
+
+# Check tools, run from the repo root: the IMU level trim from recordings held level
+# (docs/imu_mounting_checks.md), and how many points a recorded person gives
+# (docs/pilot_check.md).
+./build/bin/SarwaveImuCheck a.swimu b.swimu
+./build/bin/SarwavePilotCheck ~/sarwave_data/sessions/P02 --at 0.0,3.0
 ```
 
 The command-line options are the only additions to the C# behaviour; the C# apps set the same
@@ -145,7 +156,8 @@ it stays where it was in the room. Targets are placed using the cfg's `sensorPos
 offset and thresholds are set in `ImuFrames::options()`. The desktop dashboard (recorded and
 wireless apps) shows pitch, roll, turning rate, the IMU axis pointing up and the gate's verdict in
 a strip under its top bar. The C# solution's `docs/sessions.md` explains the design; this port
-follows it to the bit.
+follows it to the bit. Before collecting data, confirm the mounting and trim the level as in
+`docs/imu_mounting_checks.md`; `docs/data_collection_checklist.md` covers the rest.
 
 ### LAN streaming
 

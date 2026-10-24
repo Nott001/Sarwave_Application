@@ -84,6 +84,7 @@ add_subdirectory(include/MMWave)
 add_subdirectory(include/Imu)
 add_subdirectory(include/Integration)
 add_subdirectory(src/Terminal)
+add_subdirectory(src/tools)
 
 if(SARWAVE_BUILD_GUI)
     add_subdirectory(include/Gui)

@@ -11,6 +11,32 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 > Changes staged locally that have not yet been tagged as a release.
 
+### Added — C# changes of 2026-10-22 to 2026-10-24 ported
+- **Pose tracking** (`include/Imu`): `ImuProcessor` integrates the gyroscope into a full
+  orientation (pulled towards gravity only while quiet) and the acceleration into a rough
+  position; `ImuState::pose()`, `ImuMounting::radarOffset`, `ImuPose`, `RigidMotion`,
+  `ImuTimeline::tryGetAt`. `MotionGate` gives each frame's pose. `HoldSteadyWarning` raises
+  **HOLD STEADY** only after 0.6 s of refused frames. Parity harnesses gain a `track` command.
+- **`SarwaveIntegrationPeopleTracking`** (`include/Integration`), the counterpart of
+  `Sarwave.Integration.PeopleTracking`: the association (from MMWave), `ImuFrames` (from DevEnv)
+  and `EntryPackage`. `CombinedManager::update` takes the gate's verdict and moves the held
+  clouds and the dropped targets with the device; `TrackerFrame` places targets from the cfg's
+  `sensorPosition`. Parity: new `imumanager` command and two fixtures
+  (`src/tests/data/parity/session.imu*.txt`).
+- **IMU strip** under the desktop dashboard's top bar (`ImuStatusViewModel`, `ImuStrip.qml`):
+  pitch, roll, turning rate, the IMU axis pointing up and the gate's verdict.
+- **LAN streaming** (`include/Integration/PeopleTracking/Lan`): `LanFormat` (byte for byte the C#
+  wire format; `lanformat` harness command and fixture), `LanSender`, `LanReceiver`. `RunStuff`
+  offers the live session on the network (`LanDialogue`); new `WirelessRpiApp` (`RunLan`) shows
+  it. `ConfigMemory` keeps every setting, unknown ones included. DevEnv links Qt Network.
+- **Terminal IMU monitor**: `SarwaveTerminal imu [file.swimu]` shows the IMU live without the
+  radar, and records the raw samples with a file name.
+- **Check tools** (`src/tools`, built to `build/bin/`): `SarwaveImuCheck` (level trim from
+  recordings held level) and `SarwavePilotCheck` (points at a recorded person against the rest),
+  ports of the C# `tools/imu_check.cs` and `tools/pilot_check.cs` with the same output.
+- Docs: `docs/imu_mounting_checks.md`, `docs/data_collection_checklist.md`,
+  `docs/pilot_check.md` (from the C# repo, with the C++ commands).
+
 ### Added — C# changes of 2026-10-12 to 2026-10-16 ported
 - **IMU** (`include/Imu`, `SarwaveCoreImu`): the C# `Sarwave.Core.Imu` -- ICM-42688-P driver on
   Linux spidev (detect, reset, configure, read back, FIFO drain), `ImuSampler` thread with
