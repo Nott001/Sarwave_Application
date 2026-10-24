@@ -8,7 +8,7 @@
 
 /// Sarwave.Integration.PeopleTracking: the People Tracking output put together with the IMU --
 /// which targets and points a session holds, moved with the device as it turns -- plus the IMU
-/// glue the apps share (ImuFrames).
+/// glue the apps share (ImuFrames) and streaming over the LAN (Lan/).
 namespace Sarwave::Integration::PeopleTracking {
 
 namespace Streaming = Core::MMWave::Streaming;

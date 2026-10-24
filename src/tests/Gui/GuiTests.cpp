@@ -8,6 +8,10 @@
 #include <QTimer>
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
+#include <fstream>
+#include <functional>
+#include <iterator>
 #include <memory>
 #include <numbers>
 #include <thread>
@@ -16,6 +20,7 @@
 #include "DevEnv/ConfigMemory.hpp"
 #include "DevEnv/DevEnv.hpp"
 #include "DevEnv/Gui/CfgDialogue.hpp"
+#include "DevEnv/Gui/LanDialogue.hpp"
 #include "DevEnv/Gui/PortDialogue.hpp"
 #include "DevEnv/Gui/Run.hpp"
 #include "Gui/Common/DotNetRandom.hpp"
@@ -30,8 +35,11 @@
 #include "Gui/Views/Radar/RadarDataOverlay.hpp"
 #include "Gui/Views/Radar/RadarGeometry.hpp"
 #include "Gui/Views/StringFormat.hpp"
+#include "Imu/Recording/ImuRecording.hpp"
 #include "Integration/PeopleTracking/ImuFrames.hpp"
+#include "Integration/PeopleTracking/Lan/LanSender.hpp"
 #include "MMWave/Exceptions/FrameMalformedException.hpp"
+#include "MMWave/Recording/FrameRecording.hpp"
 #include "TestFramework.hpp"
 
 using namespace Sarwave::Core;
@@ -345,6 +353,128 @@ TEST_CASE("Port and cfg dialogues load, and cancelling returns nothing") {
                .has_value());
 }
 
+TEST_CASE("The LAN dialogue checks the address and port, and remembers each side's answer") {
+    using Sarwave::DevEnv::Gui::LanDialogue;
+    app();
+    const auto previous = std::filesystem::current_path();
+    const auto dir = std::filesystem::temp_directory_path() / "sarwave-landialogue-test";
+    std::filesystem::remove_all(dir);
+    std::filesystem::create_directories(dir);
+    std::filesystem::current_path(dir);
+
+    QQmlEngine engine;
+    QQuickWindow owner;
+    owner.resize(800, 450);
+
+    // Runs `act` on the dialogue once it is up.
+    const auto whenShown = [](std::function<void(LanDialogue&)> act) {
+        QTimer::singleShot(200, [act] {
+            for (QWindow* w : QGuiApplication::topLevelWindows()) {
+                if (auto* lan =
+                        qobject_cast<LanDialogue*>(w->property("controller").value<QObject*>()))
+                    act(*lan);
+            }
+        });
+    };
+
+    whenShown([](LanDialogue& lan) {
+        CHECK(lan.title() == "Stream to a Wireless Dashboard");
+        CHECK(lan.initialHost() == "0.0.0.0");
+        CHECK(lan.initialPort() == 5577);
+        CHECK(!lan.localAddresses().isEmpty());
+        lan.ok("pi.local", 5577);  // a sender listens on an address, not a name
+        CHECK(lan.errorText() ==
+              "Enter one of this device's IP addresses, or 0.0.0.0 for all of them.");
+        lan.ok("0.0.0.0", 0);
+        CHECK(lan.errorText() == "Enter a port from 1 to 65535.");
+        lan.ok(" 0.0.0.0 ", 6000);
+    });
+    const auto send = LanDialogue::showAsync(&owner, engine, LanDialogue::Role::Send);
+    REQUIRE(send.has_value());
+    CHECK(send->host == "0.0.0.0");
+    CHECK(send->port == 6000);
+
+    whenShown([](LanDialogue& lan) {
+        CHECK(lan.okText() == "Connect");
+        CHECK(lan.initialHost().isEmpty());
+        lan.ok("  ", 5577);
+        CHECK(lan.errorText() == "Enter the sender's IP address or host name.");
+        lan.ok("pi.local", 5578);
+    });
+    const auto receive = LanDialogue::showAsync(&owner, engine, LanDialogue::Role::Receive);
+    REQUIRE(receive.has_value());
+    CHECK(receive->host == "pi.local");
+
+    whenShown([](LanDialogue& lan) {
+        CHECK(lan.initialHost() == "0.0.0.0");
+        CHECK(lan.initialPort() == 6000);
+        lan.cancel();
+    });
+    CHECK(!LanDialogue::showAsync(&owner, engine, LanDialogue::Role::Send).has_value());
+
+    std::filesystem::current_path(previous);
+    std::filesystem::remove_all(dir);
+}
+
+TEST_CASE("The wireless app shows what a LAN sender streams") {
+    using Sarwave::DevEnv::Gui::LanDialogue;
+    using Sarwave::Integration::PeopleTracking::Lan::LanSender;
+    app();
+    const auto previous = std::filesystem::current_path();
+    const auto dir = std::filesystem::temp_directory_path() / "sarwave-runlan-test";
+    std::filesystem::remove_all(dir);
+    std::filesystem::create_directories(dir);
+    std::filesystem::current_path(dir);
+
+    LanSender sender(boost::asio::ip::make_address("127.0.0.1"), 0, "sensorPosition 1.2 0 0\n");
+    sender.start();
+
+    QQmlEngine engine;
+    QQuickWindow window;
+    window.resize(1100, 600);
+    window.show();
+    const int port = sender.port();
+    QTimer::singleShot(200, [port] {
+        for (QWindow* w : QGuiApplication::topLevelWindows()) {
+            if (auto* lan = qobject_cast<LanDialogue*>(w->property("controller").value<QObject*>()))
+                lan->ok("127.0.0.1", port);
+        }
+    });
+    Sarwave::DevEnv::Gui::RunLan::onOpened(window, engine);
+
+    const auto settle = [](const std::function<bool()>& done) {
+        QElapsedTimer timer;
+        timer.start();
+        while (!done() && timer.elapsed() < 5000)
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+        return done();
+    };
+    CHECK(settle([&] { return sender.isConnected(); }));
+    CHECK(settle(
+        [&] { return window.title().startsWith("Sarwave Wireless: Connected to 127.0.0.1:"); }));
+
+    // The IMU session from 0 s, and the frames on its clock from 5 s on, when it has settled.
+    const auto imu = Imu::Recording::ImuRecording::load(SARWAVE_TEST_DATA_DIR "/imu/session.swimu");
+    const auto recording =
+        MMWave::Recording::FrameRecording::load(SARWAVE_TEST_DATA_DIR "/parity/session.swrec");
+    const auto offset = MMWave::TimeSpans::fromSeconds(5);
+    std::size_t sent = 0;
+    for (int i = 0; i < recording.count(); ++i) {
+        const auto timestamp = offset + recording.timestamps()[static_cast<std::size_t>(i)];
+        std::size_t upTo = sent;
+        while (upTo < imu.samples().size() && imu.samples()[upTo].timestamp <= timestamp) ++upTo;
+        sender.sendImu(imu.samples().subspan(sent, upTo - sent));
+        sent = upTo;
+        sender.sendFrame(recording.frames()[static_cast<std::size_t>(i)], timestamp);
+    }
+    settle([] { return false; });  // let it all arrive and be drawn
+    CHECK(sender.dropped() == 0);
+
+    Sarwave::DevEnv::Gui::RunLan::onClosed();
+    std::filesystem::current_path(previous);
+    std::filesystem::remove_all(dir);
+}
+
 TEST_CASE("ConfigMemory writes config.json the way System.Text.Json does") {
     using Sarwave::DevEnv::ConfigMemory;
 #ifndef _WIN32
@@ -353,6 +483,61 @@ TEST_CASE("ConfigMemory writes config.json the way System.Text.Json does") {
     CHECK_EQ(ConfigMemory::serialize("a\"b\\c+<é>"),
              "{\n  \"CfgPath\": \"a\\u0022b\\\\c\\u002B\\u003C\\u00E9\\u003E\"\n}");
 #endif
+}
+
+TEST_CASE("ConfigMemory keeps every setting when saving one, as the C# JsonObject does") {
+    using Sarwave::DevEnv::ConfigMemory;
+    const auto previous = std::filesystem::current_path();
+    const auto dir = std::filesystem::temp_directory_path() / "sarwave-configmemory-test";
+    std::filesystem::remove_all(dir);
+    std::filesystem::create_directories(dir);
+    std::filesystem::current_path(dir);
+    const auto readFile = [] {
+        std::ifstream in(ConfigMemory::CfgFile, std::ios::binary);
+        return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+    };
+    const auto writeFile = [](const std::string& text) {
+        std::ofstream(ConfigMemory::CfgFile, std::ios::binary) << text;
+    };
+
+    CHECK(!ConfigMemory::getConfig());
+    CHECK(!ConfigMemory::getLanAddress(true));
+
+    ConfigMemory::saveLanAddress(false, "192.168.1.20", 5577);
+    ConfigMemory::saveConfigLocation("/cfg/a.cfg");
+    ConfigMemory::saveLanAddress(true, "0.0.0.0", 6000);
+    ConfigMemory::saveLanAddress(false, "pi.local", 5578);
+    CHECK(ConfigMemory::getConfig() == std::optional<std::string>("/cfg/a.cfg"));
+    const auto listen = ConfigMemory::getLanAddress(true);
+    REQUIRE(listen.has_value());
+    CHECK(listen->host == "0.0.0.0");
+    CHECK(listen->port == 6000);
+    CHECK(ConfigMemory::getLanAddress(false)->host == "pi.local");
+#ifndef _WIN32
+    // In the order first saved; a changed value stays where it was.
+    CHECK_EQ(readFile(),
+             std::string("{\n  \"LanSenderHost\": \"pi.local\",\n  \"LanSenderPort\": 5578,\n"
+                         "  \"CfgPath\": \"/cfg/a.cfg\",\n  \"LanListenHost\": \"0.0.0.0\",\n"
+                         "  \"LanListenPort\": 6000\n}"));
+
+    // Settings this app does not know are kept, as they were.
+    writeFile("{\"Other\": [1, 2.50, {\"x\": null}], \"Empty\": {}, \"CfgPath\": null}");
+    CHECK(!ConfigMemory::getConfig());
+    ConfigMemory::saveConfigLocation("b");
+    CHECK_EQ(readFile(),
+             std::string("{\n  \"Other\": [\n    1,\n    2.50,\n    {\n      \"x\": "
+                         "null\n    }\n  ],\n  \"Empty\": {},\n  \"CfgPath\": \"b\"\n}"));
+#endif
+
+    // A file that is not JSON is started afresh; a setting of the wrong kind is an error.
+    writeFile("{\"CfgPath\": \"a\",}");
+    CHECK(!ConfigMemory::getConfig());
+    writeFile("{\"CfgPath\": 5, \"LanListenHost\": \"h\", \"LanListenPort\": \"p\"}");
+    CHECK_THROWS_AS(ConfigMemory::getConfig(), Sarwave::Core::InvalidOperationException);
+    CHECK_THROWS_AS(ConfigMemory::getLanAddress(true), Sarwave::Core::InvalidOperationException);
+
+    std::filesystem::current_path(previous);
+    std::filesystem::remove_all(dir);
 }
 
 TEST_CASE("Status shows HOLD STEADY over everything else while gating refuses frames") {

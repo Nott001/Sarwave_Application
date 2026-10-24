@@ -33,7 +33,7 @@ done
 reader skips. Damaged streams come from `tools/generate_stream.py`.
 
 Commands: `log <rec> <hideBytes>`, `manager <rec> <retentionMs>`,
-`imumanager <rec> <swimu> <retentionMs> <offsetMs> <cfg>`, `reader <raw> <seed>`,
+`imumanager <rec> <swimu> <retentionMs> <offsetMs> <cfg>`, `lanformat <swimu>`, `reader <raw> <seed>`,
 `load <rec>`, `rewrite <in> <out>`, `playback <rec> <speed> <n>`, `prompt`, `timespan`, `fixed`.
 
 Point order inside one target's group is not compared: the C# code sorts with an unstable

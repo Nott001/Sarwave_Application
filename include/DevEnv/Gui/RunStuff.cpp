@@ -8,18 +8,22 @@
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
+#include <iterator>
 #include <memory>
 #include <thread>
 
 #include "DevEnv/ConfigMemory.hpp"
 #include "DevEnv/Gui/CfgDialogue.hpp"
+#include "DevEnv/Gui/LanDialogue.hpp"
 #include "DevEnv/Gui/PortDialogue.hpp"
 #include "DevEnv/Gui/Run.hpp"
 #include "Gui/Models/RadarData.hpp"
 #include "Gui/Views/GuiHost.hpp"
 #include "Gui/Views/Radar/RadarDataOverlay.hpp"
 #include "Integration/PeopleTracking/ImuFrames.hpp"
+#include "Integration/PeopleTracking/Lan/LanSender.hpp"
 #include "MMWave/Common/DurationStats.hpp"
 #include "MMWave/Common/Exceptions.hpp"
 #include "MMWave/Common/TimeSpan.hpp"
@@ -35,6 +39,7 @@ namespace {
 using namespace Sarwave::Core;
 namespace CoreGui = Sarwave::Core::Gui;
 using Integration::PeopleTracking::ImuFrames;
+using Integration::PeopleTracking::Lan::LanSender;
 using MMWave::Configured::PeopleTracking::DebugLogger;
 using MMWave::Exceptions::FrameEntryMalformedException;
 using MMWave::Exceptions::FrameMalformedException;
@@ -56,11 +61,12 @@ constexpr int ImuPriority = 20;
 constexpr std::chrono::seconds TimingInterval{10};
 
 // Process-lifetime state, as the C# static fields; destroyed in reverse order at exit, so the
-// capture (last) stops before the IMU, recorder, data and ports it uses.
+// capture (last) stops before the LAN sender, IMU, recorder, data and ports it uses.
 std::unique_ptr<CoreGui::Models::RadarData> g_data;
 std::unique_ptr<Context> g_ctx;
 std::unique_ptr<FrameRecorder> g_recorder;
 std::unique_ptr<Imu::ImuSession> g_imu;
+std::unique_ptr<LanSender> g_sender;
 DebugLogger g_debugLogger(DebugLogger::Config{.hideBytes = true});
 std::unique_ptr<ConstantCapture> g_capture;
 
@@ -166,6 +172,15 @@ void printTimings(MMWave::TimeSpan elapsed) {
               << std::endl;
 }
 
+/// File.ReadAllText: the whole file. Throws IOException when it cannot be read.
+std::string readAllText(const std::string& path) {
+    std::ifstream file(path, std::ios::binary);
+    if (!file) throw IOException("Could not read " + path);
+    std::string text{std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()};
+    if (text.starts_with("\xEF\xBB\xBF")) text.erase(0, 3);
+    return text;
+}
+
 std::string trim(const std::string& text) {
     const auto first = text.find_first_not_of(" \t\n\v\f\r");
     if (first == std::string::npos) return {};
@@ -192,6 +207,24 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine, bool printFram
         if (!cfgPath) return;
         ConfigMemory::saveConfigLocation(*cfgPath);
         g_data->setTrackerFrame(ImuFrames::loadTrackerFrame(*cfgPath));
+
+        // Optionally offered on the LAN, for the wireless app (RunLan) to show. Started before
+        // the capture so the callbacks below can hand it every frame and IMU sample.
+        if (const auto streamOn =
+                LanDialogue::showAsync(&window, engine, LanDialogue::Role::Send)) {
+            auto lan = std::make_unique<LanSender>(boost::asio::ip::make_address(streamOn->host),
+                                                   streamOn->port, readAllText(*cfgPath));
+            lan->log = [](const std::string& message) {
+                std::cerr << "[LAN] " << message << std::endl;
+            };
+            try {
+                lan->start();
+                g_sender = std::move(lan);
+            } catch (const boost::system::system_error& ex) {
+                printError("Streaming unavailable", ex, MMWave::TimeSpan::zero());
+            }
+        }
+        LanSender* sender = g_sender.get();
 
         // Frame recording
         g_recorder = std::make_unique<FrameRecorder>(RunRecorded::sessionFile());
@@ -246,8 +279,8 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine, bool printFram
         capture->readerPriority = ReaderPriority;
         const bool timing = timingReport;
         capture->beginConstantCapture(
-            [printFrames, imu, timing, capture](const MMWave::Streaming::Frame& frame,
-                                                MMWave::TimeSpan elapsed) {
+            [printFrames, imu, sender, timing, capture](const MMWave::Streaming::Frame& frame,
+                                                        MMWave::TimeSpan elapsed) {
                 // `elapsed` is when the frame arrived, so the time since is how long it queued.
                 std::chrono::steady_clock::time_point start;
                 if (timing) {
@@ -260,6 +293,7 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine, bool printFram
                 // completes.
                 if (printFrames) g_debugLogger.printFrameDataVerbose(frame, elapsed);
                 g_recorder->record(frame, elapsed);
+                if (sender) sender->sendFrame(frame, elapsed);
 
                 // Frames the gate refuses (device moving or settling) are left out, but what is
                 // kept from earlier ones is still moved with the device.
@@ -269,9 +303,10 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine, bool printFram
 
                 if (timing) g_processTimes.add(std::chrono::steady_clock::now() - start);
             },
-            [](const FrameMalformedException& exception, MMWave::TimeSpan elapsed) {
+            [sender](const FrameMalformedException& exception, MMWave::TimeSpan elapsed) {
                 printError("Malformed frame", exception, elapsed);
                 g_recorder->recordMalformed(exception, elapsed);
+                if (sender) sender->sendMalformed(exception, elapsed);
 
                 // The frame after this one carries indexes for a cloud that was never added.
                 g_data->skipFrame(elapsed);
@@ -306,7 +341,14 @@ void RunStuff::onOpened(QQuickWindow& window, QQmlEngine& engine, bool printFram
                 imu->sampler().onCompleted = [capture](std::exception_ptr error) {
                     if (error) printError("IMU stopped", error, capture->elapsed());
                 };
-                imu->start([capture] { return capture->elapsed(); }, imuRecordingPath);
+                Imu::Sampling::ImuSampler::BatchCallback toSender;
+                if (sender) {
+                    toSender = [sender](std::span<const Imu::ImuSample> samples) {
+                        sender->sendImu(samples);
+                    };
+                }
+                imu->start([capture] { return capture->elapsed(); }, imuRecordingPath,
+                           std::move(toSender));
             } catch (const IOException& ex) {
                 printError("IMU failed to start", ex, capture->elapsed());
             }
@@ -341,6 +383,9 @@ void RunStuff::onClosed() {
 
         // After the capture: its callback asks the IMU about every frame.
         if (g_imu) g_imu->dispose();
+
+        // Last: the callbacks above hand it what they get.
+        g_sender.reset();
 
         try {
             g_ctx->sendCliCommand(Context::SensorStopCommand);

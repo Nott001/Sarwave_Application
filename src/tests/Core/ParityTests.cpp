@@ -96,6 +96,12 @@ TEST_CASE("parity: the IMU-gated CombinedManager equals the C# one") {
     checkImuManager(15000);
 }
 
+TEST_CASE("parity: LAN messages are byte for byte the C# LanFormat's") {
+    std::ostringstream out;
+    SarwaveParity::dumpLanFormat(out, SARWAVE_TEST_DATA_DIR "/imu/session.swimu");
+    checkSameText(out.str(), readText("lan.txt"), "LanFormat");
+}
+
 TEST_CASE("parity: FrameReader extracts the same frames as the C# FrameReader") {
     const std::string raw = readText("stream.bin");
     Streaming::FrameReader reader;

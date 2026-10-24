@@ -25,9 +25,10 @@ struct RunRecorded {
 };
 
 /// The live run: MinimalGui dashboard, port dialogue, cfg dialogue (sent without sensorStart),
-/// then captures frames -- recording them, and the IMU beside them, to RunRecorded::sessionFile()
-/// -- and starts the sensor. Each frame is gated and levelled by the IMU (see ImuFrames), and what
-/// is held from earlier frames is moved with the device.
+/// LAN dialogue (stream the session or not), then captures frames -- recording them, and the IMU
+/// beside them, to RunRecorded::sessionFile(), and streaming both if asked -- and starts the
+/// sensor. Each frame is gated and levelled by the IMU (see ImuFrames), and what is held from
+/// earlier frames is moved with the device.
 struct RunStuff {
     /// Call once the window is shown. Fails the process (like Environment.FailFast) on error.
     ///
@@ -41,6 +42,20 @@ struct RunStuff {
     /// and how long drawing the radar view took (LiveRpiApp --timing). Set before onOpened. The
     /// measuring costs well under a microsecond per frame and never touches the reader thread.
     static bool timingReport;
+};
+
+/// The wireless app: shows the MaximalGui dashboard of a session the live app streams over the
+/// LAN (see RunStuff). Asks for the sender's address, then connects, and connects again whenever
+/// the connection is lost; the window title says how it stands.
+///
+/// What arrives is processed the way a replay is: the raw IMU samples go through this app's own
+/// ImuFrames::options() (so the mounting set there must match the sender's device), and each
+/// frame is gated, levelled and moved with the device exactly as it is live.
+struct RunLan {
+    /// Call once the window is shown. Fails the process (like Environment.FailFast) on error.
+    static void onOpened(QQuickWindow& window, QQmlEngine& engine);
+
+    static void onClosed();
 };
 
 }  // namespace Sarwave::DevEnv::Gui

@@ -6,6 +6,7 @@
 //   CoreParityHarness manager <file.swrec> <durationMs>    CombinedManager state after every frame
 //   CoreParityHarness imumanager <file.swrec> <file.swimu> <durationMs> <offsetMs> <file.cfg>
 //                                                          the same, gated and moved by the IMU
+//   CoreParityHarness lanformat <file.swimu>                every LAN message kind, as hex
 //   CoreParityHarness reader <raw.bin> <seed>              FrameReader over a chunked byte stream
 //   CoreParityHarness load <file.swrec>                    FrameRecording.Load summary / error
 //   CoreParityHarness rewrite <in.swrec> <out.swrec>       FrameRecorder round trip
@@ -192,6 +193,10 @@ int main(int argc, char** argv) {
     if (cmd == "imumanager") {
         dumpImuManager(std::cout, Recording::FrameRecording::load(args[1]), args[2],
                        std::stod(args[3]), std::stod(args[4]), args[5]);
+        return 0;
+    }
+    if (cmd == "lanformat") {
+        dumpLanFormat(std::cout, args[1]);
         return 0;
     }
     if (cmd == "reader") return cmdReader(args[1], static_cast<std::uint32_t>(std::stoul(args[2])));

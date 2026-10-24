@@ -103,6 +103,25 @@ switch (cmd)
         Console.Write(sb.ToString());
         break;
     }
+    case "lanformat":
+    {
+        // Every LAN message kind, as hex: the wire bytes the two apps exchange.
+        static string Hex(Sarwave.Integration.PeopleTracking.Lan.LanMessage m)
+        {
+            string text = Convert.ToHexString(m.Bytes);
+            m.Return();
+            return text;
+        }
+        var imu = Sarwave.Core.Imu.Recording.ImuRecording.Load(args[1]);
+        byte[] frame = new byte[100];
+        for (int i = 0; i < frame.Length; i++) frame[i] = (byte)(i * 7);
+        Console.WriteLine(Hex(Sarwave.Integration.PeopleTracking.Lan.LanFormat.EncodeHello("sensorStop\r\n% \u00fc\u00f1 \u2192\n")));
+        Console.WriteLine(Hex(Sarwave.Integration.PeopleTracking.Lan.LanFormat.EncodeFrame(frame, new TimeSpan(123456789))));
+        Console.WriteLine(Hex(Sarwave.Integration.PeopleTracking.Lan.LanFormat.EncodeMalformed(new FrameReaderMalformedException(FrameReaderMalformedException.Reason.TlvChain, "chain broken", 77), new TimeSpan(-5))));
+        Console.WriteLine(Hex(Sarwave.Integration.PeopleTracking.Lan.LanFormat.EncodeMalformed(new FrameEntryMalformedException(FrameEntryMalformedException.Reason.PointCount, "points 3 != 4"), new TimeSpan(42))));
+        Console.WriteLine(Hex(Sarwave.Integration.PeopleTracking.Lan.LanFormat.EncodeImu(imu.Samples[..50])));
+        break;
+    }
     case "reader":
     {
         byte[] raw = File.ReadAllBytes(args[1]);

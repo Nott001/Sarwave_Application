@@ -13,6 +13,7 @@
 #include "Imu/Recording/ImuRecording.hpp"
 #include "Integration/PeopleTracking/Association/CombinedManager.hpp"
 #include "Integration/PeopleTracking/ImuFrames.hpp"
+#include "Integration/PeopleTracking/Lan/LanFormat.hpp"
 #include "MMWave/Common/DotNetFormat.hpp"
 #include "MMWave/Common/Exceptions.hpp"
 #include "MMWave/Configured/PeopleTracking/DebugLogger.hpp"
@@ -154,6 +155,37 @@ inline void dumpImuManager(std::ostream& out, const Recording::FrameRecording& r
         dumpManagerState(sb, manager);
     }
     out << sb.str();
+}
+
+/// Every LAN message kind, as hex: the wire bytes the live and the wireless app exchange.
+inline void dumpLanFormat(std::ostream& out, const std::filesystem::path& imuPath) {
+    using Sarwave::Integration::PeopleTracking::Lan::LanFormat;
+    using namespace Exceptions;
+    const auto hex = [](const std::vector<std::uint8_t>& bytes) {
+        static constexpr char Digits[] = "0123456789ABCDEF";
+        std::string text;
+        for (std::uint8_t b : bytes) {
+            text += Digits[b >> 4];
+            text += Digits[b & 15];
+        }
+        return text;
+    };
+    const auto imu = Sarwave::Core::Imu::Recording::ImuRecording::load(imuPath);
+    std::vector<std::uint8_t> frame(100);
+    for (std::size_t i = 0; i < frame.size(); ++i) frame[i] = static_cast<std::uint8_t>(i * 7);
+    out << hex(LanFormat::encodeHello("sensorStop\r\n% \u00fc\u00f1 \u2192\n")) << "\n";
+    out << hex(LanFormat::encodeFrame(frame, TimeSpan(123456789))) << "\n";
+    out << hex(LanFormat::encodeMalformed(
+               FrameReaderMalformedException(FrameReaderMalformedException::Reason::TlvChain,
+                                             "chain broken", 77),
+               TimeSpan(-5)))
+        << "\n";
+    out << hex(LanFormat::encodeMalformed(
+               FrameEntryMalformedException(FrameEntryMalformedException::Reason::PointCount,
+                                            "points 3 != 4"),
+               TimeSpan(42)))
+        << "\n";
+    out << hex(LanFormat::encodeImu(imu.samples().first(50))) << "\n";
 }
 
 }  // namespace SarwaveParity

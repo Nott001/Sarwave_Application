@@ -12,6 +12,7 @@ project(SarwaveApp VERSION 0.2 LANGUAGES CXX)
 #   Sarwave.Source.TestRpiApp   -> src/TestRpiApp   (TestRpiApp)
 #   Sarwave.Source.LiveRpiApp   -> src/LiveRpiApp   (LiveRpiApp)
 #   Sarwave.Source.RecordedRpiApp -> src/RecordedRpiApp (RecordedRpiApp)
+#   Sarwave.Source.WirelessRpiApp -> src/WirelessRpiApp (WirelessRpiApp)
 
 # Release unless told otherwise. A Debug build runs the per-frame work about five times slower,
 # so it is for development only, never for the Pi (cmake -DCMAKE_BUILD_TYPE=Debug).
@@ -70,7 +71,7 @@ find_package(Threads REQUIRED)
 option(SARWAVE_BUILD_GUI "Build the Qt based GUI libraries and applications" ON)
 
 if(SARWAVE_BUILD_GUI)
-    find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2 Test)
+    find_package(Qt6 REQUIRED COMPONENTS Core Gui Network Qml Quick QuickControls2 Test)
     qt_standard_project_setup(REQUIRES 6.5)
     if(QT_KNOWN_POLICY_QTP0004)
         qt_policy(SET QTP0004 NEW)  # qmldir for the QML files in sub-folders of a module
@@ -93,9 +94,11 @@ if(SARWAVE_BUILD_GUI)
         add_subdirectory(src/TestRpiApp)
     endif()
 
-    # The two apps the Raspberry Pi runs: live from the sensor (recording), and the replay.
+    # The apps: live from the sensor (recording, and streaming if asked), the replay, and the
+    # wireless dashboard that shows a streamed session on another machine.
     add_subdirectory(src/LiveRpiApp)
     add_subdirectory(src/RecordedRpiApp)
+    add_subdirectory(src/WirelessRpiApp)
 
     # Times the per-frame work on a recording (run it on the Pi).
     add_subdirectory(src/bench)

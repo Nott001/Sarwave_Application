@@ -1,5 +1,6 @@
-# Sarwave.DevEnv: the development front end -- port and cfg dialogues, the live run (RunStuff)
-# and the recorded replay (RunRecorded) that host the Sarwave.Gui dashboards.
+# Sarwave.DevEnv: the development front end -- port, cfg and LAN dialogues, the live run
+# (RunStuff), the recorded replay (RunRecorded) and the LAN receiver (RunLan) that host the
+# Sarwave.Gui dashboards.
 #
 # QML module "Sarwave.DevEnv" without a plugin: DevEnv::initialize() registers its types.
 
@@ -18,10 +19,12 @@ qt_add_qml_module(SarwaveDevEnv
         Gui/DialogSupport.hpp Gui/DialogSupport.cpp
         Gui/PortDialogue.hpp Gui/PortDialogue.cpp
         Gui/CfgDialogue.hpp Gui/CfgDialogue.cpp
-        Gui/Run.hpp Gui/RunRecorded.cpp Gui/RunStuff.cpp
+        Gui/LanDialogue.hpp Gui/LanDialogue.cpp
+        Gui/Run.hpp Gui/RunRecorded.cpp Gui/RunStuff.cpp Gui/RunLan.cpp
     QML_FILES
         Gui/PortDialogueWindow.qml
         Gui/CfgDialogueWindow.qml
+        Gui/LanDialogueWindow.qml
 )
 
 target_include_directories(SarwaveDevEnv
@@ -31,7 +34,7 @@ target_include_directories(SarwaveDevEnv
 
 target_link_libraries(SarwaveDevEnv
     PUBLIC SarwaveCoreGui SarwaveCoreMMWave SarwaveCoreImu SarwaveIntegrationPeopleTracking Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick
-    PRIVATE Qt6::QuickControls2)
+    PRIVATE Qt6::QuickControls2 Qt6::Network)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(SarwaveDevEnv PRIVATE -Wall -Wextra)

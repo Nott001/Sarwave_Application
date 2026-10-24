@@ -14,6 +14,7 @@ and requires identical text, so the port is checked against C# behaviour on ever
 | `<name>.log0.txt` / `.log1.txt` | C# `DebugLogger.PrintFrameDataVerbose`, bytes shown / hidden |
 | `<name>.mgr1000.txt` / `.mgr120.txt` | C# `CombinedManager` state after each frame, 1000 / 120 ms retention (session: 120 ms only, to keep it small) |
 | `session.imu5000.txt` / `.imu15000.txt` | `imumanager session.swrec ../imu/session.swimu 120 <offset> configs/Sarwave_12m.cfg`: the same, each frame at t gated by the IMU recording at offset + t (from a pitch-up with settling; from a flick, a knock and walking), so refused frames are left out and held points move with the device |
+| `lan.txt` | `lanformat ../imu/session.swimu`: one LAN message of each kind (hello, frame, two malformed frames, 50 IMU samples) as hex |
 | `stream.reader7.txt` | C# `FrameReader` over `stream.bin` fed in pseudo-random chunks (seed 7) |
 
 Since the malformed-frame checks (C# commit 5a3a6ab), only frames laid out as the device sends
