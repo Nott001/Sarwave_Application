@@ -23,6 +23,7 @@ qt_add_qml_module(SarwaveCoreGui
         Models/RadarData.hpp Models/RadarData.cpp
         ViewModels/ViewModelBase.hpp ViewModels/ViewModelBase.cpp
         ViewModels/StatusViewModel.hpp ViewModels/StatusViewModel.cpp
+        ViewModels/ImuStatusViewModel.hpp ViewModels/ImuStatusViewModel.cpp
         ViewModels/MetricsViewModel.hpp ViewModels/MetricsViewModel.cpp
         ViewModels/MinimalGuiViewModel.hpp ViewModels/MinimalGuiViewModel.cpp
         ViewModels/MaximalGuiViewModel.hpp ViewModels/MaximalGuiViewModel.cpp
@@ -42,6 +43,7 @@ qt_add_qml_module(SarwaveCoreGui
         Views/MaximalGui.qml
         Views/MinimalGui.qml
         Views/StatusHeader.qml
+        Views/ImuStrip.qml
         Views/Metrics/MetricCell.qml
         Views/Metrics/MetricsStrip.qml
         Views/Object/ObjectItem.qml

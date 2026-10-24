@@ -1,7 +1,8 @@
 // Renders the dashboards to PNG files without a display (QT_QPA_PLATFORM=offscreen works):
 //   SarwaveGuiPreview <out dir> [recording.swrec]
 // Writes maximal-design.png and minimal-design.png from the previewer's sample data and, given a
-// recording, maximal-live.png / minimal-live.png after feeding it its first 60 frames.
+// recording, maximal-live.png / minimal-live.png after feeding it its first 60 frames. Frames are
+// gated by the IMU recording beside it if there is one, as the replay app does.
 
 #include <QDir>
 #include <QElapsedTimer>
@@ -14,6 +15,7 @@
 
 #include "Gui/Models/RadarData.hpp"
 #include "Gui/Views/GuiHost.hpp"
+#include "Integration/PeopleTracking/ImuFrames.hpp"
 #include "MMWave/Recording/FrameRecording.hpp"
 
 namespace {
@@ -57,21 +59,22 @@ int main(int argc, char** argv) {
         using namespace Sarwave::Core;
         auto recording = MMWave::Recording::FrameRecording::load(argv[2]);
         Gui::Models::RadarData data(MMWave::TimeSpans::fromSeconds(1));
+        auto gate = Sarwave::Integration::PeopleTracking::ImuFrames::loadRecordedGate(argv[2]);
+        const auto feed = [&](int i) {
+            const auto timestamp = recording.timestamps()[static_cast<std::size_t>(i)];
+            std::optional<Imu::Gating::ImuFrameState> imu;
+            if (gate) imu = gate->gate->evaluate(timestamp);
+            data.update(recording.frames()[static_cast<std::size_t>(i)], timestamp, imu);
+        };
 
         window.resize(1100, 600);
         Views::showMaximalGui(window, engine, data);
-        for (int i = 0; i < std::min(60, recording.count()); ++i) {
-            data.update(recording.frames()[static_cast<std::size_t>(i)],
-                        recording.timestamps()[static_cast<std::size_t>(i)]);
-        }
+        for (int i = 0; i < std::min(60, recording.count()); ++i) feed(i);
         save(window, out.filePath("maximal-live.png"));
 
         window.resize(800, 450);
         Views::showMinimalGui(window, engine, data);
-        for (int i = 60; i < std::min(120, recording.count()); ++i) {
-            data.update(recording.frames()[static_cast<std::size_t>(i)],
-                        recording.timestamps()[static_cast<std::size_t>(i)]);
-        }
+        for (int i = 60; i < std::min(120, recording.count()); ++i) feed(i);
         save(window, out.filePath("minimal-live.png"));
     }
     return 0;

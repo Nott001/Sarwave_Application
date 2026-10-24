@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cmath>
 #include <memory>
+#include <numbers>
 #include <thread>
 
 #include "../Core/FrameBuilder.hpp"
@@ -19,6 +20,7 @@
 #include "DevEnv/Gui/Run.hpp"
 #include "Gui/Common/DotNetRandom.hpp"
 #include "Gui/Models/RadarData.hpp"
+#include "Gui/ViewModels/ImuStatusViewModel.hpp"
 #include "Gui/ViewModels/MinimalGuiViewModel.hpp"
 #include "Gui/ViewModels/Object/ObjectsPanelViewModel.hpp"
 #include "Gui/ViewModels/Radar/RadarGridViewModel.hpp"
@@ -364,6 +366,49 @@ TEST_CASE("Status shows HOLD STEADY over everything else while gating refuses fr
     CHECK(status.badgeText() == QStringLiteral("DETECTED"));
     status.setHoldSteady(false);
     CHECK(status.statusText() == QStringLiteral("TARGET ACQUIRED"));
+}
+
+TEST_CASE("The IMU strip shows tilt, turning, the board's up axis and the gate") {
+    ViewModels::ImuStatusViewModel imu;
+    CHECK(!imu.isAvailable());
+    CHECK(imu.gate() == QStringLiteral("NO DATA"));
+
+    // Nose 10° up, the right side a hair low: roll -0.004° rounds to -0.0, shown as +0.0.
+    const float pitch = 10.0f * std::numbers::pi_v<float> / 180.0f;
+    const MMWave::Vector3 up{0.00007f, std::sin(pitch), std::cos(pitch)};
+    Imu::Gating::ImuFrameState state;
+    state.state = Imu::Gating::MotionGateState::Settling;
+    state.tilt = Imu::Fusion::TiltCorrection::fromUp(up);
+    state.window.sampleCount = 30;
+    state.window.meanAngularRate = 12.34f;
+    state.window.meanUp = up;
+    imu.show(state);
+    CHECK(imu.isAvailable());
+    CHECK(imu.pitch() == QStringLiteral("+10.0°"));
+    CHECK(imu.roll() == QStringLiteral("+0.0°"));
+    CHECK(imu.turning() == QStringLiteral("12.3 °/s"));
+    // The handheld mounting has the board's Y arrow up.
+    CHECK(imu.upAxis() == QStringLiteral("+Y"));
+    CHECK(imu.gate() == QStringLiteral("SETTLING"));
+    CHECK(!imu.isSteady());
+    CHECK(!imu.isMoving());
+
+    state.state = Imu::Gating::MotionGateState::Moving;
+    state.tilt = Imu::Fusion::TiltCorrection::fromUp({-0.5f, 0, 0.866f});
+    state.window.meanUp = {0, 0, -1};
+    imu.show(state);
+    CHECK(imu.roll() == QStringLiteral("+30.0°"));
+    CHECK(imu.upAxis() == QStringLiteral("-Y"));
+    CHECK(imu.isMoving());
+
+    state.state = Imu::Gating::MotionGateState::Unavailable;
+    imu.show(state);
+    CHECK(imu.isAvailable());
+    CHECK(imu.pitch() == QStringLiteral("-"));
+    CHECK(imu.gate() == QStringLiteral("NO DATA"));
+
+    imu.show(std::nullopt);
+    CHECK(!imu.isAvailable());
 }
 
 TEST_CASE("RadarData uses accepted frames, leaves refused ones out, and still reports damage") {
