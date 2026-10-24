@@ -30,6 +30,25 @@ switch (args[0])
         Console.WriteLine($"count={recording.Count} truncated={recording.IsTruncated} rate={F(recording.SampleRate)}");
         break;
     }
+    case "track":
+    {
+        // The handheld's mounting, radar offset included, so the pose and the offset are compared.
+        ImuRecording recording = ImuRecording.Load(args[1]);
+        int every = int.Parse(args[2]);
+        ImuMounting mounting = ImuMounting.FromAxes(ImuAxis.PositiveZ, ImuAxis.PositiveX, ImuAxis.PositiveY) with
+        {
+            RadarOffset = new Vector3(0.089f, 0.017f, 0.035f),
+        };
+        ImuProcessor processor = new(mounting);
+        int i = 0;
+        foreach (ImuSample sample in recording.Samples)
+        {
+            ImuState s = processor.Process(in sample);
+            if (i++ % every != 0) continue;
+            Console.WriteLine($"{s.Timestamp.Ticks} up={V(s.Up)} o={Q(s.Orientation)} v={V(s.Velocity)} p={V(s.Position)}");
+        }
+        break;
+    }
     case "gate":
     {
         ImuRecording recording = ImuRecording.Load(args[1]);
@@ -41,7 +60,7 @@ switch (args[0])
         {
             ImuFrameState s = gate.Evaluate(t);
             var w = s.Window;
-            Console.WriteLine($"{t.Ticks} {s.State} accepted={s.Accepted} settle={s.SettleRemaining.Ticks} n={w.SampleCount} peak={F(w.PeakAngularRate)},{F(w.PeakLinearAcceleration)} mean={F(w.MeanAngularRate)},{F(w.MeanLinearAcceleration)} up={V(w.MeanUp)} gap={w.MaxGap.Ticks},{w.TrailingGap.Ticks} pitch={F(s.Tilt.PitchDegrees)} roll={F(s.Tilt.RollDegrees)} q={Q(s.Tilt.Rotation)}");
+            Console.WriteLine($"{t.Ticks} {s.State} accepted={s.Accepted} settle={s.SettleRemaining.Ticks} n={w.SampleCount} peak={F(w.PeakAngularRate)},{F(w.PeakLinearAcceleration)} mean={F(w.MeanAngularRate)},{F(w.MeanLinearAcceleration)} up={V(w.MeanUp)} gap={w.MaxGap.Ticks},{w.TrailingGap.Ticks} pitch={F(s.Tilt.PitchDegrees)} roll={F(s.Tilt.RollDegrees)} q={Q(s.Tilt.Rotation)} pose={(s.Pose is { } p ? $"{p.Timestamp.Ticks},{Q(p.Orientation)},{V(p.Position)}" : "none")}");
         }
         Console.WriteLine($"accepted={gate.AcceptedFrames} rejected={gate.RejectedFrames}");
         break;

@@ -81,6 +81,9 @@ class ImuTimeline {
 
     [[nodiscard]] std::optional<ImuState> tryGetLatest() const;
 
+    /// The latest state taken at or before `time`; nullopt if there is none.
+    [[nodiscard]] std::optional<ImuState> tryGetAt(TimeSpan time) const;
+
     /// Peak and average motion, mean "up" and data coverage over [start, end].
     [[nodiscard]] MotionWindow summarize(TimeSpan start, TimeSpan end) const;
 

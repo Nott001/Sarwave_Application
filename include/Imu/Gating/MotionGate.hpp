@@ -5,6 +5,7 @@
 #include <string>
 
 #include "Imu/Fusion/Fusion.hpp"
+#include "Imu/ImuPose.hpp"
 #include "Imu/Timeline/ImuTimeline.hpp"
 
 namespace Sarwave::Core::Imu::Gating {
@@ -90,8 +91,13 @@ struct ImuFrameState {
     Fusion::TiltCorrection tilt;
     /// While Settling, how much longer it lasts.
     TimeSpan settleRemaining{};
+    /// Where the device was when the frame was captured; nullopt when the IMU data does not
+    /// cover the frame. The change between two frames' poses is how the device moved between
+    /// them.
+    std::optional<ImuPose> pose;
 
-    /// The operator should be told to hold the device steady.
+    /// The device moved, or has not settled since: the reason to refuse a frame that the
+    /// operator can do something about. HoldSteadyWarning decides when to tell them.
     [[nodiscard]] bool holdSteady() const {
         return state == MotionGateState::Moving || state == MotionGateState::Settling;
     }

@@ -55,6 +55,15 @@ std::optional<ImuState> ImuTimeline::tryGetLatest() const {
     return at(m_count - 1);
 }
 
+std::optional<ImuState> ImuTimeline::tryGetAt(TimeSpan time) const {
+    std::lock_guard lock(m_gate);
+    int index = lowerBound(time);
+    if (index == m_count || at(index).timestamp > time) index--;
+
+    if (index < 0) return std::nullopt;
+    return at(index);
+}
+
 MotionWindow ImuTimeline::summarize(TimeSpan start, TimeSpan end) const {
     std::lock_guard lock(m_gate);
     const int first = lowerBound(start);

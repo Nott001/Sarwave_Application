@@ -87,12 +87,16 @@ ImuMounting ImuMounting::fromAxes(ImuAxis radarRight, ImuAxis radarForward, ImuA
                                 "(right × forward = up).");
     }
 
-    return {normalize(Quaternion::fromRotationMatrix(m))};
+    ImuMounting mounting;
+    mounting.rotation = normalize(Quaternion::fromRotationMatrix(m));
+    return mounting;
 }
 
 ImuMounting ImuMounting::withLevelCalibration(Vector3 measuredUp) const {
     const Quaternion trim = TiltMath::shortestArc(normalize(measuredUp), Vector3::unitZ());
-    return {normalize(MMWave::concatenate(rotation, trim))};
+    ImuMounting trimmed = *this;
+    trimmed.rotation = normalize(MMWave::concatenate(rotation, trim));
+    return trimmed;
 }
 
 TiltCorrection TiltCorrection::fromUp(Vector3 up) {

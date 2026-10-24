@@ -42,8 +42,8 @@ and dump every parsed line, typed property, written-back text (LF and CRLF) and 
 ## The IMU library
 
 `ImuParityHarness` (C++) and `csharp-imu/` (C#, compiled from the original `Sarwave.Core.Imu`)
-take `process <swimu> <every>`, `gate <swimu> <framePeriodMs>`, `rewrite <in> <out>` and
-`mount`. Their output is identical to the last printed digit. That needs `Numerics.hpp` to
+take `process <swimu> <every>`, `track <swimu> <every>`, `gate <swimu> <framePeriodMs>`,
+`rewrite <in> <out>` and `mount`. Their output is identical to the last printed digit. That needs `Numerics.hpp` to
 multiply quaternions as .NET 10's vectorised code does, `MathF.Atan2` computed in double, and
 `-ffp-contract=off`.
 
@@ -51,7 +51,7 @@ multiply quaternions as .NET 10's vectorised code does, `MathF.Atan2` computed i
 cmake --build build --target ImuParityHarness
 dotnet build src/tests/Parity/csharp-imu -c Release -o /tmp/parity-imu
 python3 tools/generate_imu_recording.py /tmp/a.swimu --seconds 60 --seed 7
-for cmd in "process /tmp/a.swimu 1" "gate /tmp/a.swimu 55" mount; do
+for cmd in "process /tmp/a.swimu 1" "track /tmp/a.swimu 1" "gate /tmp/a.swimu 55" mount; do
     diff <(dotnet /tmp/parity-imu/ImuParityHarness.dll $cmd) <(build/src/tests/ImuParityHarness $cmd) && echo "same: $cmd"
 done
 ```

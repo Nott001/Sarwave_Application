@@ -3,8 +3,9 @@
 // two proves the port fuses, gates and records identically.
 //
 //   ImuParityHarness process <file.swimu> <every>         processed state of every n-th sample
-//   ImuParityHarness gate <file.swimu> <framePeriodMs>    the gate's verdict on a frame stream
-//   ImuParityHarness rewrite <in.swimu> <out.swimu>       ImuRecorder round trip
+//   ImuParityHarness track <file.swimu> <every>           pose of every n-th sample, handheld
+//   mounting ImuParityHarness gate <file.swimu> <framePeriodMs>    the gate's verdict on a frame
+//   stream ImuParityHarness rewrite <in.swimu> <out.swimu>       ImuRecorder round trip
 //   ImuParityHarness mount                                ImuMounting.FromAxes for every triple
 
 #include <iostream>
@@ -52,6 +53,23 @@ int cmdProcess(const std::string& path, int every) {
     return 0;
 }
 
+int cmdTrack(const std::string& path, int every) {
+    // The handheld's mounting, radar offset included, so the pose and the offset are compared.
+    const auto recording = Recording::ImuRecording::load(path);
+    auto mounting = Fusion::ImuMounting::fromAxes(
+        Fusion::ImuAxis::PositiveZ, Fusion::ImuAxis::PositiveX, Fusion::ImuAxis::PositiveY);
+    mounting.radarOffset = {0.089f, 0.017f, 0.035f};
+    Fusion::ImuProcessor processor(mounting);
+    int i = 0;
+    for (const ImuSample& sample : recording.samples()) {
+        const ImuState s = processor.process(sample);
+        if (i++ % every != 0) continue;
+        std::cout << s.timestamp.count() << " up=" << V(s.up) << " o=" << Q(s.orientation)
+                  << " v=" << V(s.velocity) << " p=" << V(s.position) << "\n";
+    }
+    return 0;
+}
+
 int cmdGate(const std::string& path, double framePeriodMs) {
     const auto recording = Recording::ImuRecording::load(path);
     const auto timeline = recording.toTimeline(Fusion::ImuMounting::identity());
@@ -69,7 +87,12 @@ int cmdGate(const std::string& path, double framePeriodMs) {
                   << " mean=" << F(w.meanAngularRate) << "," << F(w.meanLinearAcceleration)
                   << " up=" << V(w.meanUp) << " gap=" << w.maxGap.count() << ","
                   << w.trailingGap.count() << " pitch=" << F(s.tilt.pitchDegrees())
-                  << " roll=" << F(s.tilt.rollDegrees()) << " q=" << Q(s.tilt.rotation()) << "\n";
+                  << " roll=" << F(s.tilt.rollDegrees()) << " q=" << Q(s.tilt.rotation())
+                  << " pose="
+                  << (s.pose ? std::to_string(s.pose->timestamp.count()) + "," +
+                                   Q(s.pose->orientation) + "," + V(s.pose->position)
+                             : std::string("none"))
+                  << "\n";
     }
     std::cout << "accepted=" << gate.acceptedFrames() << " rejected=" << gate.rejectedFrames()
               << "\n";
@@ -111,6 +134,7 @@ int main(int argc, char** argv) {
     const std::vector<std::string> args(argv + 1, argv + argc);
     if (args.empty()) return 2;
     if (args[0] == "process") return cmdProcess(args[1], std::stoi(args[2]));
+    if (args[0] == "track") return cmdTrack(args[1], std::stoi(args[2]));
     if (args[0] == "gate") return cmdGate(args[1], std::stod(args[2]));
     if (args[0] == "rewrite") return cmdRewrite(args[1], args[2]);
     if (args[0] == "mount") return cmdMount();

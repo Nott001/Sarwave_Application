@@ -33,12 +33,18 @@ std::string toString(ImuAxis axis);
 
 /// How the IMU sits relative to the radar: the rotation that turns a vector in IMU axes into the
 /// same vector in radar axes (X right, Y along the boresight, Z up, as in PointValue's
-/// Cartesian position).
+/// Cartesian position), and where the radar is from the IMU.
 ///
 /// Set it once from how the board is mounted with fromAxes(), then optionally trim the remaining
 /// few degrees of misalignment with withLevelCalibration().
 struct ImuMounting {
+    /// Turns a vector in IMU axes into radar axes.
     Quaternion rotation = Quaternion::identity();
+
+    /// Where the radar's antennas are, seen from the IMU chip: metres, radar axes. Turning the
+    /// device swings the radar around the chip by this much. Zero takes the two to be at the
+    /// same point.
+    Vector3 radarOffset;
 
     /// The IMU's X, Y and Z already point right, along the boresight, and up.
     static ImuMounting identity() {
@@ -61,6 +67,8 @@ struct ImuMounting {
     [[nodiscard]] Vector3 toRadar(Vector3 imuVector) const {
         return MMWave::transform(imuVector, rotation);
     }
+
+    friend constexpr bool operator==(const ImuMounting&, const ImuMounting&) = default;
 };
 
 /// Undoes how the operator is tilting the device: rotates points from radar axes into a level

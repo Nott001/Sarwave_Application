@@ -75,8 +75,12 @@ class ImuSession {
     /// Starts sampling.
     /// clock: the radar frames' clock, already running, e.g. `[&] { return capture.elapsed(); }`.
     /// recordingPath: where to record the raw samples; nullopt records nothing.
+    /// onBatch: also receives each batch of raw samples, on the sampler thread, before the
+    /// recording does; e.g. a sender streaming them elsewhere. If either throws, both stop
+    /// receiving batches.
     void start(Sampling::ImuSampler::Clock clock,
-               const std::optional<std::filesystem::path>& recordingPath = std::nullopt);
+               const std::optional<std::filesystem::path>& recordingPath = std::nullopt,
+               Sampling::ImuSampler::BatchCallback onBatch = {});
 
     /// The IMU's verdict on a radar frame: whether to classify it and how to level its points.
     /// Call once per frame, in order, from the frame callback.

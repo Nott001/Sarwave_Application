@@ -34,7 +34,8 @@ ImuSession::~ImuSession() {
 }
 
 void ImuSession::start(Sampling::ImuSampler::Clock clock,
-                       const std::optional<std::filesystem::path>& recordingPath) {
+                       const std::optional<std::filesystem::path>& recordingPath,
+                       Sampling::ImuSampler::BatchCallback onBatch) {
     if (m_disposed) throw ObjectDisposedException("Sarwave.Core.Imu.ImuSession");
     // Checked before the recorder exists: creating it would already have emptied the file.
     if (m_sampler.isRunning())
@@ -45,11 +46,15 @@ void ImuSession::start(Sampling::ImuSampler::Clock clock,
         recorder =
             std::make_unique<Recording::ImuRecorder>(*recordingPath, m_options.device.rateHz());
 
-    Sampling::ImuSampler::BatchCallback onBatch;
+    Sampling::ImuSampler::BatchCallback callback = std::move(onBatch);
     if (recorder) {
-        onBatch = [r = recorder.get()](std::span<const ImuSample> samples) { r->record(samples); };
+        callback = [r = recorder.get(),
+                    also = std::move(callback)](std::span<const ImuSample> samples) {
+            if (also) also(samples);
+            r->record(samples);
+        };
     }
-    m_sampler.start(std::move(clock), std::move(onBatch));  // on failure `recorder` closes itself
+    m_sampler.start(std::move(clock), std::move(callback));  // on failure `recorder` closes itself
 
     m_recorder = std::move(recorder);
 }

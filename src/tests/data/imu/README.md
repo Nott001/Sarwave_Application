@@ -8,7 +8,8 @@ files are what the **original C# `Sarwave.Core.Imu`** prints for it through
 | file | command |
 |---|---|
 | `session.process10.txt` | `process session.swimu 10` -- every 10th processed state |
-| `session.gate55.txt` | `gate session.swimu 55` -- the motion gate's verdict on a 55 ms frame stream |
+| `session.track10.txt` | `track session.swimu 10` -- every 10th pose (orientation, velocity, position) with the handheld's mounting and radar offset |
+| `session.gate55.txt` | `gate session.swimu 55` -- the motion gate's verdict on a 55 ms frame stream, with each frame's pose |
 | `mount.txt` | `mount` -- `ImuMounting.FromAxes` and level calibration for every axis triple |
 
 `ImuTests` requires the C++ library to print exactly the same text.

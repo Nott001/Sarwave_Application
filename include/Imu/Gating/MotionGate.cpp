@@ -72,7 +72,17 @@ ImuFrameState MotionGate::evaluate(TimeSpan frameTimestamp) {
     const Fusion::TiltCorrection tilt = window.sampleCount > 0
                                             ? Fusion::TiltCorrection::fromUp(window.meanUp)
                                             : Fusion::TiltCorrection::none();
-    return {state, accepted, window, tilt, settleRemaining};
+
+    // The frame's chirps went out somewhere in the look-back window, before it arrived; its
+    // middle stands for when.
+    std::optional<ImuPose> pose;
+    if (covered) {
+        if (const auto captured =
+                m_timeline.tryGetAt(frameTimestamp - TimeSpans::divide(s.lookBack, 2)))
+            pose = captured->pose();
+    }
+
+    return {state, accepted, window, tilt, settleRemaining, pose};
 }
 
 void MotionGate::reset() {
